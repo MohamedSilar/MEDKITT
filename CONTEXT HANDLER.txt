@@ -1,0 +1,3276 @@
+response = Map();
+response.put("action","context");
+response.put("context_id",context_id);
+// --------------------------------------------------------------------------------------
+if(context_id != null && context_id.equals("mindcheck_menu"))
+{
+	ans = "";
+	try 
+	{
+		ans = ifnull(answers.get("mind_option").get("text"),"");
+	}
+	catch (e)
+	{
+		ans = "";
+	}
+	if(ans.equalsIgnoreCase("Mood Check"))
+	{
+		response.put("action","context");
+		response.put("context_id","mind_mood_check");
+		question = {"name":"mood_rating","replies":{"Choose your current mood rating: (1–4 😢 Sad, 5–7 😐 Neutral, 8–10 😊 Good)"},"suggestions":{"1","2","3","4","5","6","7","8","9","10"}};
+		response.put("questions",{question});
+		return response;
+	}
+	// ---------------- Daily Affirmations (Supabase via Connection) ----------------
+	else if(ans.equalsIgnoreCase("Daily Affirmations"))
+	{
+		response.put("action","context");
+		response.put("context_id","mind");
+		url = "https://sgkucjwmpwqewpdgjocq.supabase.co/functions/v1/ai-chat";
+		payload = Map();
+		payload.put("message","Generate a daily affirmation in one sentence. It must be positive, encouraging, and short.");
+		payload.put("mood_rating",5);
+		headerMap = Map();
+		headerMap.put("Content-Type","application/json");
+		try 
+		{
+			apiResponse = invokeurl
+			[
+				url :url
+				type :POST
+				parameters:payload.toString()
+				headers:headerMap
+				connection:"supabase_thera_ai"
+			];
+			botReply = apiResponse.get("response");
+			response.put("action","reply");
+			response.put("replies",{botReply});
+			response.put("suggestions",{"Thank You"});
+			return response;
+		}
+		catch (e)
+		{
+			response.put("action","reply");
+			response.put("replies",{"Affirmation API Error: " + e.toString()});
+			response.put("suggestions",{"Thank You"});
+			return response;
+		}
+	}
+	// ---------------- Journaling Prompts (Supabase via Connection) ----------------
+	else if(ans.equalsIgnoreCase("Journaling Prompts"))
+	{
+		response.put("action","context");
+		response.put("context_id","journal");
+		url = "https://sgkucjwmpwqewpdgjocq.supabase.co/functions/v1/ai-chat";
+		payload = Map();
+		payload.put("message","Generate a reflective journaling prompt. It must be simple, clear, and help self-awareness.");
+		payload.put("mood_rating",5);
+		headerMap = Map();
+		headerMap.put("Content-Type","application/json");
+		try 
+		{
+			apiResponse = invokeurl
+			[
+				url :url
+				type :POST
+				parameters:payload.toString()
+				headers:headerMap
+				connection:"supabase_thera_ai"
+			];
+			botReply = apiResponse.get("response");
+			response.put("action","reply");
+			response.put("replies",{botReply});
+			response.put("suggestions",{"Thank you"});
+			return response;
+		}
+		catch (e)
+		{
+			response.put("action","reply");
+			response.put("replies",{"Journaling API Error: " + e.toString()});
+			response.put("suggestions",{"Thank You"});
+			return response;
+		}
+	}
+	else if(ans.equalsIgnoreCase("Main Menu"))
+	{
+		response.put("action","context");
+		response.put("context_id","mainmenu");
+		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to MedKit 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"🧠 Mind Check","Health Hub 🩺","Care Assistant 😊","ProcureX 🛒","💬 Motivational Boost","🏋️ FitZone","🤝 Consult an Expert","Dietrix 🥗","🎮 Play Games","📞 Help Desk"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else
+	{
+		response.put("action","context");
+		response.put("context_id","mainmenu");
+		question = {"name":"done","replies":{"It was nice chatting with you 😊 Have a wonderful day! 👋"},"suggestions":{"Main Menu"}};
+		response.put("questions",{question});
+		return response;
+	}
+}
+if(context_id != null && context_id.equals("mind_mood_check"))
+{
+	userMood = "";
+	try 
+	{
+		userMood = ifnull(answers.get("mood_rating").get("text"),"5");
+	}
+	catch (e)
+	{
+		userMood = "5";
+	}
+	url = "https://sgkucjwmpwqewpdgjocq.supabase.co/functions/v1/ai-chat";
+	payload = Map();
+	payload.put("message","Respond based on the user's mood rating using the following scale: " + "1–4 = very low mood, 5–7 = okay/neutral, 8–10 = good mood. " + "Give only a supportive message. Do NOT ask any questions.");
+	payload.put("mood_rating",userMood.toLong());
+	headerMap = Map();
+	headerMap.put("Content-Type","application/json");
+	try 
+	{
+		apiResponse = invokeurl
+		[
+			url :url
+			type :POST
+			parameters:payload.toString()
+			headers:headerMap
+			connection:"supabase_thera_ai"
+		];
+		botReply = apiResponse.get("response");
+		response.put("action","reply");
+		response.put("replies",{botReply});
+		response.put("suggestions",{"Thank You"});
+		return response;
+	}
+	catch (e)
+	{
+		response.put("action","reply");
+		response.put("replies",{"Oops! Unable to connect 😔"});
+		return response;
+	}
+}
+// ---End Mind Check Context Handler ---
+// ----------------------------------------------------------------------------------------
+if(context_id != null && context_id.equals("health_hub"))
+{
+	opt_trim = ifnull(answers.get("health_hub").get("text"),"");
+	if(opt_trim.containsIgnoreCase("Search Hospitals") || opt_trim.containsIgnoreCase("Search More") || opt_trim.containsIgnoreCase("Hospitals"))
+	{
+		response.put("action","context");
+		response.put("context_id","search_hospitals");
+		question = {"name":"city_name","replies":{"Please enter the city name where you want to find hospitals (e.g., Madurai)."},"input":{"type":"name","placeholder":"Eg. Madurai, Chennai, Mumbai...","value":"","error":{"Enter a valid city name"}},"suggestions":{"Main Menu"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else if(opt_trim.containsIgnoreCase("Tablet Info") || opt_trim.containsIgnoreCase("Tablet"))
+	{
+		response.put("action","context");
+		response.put("context_id","tablet_info");
+		question = {"name":"tablet_name","replies":{"Please enter the tablet name you want information about (e.g., Paracetamol)."},"input":{"type":"name","placeholder":"Eg. Paracetamol, Ibuprofen","value":"","error":{"Enter a valid tablet name"}},"suggestions":{"Main Menu"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else if(opt_trim.containsIgnoreCase("Emergency Contacts") || opt_trim.containsIgnoreCase("Emergency") || opt_trim.containsIgnoreCase("Contacts"))
+	{
+		cards = List();
+		c1 = {"type":"text","text":"🚔 Police — Local Police Control Room (India)\nPhone: 100"};
+		cards.add(c1);
+		c2 = {"type":"text","text":"🚑 Ambulance — Emergency Medical Services (India)\nPhone: 108"};
+		cards.add(c2);
+		c3 = {"type":"text","text":"🔥 Fire & Rescue (India)\nPhone: 101"};
+		cards.add(c3);
+		c4 = {"type":"text","text":"👩‍🦰 Women Safety Helpline (India)\nPhone: 1091"};
+		cards.add(c4);
+		c5 = {"type":"text","text":"⚡ Electricity / Power Outage Helpline (India)\nPhone: 1912"};
+		cards.add(c5);
+		c6 = {"type":"text","text":"🧠 Mental Health / Suicide Prevention Helpline (India)\nPhone: 08046110007"};
+		cards.add(c6);
+		c7 = {"type":"text","text":"🇮🇳 112 — National Emergency Number (All India)\nPhone: 112"};
+		cards.add(c7);
+		response.put("action","context");
+		response.put("context_id","health_hub");
+		q = Map();
+		q.put("name","health_hub");
+		q.put("replies",cards);
+		sugs = List();
+		sugs.add("Search Hospitals");
+		sugs.add("Main Menu");
+		q.put("suggestions",sugs);
+		response.put("questions",{q});
+		return response;
+	}
+	else if(opt_trim.containsIgnoreCase("Main Menu"))
+	{
+		response.put("action","context");
+		response.put("context_id","mainmenu");
+		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to MedKit 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"🧠 Mind Check","Health Hub 🩺","Care Assistant 😊","ProcureX 🛒","💬 Motivational Boost","🏋️ FitZone","🤝 Consult an Expert","Dietrix 🥗","🎮 Play Games","📞 Help Desk"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else
+	{
+		response.put("action","context");
+		response.put("context_id","main menu");
+		question = {"name":"done","replies":{"It was nice chatting with you 😊 Have a wonderful day! 👋"},"suggestions":{"Main Menu"}};
+		response.put("questions",{question});
+		return response;
+	}
+}
+if(context_id != null && context_id.equals("tablet_info"))
+{
+	response = Map();
+	trigger = "";
+	if(answers.containsKey("tablet_trigger"))
+	{
+		trigger = ifnull(answers.get("tablet_trigger").get("text"),"").toLowerCase().trim();
+	}
+	if(trigger.contains("search again") || trigger.contains("search") && !trigger.contains("hospital"))
+	{
+		question = {"name":"tablet_name","replies":{"Please enter the tablet name you want information about (e.g., Paracetamol)."},"input":{"type":"name","placeholder":"Eg. Paracetamol, Ibuprofen","value":"","error":{"Enter a valid tablet name"}},"suggestions":{"Main Menu","Search Hospitals"}};
+		response.put("action","context");
+		response.put("context_id","tablet_info");
+		response.put("questions",{question});
+		return response;
+	}
+	if(trigger.contains("hospital"))
+	{
+		response.put("action","context");
+		response.put("context_id","search_hospitals");
+		question = {"name":"city_name","replies":{"Please enter the city name where you want to find hospitals (e.g., Madurai)."},"input":{"type":"name","placeholder":"Eg. Madurai, Chennai, Mumbai...","value":"","error":{"Enter a valid city name"}},"suggestions":{"Main Menu"}};
+		response.put("questions",{question});
+		return response;
+	}
+	if(trigger.contains("main menu"))
+	{
+		response.put("action","context");
+		response.put("context_id","mainmenu");
+		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to MedKit 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"🧠 Mind Check","Health Hub 🩺","Care Assistant 😊","ProcureX 🛒","💬 Motivational Boost","🏋️ FitZone","🤝 Consult an Expert","Dietrix 🥗","🎮 Play Games","📞 Help Desk"}};
+		response.put("questions",{question});
+		return response;
+	}
+	tabname = "";
+	if(answers.containsKey("tablet_name"))
+	{
+		tabname = ifnull(answers.get("tablet_name").get("text"),"").trim();
+	}
+	if(tabname == "")
+	{
+		question = {"name":"tablet_name","replies":{"Please enter a valid medicine or tablet name."},"input":{"type":"name","placeholder":"Eg. Paracetamol, Ibuprofen","value":"","error":{"Enter a valid tablet name"}},"suggestions":{"Main Menu","Search Hospitals"}};
+		response.put("action","context");
+		response.put("context_id","tablet_info");
+		response.put("questions",{question});
+		return response;
+	}
+	wiki_url = "https://en.wikipedia.org/api/rest_v1/page/summary/" + tabname.replaceAll(" ","%20");
+	summary = "";
+	desc = "";
+	try 
+	{
+		wikiResp = invokeurl
+		[
+			url :wiki_url
+			type :GET
+		];
+		summary = wikiResp.get("extract");
+		if(summary == null || summary == "" || summary == "null")
+		{
+			summary = "";
+		}
+	}
+	catch (ex)
+	{
+		summary = "";
+	}
+	if(summary != "")
+	{
+		desc = summary;
+	}
+	else
+	{
+		desc = "⚠️ No detailed information found for **" + tabname + "** right now.";
+	}
+	finalText = "💊 *Medicine Information for*: **" + tabname + "**\n\n" + desc;
+	question = {"name":"tablet_trigger","replies":{finalText},"suggestions":{"Search Hospitals","Main Menu"}};
+	response.put("action","context");
+	response.put("context_id","tablet_info");
+	response.put("questions",{question});
+	return response;
+}
+if(context_id != null && context_id.equals("search_hospitals"))
+{
+	raw_trim = ifnull(answers.get("city_name").get("text"),"").trim();
+	city_trim = raw_trim;
+	city_no_spaces = city_trim.replaceAll(" ","");
+	alpha_only = "";
+	try 
+	{
+		alpha_only = city_no_spaces.getAlpha();
+	}
+	catch (exv)
+	{
+		alpha_only = "";
+	}
+	if(city_trim.equals("") || city_trim.length() == 0 || !alpha_only.equals(city_no_spaces))
+	{
+		response.put("action","context");
+		response.put("context_id","search_hospitals");
+		q = Map();
+		q.put("name","city_name");
+		q.put("replies",{"⚠️ Please enter a valid city name using *letters only* (e.g., Chennai). 🏙️"});
+		q.put("suggestions",{"Search","Main Menu"});
+		response.put("questions",{q});
+		return response;
+	}
+	city_enc = city_trim.replaceAll(" ","%20");
+	url_str = "https://nominatim.openstreetmap.org/search?format=json&city=" + city_enc + "&amenity=hospital&limit=10";
+	apiResp = List();
+	results = List();
+	try 
+	{
+		apiResp = invokeurl
+		[
+			url :url_str
+			type :GET
+		];
+		try 
+		{
+			results = apiResp;
+		}
+		catch (re)
+		{
+			results = List();
+		}
+	}
+	catch (apiErr)
+	{
+		results = List();
+	}
+	if(results.size() == 0)
+	{
+		response.put("action","context");
+		response.put("context_id","health_hub");
+		q = Map();
+		q.put("name","health_hub");
+		q.put("replies",{"Sorry — couldn't find hospitals in " + city_trim + "."});
+		q.put("suggestions",{"Search Another","Main Menu"});
+		response.put("questions",{q});
+		return response;
+	}
+	cards = List();
+	idx = 0;
+	for each  r in results
+	{
+		if(idx < 2)
+		{
+			name = "";
+			display = "";
+			lat = "";
+			lon = "";
+			try 
+			{
+				if(r.get("name") != null)
+				{
+					name = "" + r.get("name");
+				}
+			}
+			catch (ex1)
+			{
+				name = "";
+			}
+			try 
+			{
+				if(r.get("display_name") != null)
+				{
+					display = "" + r.get("display_name");
+				}
+			}
+			catch (ex2)
+			{
+				display = "";
+			}
+			try 
+			{
+				if(r.get("lat") != null)
+				{
+					lat = "" + r.get("lat");
+				}
+			}
+			catch (ex3)
+			{
+				lat = "";
+			}
+			try 
+			{
+				if(r.get("lon") != null)
+				{
+					lon = "" + r.get("lon");
+				}
+			}
+			catch (ex4)
+			{
+				lon = "";
+			}
+			if(name.equals("") && !display.equals(""))
+			{
+				try 
+				{
+					commaPos = display.indexOf(",");
+					if(commaPos > -1)
+					{
+						name = display.substring(0,commaPos);
+					}
+					else
+					{
+						name = display;
+					}
+				}
+				catch (ex5)
+				{
+					name = display;
+				}
+			}
+			osmLink = "";
+			try 
+			{
+				if(lat != "" && lon != "")
+				{
+					osmLink = "https://www.openstreetmap.org/?mlat=" + lat + "&mlon=" + lon + "#map=18/" + lat + "/" + lon;
+				}
+				else
+				{
+					osmLink = "https://www.openstreetmap.org/search?query=" + name.replaceAll(" ","%20") + "%20" + city_enc;
+				}
+			}
+			catch (ex6)
+			{
+				osmLink = "https://www.openstreetmap.org/search?query=" + name.replaceAll(" ","%20") + "%20" + city_enc;
+			}
+			try 
+			{
+				googleMapsSearch = "https://www.google.com/search?q=" + name.replaceAll(" ","%20") + "%20" + city_enc;
+			}
+			catch (ex7)
+			{
+				googleMapsSearch = "https://www.google.com/search?q=" + name.replaceAll(" ","%20");
+			}
+			card = Map();
+			cardText = "";
+			if(!display.equals(""))
+			{
+				if(name.equals(""))
+				{
+					cardText = "Hospital · " + display;
+				}
+				else
+				{
+					cardText = name + " · " + display;
+				}
+			}
+			else
+			{
+				if(name.equals(""))
+				{
+					cardText = "Hospital";
+				}
+				else
+				{
+					cardText = name;
+				}
+			}
+			card.put("type","links");
+			card.put("text",cardText);
+			card.put("image","");
+			card.put("image_position","fit");
+			linksList = List();
+			l1 = Map();
+			l1.put("url",osmLink);
+			l1.put("text","Open in Maps");
+			l1.put("icon","https://cdn-icons-png.flaticon.com/512/854/854878.png");
+			linksList.add(l1);
+			l2 = Map();
+			l2.put("url",googleMapsSearch);
+			l2.put("text","More Info");
+			l2.put("icon","https://cdn-icons-png.flaticon.com/512/9018/9018732.png");
+			linksList.add(l2);
+			card.put("links",linksList);
+			cards.add(card);
+		}
+		idx = idx + 1;
+	}
+	response.put("action","context");
+	response.put("context_id","health_hub");
+	q = Map();
+	q.put("name","health_hub");
+	q.put("replies",cards);
+	sugList = List();
+	sugList.add("Search More");
+	sugList.add("Main Menu");
+	q.put("suggestions",sugList);
+	response.put("questions",{q});
+	return response;
+}
+// ---End Health Hub Context Handler ---
+//------------------------------------------------------
+if(context_id == "care_main")
+{
+	choice = ifnull(answers.get("care_main").get("text"),"");
+	if(choice.containsIgnoreCase("Child Care"))
+	{
+		response.put("action","context");
+		response.put("context_id","child_menu");
+		q = {"name":"child_menu","replies":{"👶 *Child Care & Parenting Guide*"},"suggestions":{"🍼 Baby Nutrition","💉 Vaccine Guide","🧸 Child Safety","Main Menu"}};
+		response.put("questions",{q});
+		return response;
+	}
+	if(choice.containsIgnoreCase("Skin & Hair"))
+	{
+		response.put("action","context");
+		response.put("context_id","skin_menu");
+		q = {"name":"skin_menu","replies":{"💆‍♀️ *Skin & Hair Care*"},"suggestions":{"✨ Skin Care Tips","💇‍♀️ Hair Checkup","🧴 Medzon Products","Main Menu"}};
+		response.put("questions",{q});
+		return response;
+	}
+	if(choice.containsIgnoreCase("Weather Care"))
+	{
+		response.put("action","context");
+		response.put("context_id","weather_care");
+		q = {"name":"location","replies":{"🌤 *Weather Health Tips*","Could you tell me your location? 🌍"},"input":{"type":"location","radius":"2 kms","label":"Share Location","select_label":"Send my location"}};
+		response.put("questions",{q});
+		return response;
+	}
+	if(choice.containsIgnoreCase("Health News"))
+	{
+		GNEWS_BASE_URL = "https://gnews.io/api/v4";
+		try 
+		{
+			newsUrl = GNEWS_BASE_URL + "/top-headlines?topic=health&country=in&lang=en&max=5";
+			newsResp = invokeurl
+			[
+				url :newsUrl
+				type :GET
+				connection:"gnews_salesiq"
+			];
+			articles = newsResp.get("articles");
+			if(articles == null || articles.size() == 0)
+			{
+				response.put("action","reply");
+				response.put("replies",{"❌ No recent health headlines available right now."});
+				response.put("suggestions",{"Thank you 🙏"});
+				return response;
+			}
+			text = "📰 *Top Health Headlines (India)*\n\n";
+			count = 0;
+			for each  art in articles
+			{
+				if(count >= 5)
+				{
+					break;
+				}
+				title = ifnull(art.get("title"),"");
+				urlArt = ifnull(art.get("url"),"");
+				if(title != "")
+				{
+					cleanUrl = urlArt;
+					if(cleanUrl != null && cleanUrl != "")
+					{
+						cleanUrl = cleanUrl.replaceAll("<br>","").replaceAll("<br/>","").replaceAll("<br />","").trim();
+					}
+					text = text + "• *" + title + "*\n\n";
+					if(cleanUrl != null && cleanUrl != "")
+					{
+						text = text + cleanUrl + "\n\n\n";
+					}
+					else
+					{
+						text = text + "\n";
+					}
+					count = count + 1;
+				}
+			}
+			text = text + "_Source: GNews.io – open links to read full articles._";
+			response.put("action","reply");
+			response.put("replies",{text});
+			response.put("suggestions",{"Thank you 🙏"});
+			return response;
+		}
+		catch (e)
+		{
+			info "GNEWS ERROR ===>";
+			info e;
+			response.put("action","reply");
+			response.put("replies",{"⚠️ Couldn’t fetch health news right now.","Please try again later."});
+			response.put("suggestions",{"Thank you 🙏"});
+			return response;
+		}
+	}
+	if(choice.equalsIgnoreCase("Main Menu"))
+	{
+		response.put("action","context");
+		response.put("context_id","mainmenu");
+		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to **MedKit** 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"🧠 Mind Check","Health Hub 🩺","Care Assistant 😊","ProcureX 🛒","💬 Motivational Boost","🏋️ FitZone","🤝 Consult an Expert","Dietrix 🥗","🎮 Play Games","📞 Help Desk"}};
+		response.put("questions",{question});
+		return response;
+	}
+}
+if(context_id == "child_menu")
+{
+	opt = ifnull(answers.get("child_menu").get("text"),"");
+	childSug = {"Thank You"};
+	if(opt.containsIgnoreCase("Baby Nutrition"))
+	{
+		response.put("action","context");
+		response.put("context_id","baby_nutri");
+		q = {"name":"food_name","replies":{"🍼 *Baby Nutrition*","Enter a food name to fetch nutrition details.","**Eg: mashed banana,porridge, apple puree**"},"input":{"type":"name","placeholder":"Eg. mashed banana"}};
+		response.put("questions",{q});
+		return response;
+	}
+	else if(opt.containsIgnoreCase("Vaccine Guide"))
+	{
+		OPENFDA_DRUG_URL = "https://api.fda.gov/drug/label.json";
+		try 
+		{
+			apiResp = invokeurl
+			[
+				url :OPENFDA_DRUG_URL + "?search=vaccine&limit=1"
+				type :GET
+			];
+			desc = "";
+			results = apiResp.get("results");
+			if(results != null && results.size() > 0)
+			{
+				d = results.get(0);
+				if(d.containsKey("description"))
+				{
+					descList = d.get("description");
+					if(descList != null && descList.size() > 0)
+					{
+						desc = descList.get(0);
+					}
+				}
+			}
+			replyTxt = "💉 *Vaccine Guide* (general info)\n\n";
+			if(desc != "")
+			{
+				replyTxt = replyTxt + desc + "\n\n";
+			}
+			replyTxt = replyTxt + "_Follow your pediatrician’s official schedule._";
+			response.put("action","reply");
+			response.put("replies",{replyTxt});
+			response.put("suggestions",childSug);
+			return response;
+		}
+		catch (e)
+		{
+			response.put("action","reply");
+			response.put("replies",{"⚠️ Couldn’t fetch vaccine info.","Please try again later."});
+			response.put("suggestions",childSug);
+			return response;
+		}
+	}
+	else if(opt.containsIgnoreCase("Child Safety"))
+	{
+		WHO_GHO_BASE_URL = "https://ghoapi.azureedge.net/api";
+		try 
+		{
+			ignore = invokeurl
+			[
+				url :WHO_GHO_BASE_URL + "/Indicator?$top=1"
+				type :GET
+			];
+		}
+		catch (e)
+		{
+		}
+		response.put("action","context");
+		response.put("context_id","child_safety");
+		q = Map();
+		q.put("name","child_safety");
+		q.put("replies",{"🧸 *Child Safety – Quick Tips*","Here are some basic safety tips at home:","• Keep medicines and small objects out of reach.","• Use corner guards & plug / socket covers.","• Never leave babies unattended on beds or sofas.","","Take care of your children well ❤️"});
+		q.put("suggestions",{"Main Menu"});
+		response.put("questions",{q});
+		return response;
+	}
+	else
+	{
+		response.put("action","context");
+		response.put("context_id","mainmenu");
+		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to MedKit 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"🧠 Mind Check","Health Hub 🩺","Care Assistant 😊","ProcureX 🛒","💬 Motivational Boost","🏋️ FitZone","🤝 Consult an Expert","Dietrix 🥗","🎮 Play Games","📞 Help Desk"}};
+		response.put("questions",{question});
+		return response;
+	}
+}
+if(context_id != null && context_id.equals("baby_nutri"))
+{
+	food = ifnull(answers.get("food_name").get("text"),"").trim();
+	sug = {"Thank You"};
+	if(food == "")
+	{
+		response.put("action","context");
+		response.put("context_id","baby_nutri");
+		q = {"name":"food_name","replies":{"Please enter a valid food name 😊"}};
+		response.put("questions",{q});
+		return response;
+	}
+	try 
+	{
+		nutriResp = invokeurl
+		[
+			url :"https://api.api-ninjas.com/v1/nutrition?query=" + encodeUrl(food)
+			type :GET
+			connection:"apininjas_nutri_conn"
+		];
+		text = "🍎 *Nutrition for* **" + food.toUpperCase() + "**:\n\n";
+		if(nutriResp != null && nutriResp.size() > 0)
+		{
+			item = nutriResp.get(0);
+			fat = item.get("fat_total_g");
+			carbs = item.get("carbohydrates_total_g");
+			fiber = item.get("fiber_g");
+			sugar = item.get("sugar_g");
+			if(fat != null)
+			{
+				text = text + "• **Fat**: " + fat + " g\n";
+			}
+			if(carbs != null)
+			{
+				text = text + "• **Carbs**: " + carbs + " g\n";
+			}
+			if(fiber != null)
+			{
+				text = text + "• **Fiber**: " + fiber + " g\n";
+			}
+			if(sugar != null)
+			{
+				text = text + "• **Sugar**: " + sugar + " g\n";
+			}
+			text = text + "\n_Always consult a **pediatrician** for baby diets._";
+		}
+		else
+		{
+			text = "⚠️ No nutrition data found for this food.";
+		}
+		response.put("action","reply");
+		response.put("replies",{text});
+		response.put("suggestions",sug);
+		return response;
+	}
+	catch (e)
+	{
+		response.put("action","reply");
+		response.put("replies",{"⚠️ Couldn't fetch nutrition info.","Try again later."});
+		response.put("suggestions",sug);
+		return response;
+	}
+}
+// ========= SKIN & HAIR MENU HANDLER =========
+if(context_id != null && context_id.equals("skin_menu"))
+{
+	opt = ifnull(answers.get("skin_menu").get("text"),"");
+	if(opt.containsIgnoreCase("Skin Care Tips"))
+	{
+		response = Map();
+		response.put("action","context");
+		response.put("context_id","skin_menu");
+		query = "simple skin care routine for glowing skin";
+		params = Map();
+		params.put("part","snippet");
+		params.put("type","video");
+		params.put("maxResults","2");
+		params.put("q",query);
+		ytResp = invokeurl
+		[
+			url :"https://www.googleapis.com/youtube/v3/search"
+			type :GET
+			parameters:params
+			connection:"youtube"
+		];
+		if(ytResp == null || ytResp.get("items") == null)
+		{
+			question = Map();
+			question.put("name","skin_menu");
+			question.put("replies",{"Sorry — couldn't fetch *skin care videos* right now. Please try again later."});
+			question.put("suggestions",{"Main Menu"});
+			response.put("questions",{question});
+			return response;
+		}
+		items = ytResp.get("items");
+		videoCards = List();
+		if(items != null && items.size() > 0)
+		{
+			for each  itm in items
+			{
+				if(itm != null)
+				{
+					vid = "";
+					title = "Skin Care Video";
+					idObj = itm.get("id");
+					if(idObj != null && idObj.get("videoId") != null)
+					{
+						vid = "" + idObj.get("videoId");
+					}
+					snippet = itm.get("snippet");
+					if(snippet != null && snippet.get("title") != null)
+					{
+						title = "" + snippet.get("title");
+					}
+					if(vid != null && vid != "")
+					{
+						vmap = Map();
+						vmap.put("type","video");
+						vmap.put("text",title);
+						vmap.put("url","https://www.youtube.com/watch?v=" + vid);
+						videoCards.add(vmap);
+					}
+				}
+			}
+		}
+		if(videoCards.size() == 0)
+		{
+			fb1 = Map();
+			fb1.put("type","video");
+			fb1.put("text","Basic Daily Skin Care Routine");
+			fb1.put("url","https://www.youtube.com/watch?v=VIDEO_ID_1");
+			fb2 = Map();
+			fb2.put("type","video");
+			fb2.put("text","Dermatologist Skin Care Tips");
+			fb2.put("url","https://www.youtube.com/watch?v=VIDEO_ID_2");
+			videoCards.add(fb1);
+			videoCards.add(fb2);
+		}
+		replies = List();
+		replies.add("✨ *Here are some helpful skin care videos:*");
+		for each  v in videoCards
+		{
+			replies.add(v);
+		}
+		question = Map();
+		question.put("name","skin_menu");
+		question.put("replies",replies);
+		question.put("suggestions",{"Main Menu"});
+		response.put("questions",{question});
+		return response;
+	}
+	if(opt.containsIgnoreCase("Medzon"))
+	{
+		products = List();
+		product1 = {"type":"links","text":"**Sunscreen SPF 50 – Oil Free\n\nPrice: ₹443**\nLightweight, non-greasy sunscreen for daily use.","image":"https://m.media-amazon.com/images/I/61GWPBUra2L._AC_UF1000%2C1000_QL80_.jpg","image_position":"fit","links":{{"url":"https://amzn.in/d/fJxHirT","text":"Buy Now","icon":"https://image.flaticon.com/icons/png/512/126/126083.png"}}};
+		products.add(product1);
+		product2 = {"type":"links","text":"**Hydrating Face Moisturizer\n\nPrice: ₹321**\nFor normal to dry skin. Keeps skin soft & hydrated.","image":"https://images.squarespace-cdn.com/content/v1/5c4f6ba1e2ccd1ee6075495d/6ef9ea24-eecf-468e-a82d-66fa6abe1e17/skincare-routine-order.jpg","image_position":"fit","links":{{"url":"https://amzn.in/d/1DzzJTO","text":"Buy Now","icon":"https://image.flaticon.com/icons/png/512/126/126083.png"}}};
+		products.add(product2);
+		product3 = {"type":"links","text":"**Anti Hair Fall Shampoo\n\nPrice: ₹449**\nStrengthens hair and helps reduce breakage.","image":"https://innovist.com/cdn/shop/files/1_6_bcfc8add-ea04-48e6-ba75-d1529df79936.jpg?v=1760077719","image_position":"fit","links":{{"url":"https://amzn.in/d/giinGdw","text":"Buy Now","icon":"https://image.flaticon.com/icons/png/512/126/126083.png"}}};
+		products.add(product3);
+		replies = List();
+		replies.add("🧴 *Medzon – Skin & Hair Products*");
+		replies.add("Here are some useful products for your skin & hair:");
+		for each  p in products
+		{
+			replies.add(p);
+		}
+		response.put("action","reply");
+		response.put("replies",replies);
+		response.put("suggestions",{"Thank You"});
+		return response;
+	}
+	if(opt.containsIgnoreCase("Hair Checkup"))
+	{
+		response.put("action","context");
+		response.put("context_id","hair_checkup");
+		q = {"name":"hair_wash_count","replies":{"💇‍♀️ *Hair Wash Checkup*","How many times do you wash your hair per week? (0–14)"},"input":{"type":"name","placeholder":"Eg. 2"}};
+		response.put("questions",{q});
+		return response;
+	}
+}
+if(context_id != null && context_id.equals("hair_checkup"))
+{
+	response = Map();
+	washText = "";
+	if(answers.containsKey("hair_wash_count"))
+	{
+		washText = ifnull(answers.get("hair_wash_count").get("text"),"").trim();
+	}
+	isValid = true;
+	washCount = 0;
+	try 
+	{
+		washCount = washText.toLong();
+	}
+	catch (e)
+	{
+		isValid = false;
+	}
+	if(!isValid || washCount < 0 || washCount > 14)
+	{
+		response.put("action","context");
+		response.put("context_id","hair_checkup");
+		q = {"name":"hair_wash_count","replies":{"Please enter a number between *0 and 14* only 🙂","How many times do you wash your hair per week?"},"input":{"type":"name","placeholder":"Eg. 3"}};
+		response.put("questions",{q});
+		return response;
+	}
+	msg = "💇‍♀️ *Your Hair Wash Habit Check*\n\n";
+	msg = msg + "You wash your hair *" + washCount + " time(s) per week*.\n\n";
+	if(washCount == 0)
+	{
+		msg = "😬 Not washing at all can cause oil, sweat and dandruff build-up.\n\n" + "✅ *Try this:*\n• Wash at least 2 times per week.\n• Use a mild shampoo (sulfate-free if possible).\n• Apply hair oil 1–2 hours before wash.";
+	}
+	else if(washCount == 1 || washCount == 2)
+	{
+		msg = "🌿 This is okay for *dry or normal hair*.\n\n" + "✅ *Tips:*\n• Oil your hair once or twice a week (coconut / almond / sesame).\n• Use lukewarm water, not very hot.\n• Gently massage the scalp while shampooing.";
+	}
+	else if(washCount == 3 || washCount == 4)
+	{
+		msg = "👌 This is a *good balance* for most people.\n\n" + "✅ *Maintain like this:*\n• Use mild shampoo, focus on scalp.\n• Apply conditioner only on hair length.\n• Use hair oil 1–2 times weekly before wash.";
+	}
+	else if(washCount >= 5 && washCount <= 7)
+	{
+		msg = "⚠️ You may be *washing too frequently*.\n\n" + "Too much washing can cause dryness & frizz.\n\n" + "✅ *Try this:*\n• Reduce to 3–4 times per week.\n• Use very gentle / baby shampoo.\n• Use light hair oil or serum on hair ends.";
+	}
+	else if(washCount > 7)
+	{
+		msg = "🚨 You are *over-washing* your hair.\n\n" + "This can strip natural oils and cause dryness & hair fall.\n\n" + "✅ *What to do:*\n• Reduce washing slowly (daily → alternate days).\n• Use very mild, sulfate-free shampoo.\n• Oil before wash & apply serum after wash.\n• Avoid hot water & harsh towel rubbing.";
+	}
+	msg = msg + "\n\n🧴 *General Healthy Hair Tips:*\n• Comb gently (avoid tight hairstyles).\n• Eat protein-rich foods.\n• Drink enough water.\n• Sleep well.";
+	response.put("action","reply");
+	response.put("replies",{msg});
+	response.put("suggestions",{"Thank you"});
+	return response;
+}
+if(context_id == "weather_care")
+{
+	if(!answers.containsKey("location"))
+	{
+		response.put("action","context");
+		response.put("context_id","weather_care");
+		q = {"name":"location","replies":{"🌦️ *Weather Health Tips*","To give accurate advice, please share your location."},"input":{"type":"location","radius":"2 kms","label":"Share my location","select_label":"Send my location"}};
+		response.put("questions",{q});
+		return response;
+	}
+	locMap = answers.get("location");
+	addr = ifnull(locMap.get("text"),"");
+	cityName = "";
+	OPENWEATHER_GEO_URL = "https://api.openweathermap.org/geo/1.0/direct";
+	OPENWEATHER_WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather";
+	OPENWEATHER_AIR_URL = "https://api.openweathermap.org/data/2.5/air_pollution";
+	if(addr != "")
+	{
+		parts = addr.toList(",");
+		if(parts.size() > 0)
+		{
+			cityName = parts.get(0).trim();
+		}
+	}
+	if(cityName == "" && addr != "")
+	{
+		words = addr.toList(" ");
+		for each  w in words
+		{
+			if(w.matches("\\d{6}"))
+			{
+				cityName = w;
+			}
+		}
+	}
+	if(cityName == "")
+	{
+		response.put("action","context");
+		response.put("context_id","weather_care");
+		q = {"name":"location","replies":{"⚠️ I couldn’t read your location properly.","Please share it again so I can check nearby weather and air quality."},"input":{"type":"location","radius":"2 kms","label":"Share my location","select_label":"Send my location"}};
+		response.put("questions",{q});
+		return response;
+	}
+	try 
+	{
+		geoUrl = OPENWEATHER_GEO_URL + "?q=" + encodeUrl(cityName) + "&limit=1";
+		geoResp = invokeurl
+		[
+			url :geoUrl
+			type :GET
+			connection:"openweather_salesiq"
+		];
+		if(geoResp == null || geoResp.size() == 0)
+		{
+			response.put("action","reply");
+			response.put("replies",{"⚠️ I couldn’t find weather info for `" + cityName + "`.","Please try again after some time."});
+			response.put("suggestions",{"Thank You"});
+			return response;
+		}
+		g0 = geoResp.get(0);
+		lat = g0.get("lat");
+		lon = g0.get("lon");
+		latStr = "" + lat;
+		lonStr = "" + lon;
+		wUrl = OPENWEATHER_WEATHER_URL + "?lat=" + latStr + "&lon=" + lonStr + "&units=metric";
+		wResp = invokeurl
+		[
+			url :wUrl
+			type :GET
+			connection:"openweather_salesiq"
+		];
+		main = wResp.get("main");
+		weatherAr = wResp.get("weather");
+		temp = ifnull(main.get("temp"),"");
+		desc = "";
+		if(weatherAr != null && weatherAr.size() > 0)
+		{
+			w0 = weatherAr.get(0);
+			desc = ifnull(w0.get("description"),"");
+		}
+		aUrl = OPENWEATHER_AIR_URL + "?lat=" + latStr + "&lon=" + lonStr;
+		aResp = invokeurl
+		[
+			url :aUrl
+			type :GET
+			connection:"openweather_salesiq"
+		];
+		aqiText = "Not available";
+		healthTips = "General conditions look okay. Normal outdoor activity is usually fine.";
+		if(aResp.containsKey("list"))
+		{
+			listA = aResp.get("list");
+			if(listA != null && listA.size() > 0)
+			{
+				mainA = listA.get(0).get("main");
+				aqi = mainA.get("aqi");
+				if(aqi == 1)
+				{
+					aqiText = "Good";
+					healthTips = "Air looks clean. Elders and kids can go out as usual.";
+				}
+				else if(aqi == 2)
+				{
+					aqiText = "Fair";
+					healthTips = "Okay for most people. If anyone has asthma, keep inhaler/medicine handy.";
+				}
+				else if(aqi == 3)
+				{
+					aqiText = "Moderate";
+					healthTips = "Avoid long walks on traffic roads. Elders, kids and heart/lung patients should reduce outdoor time.";
+				}
+				else if(aqi == 4)
+				{
+					aqiText = "Poor";
+					healthTips = "Try to stay indoors near peak traffic. Sensitive people may use a light mask outside.";
+				}
+				else if(aqi == 5)
+				{
+					aqiText = "Very Poor";
+					healthTips = "Limit outdoor activity, keep windows closed near roads, and consult a doctor if breathing issues appear.";
+				}
+			}
+		}
+		replyTxt = "🌦️ *Weather health tips for* `" + cityName + "`\n\n";
+		if(temp != "")
+		{
+			replyTxt = replyTxt + "• Temperature: " + temp + "°C\n";
+		}
+		if(desc != "")
+		{
+			replyTxt = replyTxt + "• Condition: " + desc + "\n";
+		}
+		replyTxt = replyTxt + "• Air quality: " + aqiText + "\n\n";
+		replyTxt = replyTxt + "👨‍⚕️ *Advice*: " + healthTips + "\n\n";
+		replyTxt = replyTxt + "_This is general information only. For medical concerns, please consult a doctor._";
+		response.put("action","reply");
+		response.put("replies",{replyTxt});
+		response.put("suggestions",{"Thank You"});
+		return response;
+	}
+	catch (e)
+	{
+		response.put("action","reply");
+		response.put("replies",{"⚠️ Unable to fetch weather right now.","Please try again later."});
+		response.put("suggestions",{"Thank You"});
+		return response;
+	}
+}
+// ----------------------------------------------------------------------------------------
+// procurex Context Handler
+portalId = "trycatchus";
+if(context_id != null && context_id.equals("procurex"))
+{
+	trig = "";
+	trigLower = "";
+	if(answers.containsKey("procurex"))
+	{
+		trig = ifnull(answers.get("procurex").get("text"),"");
+		trigLower = trig.toLowerCase();
+	}
+	nfNeedPaymentId = false;
+	try 
+	{
+		pidFlagResp = zoho.salesiq.visitorsession.get(portalId,"nf_need_payment_id");
+		if(pidFlagResp.containsKey("data"))
+		{
+			nfNeedPaymentId = ifnull(pidFlagResp.get("data").get("nf_need_payment_id"),false);
+		}
+	}
+	catch (e)
+	{
+		nfNeedPaymentId = false;
+	}
+	usedPayments = List();
+	try 
+	{
+		usedResp = zoho.salesiq.visitorsession.get(portalId,"nf_used_payments");
+		if(usedResp.containsKey("data"))
+		{
+			dataMap = usedResp.get("data");
+			if(dataMap.containsKey("nf_used_payments"))
+			{
+				usedPayments = ifnull(dataMap.get("nf_used_payments"),List());
+			}
+		}
+	}
+	catch (e)
+	{
+		usedPayments = List();
+	}
+	if(trigLower.equalsIgnoreCase("main menu") || trigLower.equalsIgnoreCase("mainmenu"))
+	{
+		response.put("action","context");
+		response.put("context_id","mainmenu");
+		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to MedKit 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"🧠 Mind Check","Health Hub 🩺","Care Assistant 😊","ProcureX 🛒","💬 Motivational Boost","🏋️ FitZone","🤝 Consult an Expert","Dietrix 🥗","🎮 Play Games","📞 Help Desk"}};
+		response.put("questions",{question});
+		return response;
+	}
+	products = List();
+	p1 = {"name":"NutriNet Nutrient Food Pack","price":"149","desc":"Premium protein pack for muscle growth, recovery, and overall wellness. **₹149 only**","img":"https://enthusiastic-silver-vq9qiwjw3t.edgeone.app/NUTRINET.png"};
+	products.add(p1);
+	p2 = {"name":"NutriPlus Health Pack","price":"179","desc":"A complete daily health pack designed to boost immunity, energy, and overall wellness. **₹179 only**","img":"https://gleaming-rose-f5xyflngmp.edgeone.app/NUTRIPLUS.png"};
+	products.add(p2);
+	p3 = {"name":"NutriDaily Food Pack","price":"129","desc":"Daily nutrition pack enriched with essential vitamins and omega-3 for heart, brain, and body wellness. **₹129 only**","img":"https://local-green-vopfvrljj7.edgeone.app/NUTRIDAILY.png"};
+	products.add(p3);
+	p4 = {"name":"NutriBoost Nutrient Mix","price":"199","desc":"A nutrient-rich blend of soy protein isolate, whey concentrate, oats, seeds, cocoa, and natural flavors for powerful daily energy and performance. **₹199 only**","img":"https://disappointed-olive-xhhlvxpevn.edgeone.app/NUTRIBOOST.png"};
+	products.add(p4);
+	p5 = {"name":"FitTrack Smart Band","price":"199","desc":"An all-in-one fitness tracker that monitors steps, distance, calories burned, heart rate, and sleep with a lightweight, waterproof design that syncs with iOS and Android devices.","img":"https://hidden-amber-fuzxfmcwwm.edgeone.app/FIT%20TRACK.png"};
+	products.add(p5);
+	p6 = {"name":"PowerPulse Resistance Kit","price":"149","desc":"A portable strength training set with five resistance bands of varying tension, ergonomic handles, a door anchor, and ankle straps for full-body workouts at home, the gym, or on the go.","img":"https://occupational-fuchsia-nv5xpyxci1.edgeone.app/POWERPULSE%20KIT.png"};
+	products.add(p6);
+	p7 = {"name":"FlexiBalance Yoga Kit","price":"189","desc":"A complete flexibility and yoga solution with a non-slip yoga mat, yoga block, strap, and a convenient carrying bag — perfect for beginners and advanced practitioners alike.","img":"https://unfortunate-emerald-q1zrzd7y7v.edgeone.app/YOGA%20MATE.png"};
+	products.add(p7);
+	p8 = {"name":"CoreBoost Smart Jump Rope","price":"119","desc":"A smart jump rope for cardio and endurance with adjustable length, ergonomic handles, and a smart counter for jumps and calories — ideal for indoor and outdoor workouts.","img":"https://main-moccasin-fazaf4v3yy.edgeone.app/JUMP%20ROPE.png"};
+	products.add(p8);
+	prodCount = products.size();
+	if(answers.containsKey("nf_payment_id") && nfNeedPaymentId == true)
+	{
+		paymentId = ifnull(answers.get("nf_payment_id").get("text"),"").trim();
+		sessClear = Map();
+		sessClear.put("nf_need_payment_id",false);
+		zoho.salesiq.visitorsession.set(portalId,sessClear);
+		if(paymentId == "")
+		{
+			response.put("action","context");
+			response.put("context_id","procurex");
+			q = Map();
+			q.put("name","nf_payment_id");
+			q.put("replies",{"❌ Payment ID cannot be empty.","Please enter the Payment ID shown on your Razorpay success screen (eg: Rjbv2T2r****)."});
+			inputMap = Map();
+			inputMap.put("type","name");
+			inputMap.put("placeholder","Eg. Rjbv2T2******");
+			q.put("input",inputMap);
+			response.put("questions",{q});
+			return response;
+		}
+		apiPaymentId = paymentId;
+		if(!apiPaymentId.startsWith("pay_"))
+		{
+			apiPaymentId = "pay_" + apiPaymentId;
+		}
+		alreadyUsed = false;
+		usedProductName = "";
+		for each  used in usedPayments
+		{
+			uid = ifnull(used.get("id"),"");
+			if(uid == apiPaymentId)
+			{
+				alreadyUsed = true;
+				usedProductName = ifnull(used.get("product"),"");
+				break;
+			}
+		}
+		if(alreadyUsed == true)
+		{
+			response.put("action","context");
+			response.put("context_id","procurex");
+			msgList = List();
+			if(usedProductName != "")
+			{
+				msgList.add("⚠️ This Payment ID has already been used for *" + usedProductName + "*.");
+			}
+			else
+			{
+				msgList.add("⚠️ This Payment ID has already been used for an order.");
+			}
+			msgList.add("One payment can be used for only one order. Please make a new payment using *Pay with Razorpay* for another product.");
+			q = Map();
+			q.put("name","procurex");
+			q.put("replies",msgList);
+			q.put("suggestions",{"Show Products","Main Menu"});
+			response.put("questions",{q});
+			return response;
+		}
+		uname = "Customer";
+		uemail = "";
+		if(answers.containsKey("nf_name"))
+		{
+			uname = ifnull(answers.get("nf_name").get("text"),"Customer");
+		}
+		if(answers.containsKey("nf_email"))
+		{
+			uemail = ifnull(answers.get("nf_email").get("text"),"");
+		}
+		prodIndex = 0;
+		try 
+		{
+			idxResp = zoho.salesiq.visitorsession.get(portalId,"nf_product_index");
+			if(idxResp.containsKey("data"))
+			{
+				prodIndex = ifnull(idxResp.get("data").get("nf_product_index"),0).toNumber();
+			}
+		}
+		catch (e)
+		{
+			prodIndex = 0;
+		}
+		if(prodIndex < 0 || prodIndex >= prodCount)
+		{
+			prodIndex = 0;
+		}
+		prod = products.get(prodIndex);
+		prodName = prod.get("name");
+		prodPrice = prod.get("price");
+		verified = false;
+		payStatus = "";
+		payAmount = 0;
+		errorReason = "";
+		expectedAmount = (prodPrice.toNumber() * 100).toLong();
+		try 
+		{
+			verifyResp = invokeurl
+			[
+				url :"https://api.razorpay.com/v1/payments/" + apiPaymentId
+				type :GET
+				connection:"razorpay_test"
+			];
+			if(verifyResp.containsKey("error"))
+			{
+				errorReason = "This Payment ID is not found in Razorpay. Please check and enter the correct Payment ID from your Razorpay success page.";
+			}
+			else
+			{
+				payStatus = "" + verifyResp.get("status");
+				payAmount = ifnull(verifyResp.get("amount"),0);
+				// paise
+				if(payStatus.equalsIgnoreCase("captured"))
+				{
+					if(payAmount == expectedAmount)
+					{
+						verified = true;
+					}
+					else
+					{
+						verified = false;
+						errorReason = "This Payment ID is for ₹" + payAmount / 100 + ", but the selected product costs ₹" + prodPrice + ".";
+					}
+				}
+				else
+				{
+					errorReason = "Payment status is '" + payStatus + "' for ₹" + payAmount / 100 + ".";
+				}
+			}
+		}
+		catch (e)
+		{
+			errorReason = "There was a problem while contacting Razorpay. Please try again in a minute.";
+		}
+		if(!verified)
+		{
+			response.put("action","context");
+			response.put("context_id","procurex");
+			msgList = List();
+			msgList.add("⚠️ I could not verify this Payment ID with Razorpay.");
+			if(errorReason != "")
+			{
+				msgList.add(errorReason);
+			}
+			msgList.add("Please double-check the Payment ID from your Razorpay success screen.");
+			msgList.add("If you have not paid yet, first buy the product using *Pay with Razorpay*, then click *Payment Done ✅* again.");
+			q = Map();
+			q.put("name","procurex");
+			q.put("replies",msgList);
+			q.put("suggestions",{"Show Products","Payment Done ✅","Main Menu"});
+			response.put("questions",{q});
+			return response;
+		}
+		newUsed = Map();
+		newUsed.put("id",apiPaymentId);
+		newUsed.put("product",prodName);
+		newUsed.put("amount",prodPrice);
+		usedPayments.add(newUsed);
+		saveUsed = Map();
+		saveUsed.put("nf_used_payments",usedPayments);
+		zoho.salesiq.visitorsession.set(portalId,saveUsed);
+		if(uemail != "" && paymentId != "")
+		{
+			sendmail
+			[
+				from :zoho.adminuserid
+				to :uemail
+				subject :"MedKit – Order Confirmation for " + uname
+				message :"<div style='background:#f4f7fb;padding:24px 0;font-family:Arial,sans-serif;'><div style='max-width:600px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0;'><div style='background:#0f766e;color:#ffffff;padding:20px 24px;text-align:center;'><div style='font-size:22px;font-weight:700;'>MedKit Nutrition</div><div style='font-size:14px;margin-top:4px;'>We are fetching your order 🩺</div></div><div style='padding:20px 24px;font-size:14px;color:#111827;'>Hi " + uname + ",<br><br>Thank you for shopping with <b>MedKit Nutrition</b>! Your payment has been <b>successfully verified</b> and your order is now being processed.</div><div style='padding:0 24px 20px 24px;'><div style='margin:0 auto 16px auto;padding:16px;border-radius:12px;background:#ecfdf5;border:1px solid #bbf7d0;'><div style='font-size:13px;font-weight:600;color:#16a34a;margin-bottom:8px;'>Order Summary</div><div style='font-size:14px;color:#111827;'><b>Product:</b> " + prodName + "<br><b>Amount Paid:</b> ₹" + prodPrice + "<br><b>Payment Reference:</b> " + paymentId + "</div></div><div style='font-size:12px;color:#4b5563;margin-bottom:16px;'>Your MedKit order is being prepared. You will receive another email once it is shipped. 🚚</div></div><div style='background:#0f172a;color:#e5e7eb;text-align:center;padding:14px 16px;font-size:11px;'>Thank you for choosing <b>MedKit</b> for your daily nutrition 🩺🌱</div></div></div>"
+			]
+		}
+		emailMsg = "";
+		if(uemail != "")
+		{
+			emailMsg = "A confirmation email has been sent to " + uemail + ".";
+		}
+		else
+		{
+			emailMsg = "Email not available, so confirmation mail was not sent.";
+		}
+		response.put("action","context");
+		response.put("context_id","procurex");
+		msgList = {"✅ Payment verified successfully with Razorpay! 🎉","Product: " + prodName + " — ₹" + prodPrice,"Payment ID: " + paymentId,emailMsg,"Our MedKit delivery team will contact you shortly. 🙌"};
+		q = Map();
+		q.put("name","procurex");
+		q.put("replies",msgList);
+		q.put("suggestions",{"More Products","Main Menu"});
+		response.put("questions",{q});
+		return response;
+	}
+	if(trigLower.contains("about purchasing"))
+	{
+		response.put("action","context");
+		response.put("context_id","procurex");
+		q = Map();
+		q.put("name","procurex");
+		q.put("replies",{"Here is how ProcureX – MedKit purchasing works 🛒:","1️⃣ Click *MedKit Products 🛒* to start.","2️⃣ Enter your *name* and *email address*.","3️⃣ We send a 6-digit *OTP* to your email for verification.","4️⃣ After OTP is verified, we show product cards with a *Pay with Razorpay* button.","5️⃣ Complete the payment using Razorpay.","6️⃣ Click *Payment Done ✅* and paste your *Razorpay Payment ID*.","7️⃣ You will receive a MedKit *order confirmation email* with your product and payment details. 🎉"});
+		q.put("suggestions",{"MedKit Products 🛒","Main Menu"});
+		response.put("questions",{q});
+		return response;
+	}
+	if(trigLower.contains("payment done"))
+	{
+		sessSet = Map();
+		sessSet.put("nf_need_payment_id",true);
+		zoho.salesiq.visitorsession.set(portalId,sessSet);
+		response.put("action","context");
+		response.put("context_id","procurex");
+		q = Map();
+		q.put("name","nf_payment_id");
+		q.put("replies",{"Awesome! 🎉","Please enter your Razorpay Payment ID (example: Rjbv2T2***** or pay_29QQoU*****f)."});
+		inputMap = Map();
+		inputMap.put("type","name");
+		inputMap.put("placeholder","Eg. Rjbv2T2******L");
+		q.put("input",inputMap);
+		response.put("questions",{q});
+		return response;
+	}
+	if(trigLower.contains("more products") || trigLower.contains("more product") || trigLower.contains("show products") || trigLower.contains("show product"))
+	{
+		currIndex = 0;
+		try 
+		{
+			pResp = zoho.salesiq.visitorsession.get(portalId,"nf_product_index");
+			if(pResp.containsKey("data"))
+			{
+				currIndex = ifnull(pResp.get("data").get("nf_product_index"),0).toNumber();
+			}
+		}
+		catch (e)
+		{
+			currIndex = 0;
+		}
+		nextIndex = (currIndex + 1) % prodCount;
+		idxMap = Map();
+		idxMap.put("nf_product_index",nextIndex);
+		zoho.salesiq.visitorsession.set(portalId,idxMap);
+		prod = products.get(nextIndex);
+		prodName = prod.get("name");
+		prodPrice = prod.get("price");
+		prodDesc = prod.get("desc");
+		prodImg = prod.get("img");
+		uname = ifnull(answers.get("nf_name").get("text"),"Customer");
+		uemail = ifnull(answers.get("nf_email").get("text"),"");
+		payUrl = "https://razorpay.com/";
+		try 
+		{
+			amountPaise = (prodPrice.toNumber() * 100).toLong();
+			payPayload = Map();
+			payPayload.put("amount",amountPaise);
+			payPayload.put("currency","INR");
+			payPayload.put("description",prodName + " - MedKit Nutrition");
+			customer = Map();
+			customer.put("name",uname);
+			customer.put("email",uemail);
+			payPayload.put("customer",customer);
+			headerMap = Map();
+			headerMap.put("Content-Type","application/json");
+			payResp = invokeurl
+			[
+				url :"https://api.razorpay.com/v1/payment_links"
+				type :POST
+				parameters:payPayload.toString()
+				headers:headerMap
+				connection:"razorpay_test"
+			];
+			if(payResp.containsKey("short_url"))
+			{
+				payUrl = payResp.get("short_url");
+			}
+		}
+		catch (e)
+		{
+			payUrl = "https://razorpay.com/";
+		}
+		infoUrl = "https://medkit-mart.netlify.app/";
+		linksList = List();
+		payMap = Map();
+		payMap.put("url",payUrl);
+		payMap.put("text","Pay with Razorpay");
+		payMap.put("icon","https://cdn-icons-png.flaticon.com/512/1170/1170678.png");
+		linksList.add(payMap);
+		infoMap = Map();
+		infoMap.put("url",infoUrl);
+		infoMap.put("text","Know about this product");
+		linksList.add(infoMap);
+		card = Map();
+		card.put("type","links");
+		card.put("text",prodName + " — ₹" + prodPrice + "\n" + prodDesc);
+		card.put("image",prodImg);
+		card.put("image_position","fit");
+		card.put("links",linksList);
+		response.put("action","context");
+		response.put("context_id","procurex");
+		q = Map();
+		q.put("name","procurex");
+		q.put("replies",{"🛍️ Welcome to MedKit Premium Checkout — pay securely with Razorpay 💳:",card});
+		q.put("suggestions",{"More Products","Payment Done ✅","Main Menu"});
+		response.put("questions",{q});
+		return response;
+	}
+	if(answers.containsKey("nf_otp"))
+	{
+		enteredOtp = answers.get("nf_otp").get("text");
+		realOtp = "";
+		try 
+		{
+			vsResp = zoho.salesiq.visitorsession.get(portalId,"nf_otp_value");
+			if(vsResp.containsKey("data"))
+			{
+				realOtp = ifnull(vsResp.get("data").get("nf_otp_value"),"");
+			}
+		}
+		catch (e)
+		{
+			realOtp = "";
+		}
+		if(enteredOtp != realOtp)
+		{
+			response.put("action","context");
+			response.put("context_id","procurex");
+			q = Map();
+			q.put("name","nf_otp");
+			q.put("replies",{"❌ That OTP is incorrect. Please enter the correct 6-digit OTP sent to your email."});
+			inputMap = Map();
+			inputMap.put("type","name");
+			inputMap.put("placeholder","Enter OTP again");
+			q.put("input",inputMap);
+			response.put("questions",{q});
+			return response;
+		}
+		idxMap = Map();
+		idxMap.put("nf_product_index",0);
+		zoho.salesiq.visitorsession.set(portalId,idxMap);
+		prod = products.get(0);
+		prodName = prod.get("name");
+		prodPrice = prod.get("price");
+		prodDesc = prod.get("desc");
+		prodImg = prod.get("img");
+		uname = ifnull(answers.get("nf_name").get("text"),"Customer");
+		uemail = ifnull(answers.get("nf_email").get("text"),"");
+		payUrl = "https://razorpay.com/";
+		try 
+		{
+			amountPaise = (prodPrice.toNumber() * 100).toLong();
+			payPayload = Map();
+			payPayload.put("amount",amountPaise);
+			payPayload.put("currency","INR");
+			payPayload.put("description",prodName + " - MedKit Nutrition");
+			customer = Map();
+			customer.put("name",uname);
+			customer.put("email",uemail);
+			payPayload.put("customer",customer);
+			headerMap = Map();
+			headerMap.put("Content-Type","application/json");
+			payResp = invokeurl
+			[
+				url :"https://api.razorpay.com/v1/payment_links"
+				type :POST
+				parameters:payPayload.toString()
+				headers:headerMap
+				connection:"razorpay_test"
+			];
+			if(payResp.containsKey("short_url"))
+			{
+				payUrl = payResp.get("short_url");
+			}
+		}
+		catch (e)
+		{
+			payUrl = "https://razorpay.com/";
+		}
+		infoUrl = "https://medkit-mart.netlify.app/";
+		linksList = List();
+		payMap = Map();
+		payMap.put("url",payUrl);
+		payMap.put("text","Pay with Razorpay");
+		payMap.put("icon","https://cdn-icons-png.flaticon.com/512/1170/1170678.png");
+		linksList.add(payMap);
+		infoMap = Map();
+		infoMap.put("url",infoUrl);
+		infoMap.put("text","Know about this product");
+		linksList.add(infoMap);
+		card = Map();
+		card.put("type","links");
+		card.put("text",prodName + " — ₹" + prodPrice + "\n" + prodDesc);
+		card.put("image",prodImg);
+		card.put("image_position","fit");
+		card.put("links",linksList);
+		response.put("action","context");
+		response.put("context_id","procurex");
+		q = Map();
+		q.put("name","procurex");
+		q.put("replies",{"✅ OTP Verified Successfully! 🎉","Your product is ready — Get Your MedKit Product 🩺:",card});
+		q.put("suggestions",{"More Products","Payment Done ✅","Main Menu"});
+		response.put("questions",{q});
+		return response;
+	}
+	if(answers.containsKey("nf_email") && !answers.containsKey("nf_otp"))
+	{
+		uname = answers.get("nf_name").get("text");
+		uemail = answers.get("nf_email").get("text");
+		isValidEmail = true;
+		if(uemail == null || uemail.trim() == "")
+		{
+			isValidEmail = false;
+		}
+		else if(uemail.indexOf("@") == -1 || uemail.indexOf(".") == -1)
+		{
+			isValidEmail = false;
+		}
+		if(!isValidEmail)
+		{
+			response.put("action","context");
+			response.put("context_id","procurex");
+			q = Map();
+			q.put("name","nf_email");
+			q.put("replies",{"❌ That does not look like a valid email.","Hi " + uname + ", please enter a correct email address (example: user@gmail.com) so I can send your OTP 🔐."});
+			inputMap = Map();
+			inputMap.put("type","email");
+			inputMap.put("placeholder","example@gmail.com");
+			inputMap.put("error",{"Enter a valid email"});
+			q.put("input",inputMap);
+			response.put("questions",{q});
+			return response;
+		}
+		otpNum = randomNumber(100000,999999);
+		otpStr = otpNum.toString();
+		sessMap = Map();
+		sessMap.put("nf_otp_value",otpStr);
+		sessMap.put("nf_name",uname);
+		sessMap.put("nf_email",uemail);
+		zoho.salesiq.visitorsession.set(portalId,sessMap);
+		sendmail
+		[
+			from :zoho.adminuserid
+			to :uemail
+			subject :"MedKit - Here is your OTP"
+			message :"<div style='background:#f7f7fb;padding:32px 0;font-family:Arial,Helvetica,sans-serif;'><div style='max-width:600px;margin:0 auto;background:#ffffff;border-radius:12px;padding:32px 28px;border:1px solid #e5e7eb;text-align:center;'><img src='https://strange-aqua-5yfklivwfj-muznn4xg3b.edgeone.dev/MEDOOO.jpg' alt='MedKit' style='width:60px;margin-bottom:12px;'><h2 style='color:#111827;margin:0 0 12px 0;font-weight:700;'>Verify your MedKit Account</h2><p style='color:#4b5563;font-size:14px;margin:0 0 22px 0;'>We received a verification request for your MedKit account. Enter the code below in the chatbot to continue.</p><div style='background:#f3f4f6;padding:18px 0;font-size:32px;font-weight:700;border-radius:10px;color:#111827;margin-bottom:22px;'>" + otpStr + "</div><p style='color:#6b7280;font-size:12px;margin-bottom:22px;'>If you did not request this code, please ignore this email. This OTP is valid for 10 minutes.</p><hr style='border:none;border-top:1px solid #e5e7eb;margin:24px 0;'><p style='font-size:12px;color:#9ca3af;'>MedKit – Your trusted partner in daily nutrition 🩺🌱</p></div></div>"
+		]
+		response.put("action","context");
+		response.put("context_id","procurex");
+		q = Map();
+		q.put("name","nf_otp");
+		q.put("replies",{"We have sent a 6-digit OTP to " + uemail + ". Please enter it below 🔐:"});
+		inputMap = Map();
+		inputMap.put("type","name");
+		inputMap.put("placeholder","Enter OTP");
+		q.put("input",inputMap);
+		response.put("questions",{q});
+		return response;
+	}
+	if(answers.containsKey("nf_name") && !answers.containsKey("nf_email"))
+	{
+		uname = answers.get("nf_name").get("text");
+		response.put("action","context");
+		response.put("context_id","procurex");
+		q = Map();
+		q.put("name","nf_email");
+		q.put("replies",{"Hi " + uname + ", please enter your email so I can send your OTP 🔐."});
+		inputMap = Map();
+		inputMap.put("type","name");
+		inputMap.put("placeholder","example@gmail.com");
+		inputMap.put("error",{"Enter a valid email"});
+		q.put("input",inputMap);
+		response.put("questions",{q});
+		return response;
+	}
+	if(trigLower.contains("medkit product") || trigLower.contains("medkit products") || trigLower.contains("nutrition food"))
+	{
+		response.put("action","context");
+		response.put("context_id","procurex");
+		q = Map();
+		q.put("name","nf_name");
+		q.put("replies",{"Great choice! 🛒 Before we show the MedKit products, please tell me your name 😊:"});
+		inputMap = Map();
+		inputMap.put("type","name");
+		inputMap.put("placeholder","Enter your name");
+		q.put("input",inputMap);
+		response.put("questions",{q});
+		return response;
+	}
+}
+// End procurex Context Handler
+// ----------------------------------------------------------------------------------------
+if(context_id.equals("fitnessopt"))
+{
+	opt = answers.get("getFitnessOpt").get("text");
+	if(opt.containsIgnoreCase("Pregnancy Zone"))
+	{
+		response.put("action","context");
+		response.put("context_id","pregnancy_month");
+		question = {"name":"preg_month","replies":{"Welcome to Pregnancy Zone 🤰Baby bump month? 😊 (1–9))"},"input":{"type":"name","placeholder":"Enter your pregnancy month (1–9)","value":"","error":{"Please enter a valid month (1–9)"}},"suggestions":{"Main Menu"}};
+		response.put("questions",{question});
+		return response;
+	}
+	if(opt.containsIgnoreCase("Exercise 🏋️"))
+	{
+		response.put("action","context");
+		response.put("context_id","exercisegenerator");
+		question = {"name":"exerciseselect","replies":{"Here's a short exercise to boost your mood 🤗"},"suggestions":{"Go Ahead","Main Menu"}};
+		response.put("questions",{question});
+		return response;
+	}
+	if(opt.containsIgnoreCase("Yoga 🧘"))
+	{
+		response.put("action","context");
+		response.put("context_id","yogagenerator");
+		question = {"name":"yogaselect","replies":{"🧘 Yoga helps calm your mind and improve flexibility!"},"suggestions":{"Go","Main Menu"}};
+		response.put("questions",{question});
+		return response;
+	}
+	if(opt.containsIgnoreCase("Wellness Meetup"))
+	{
+		response.put("action","context");
+		response.put("context_id","community_meetup");
+		question = {"name":"community_meetup","replies":{"🌿 Welcome to the Community Wellness Meetup!"},"suggestions":{"Join Now","Main Menu"}};
+		response.put("questions",{question});
+		return response;
+	}
+}
+if(context_id != null && context_id.equals("community_meetup"))
+{
+	response = Map();
+	userChoice = "";
+	if(answers.containsKey("community_meetup"))
+	{
+		userChoice = ifnull(answers.get("community_meetup").get("text"),"");
+	}
+	if(userChoice.equalsIgnoreCase("Join Now"))
+	{
+		meetupLink = "https://calendly.com/medkitent/medkit";
+		try 
+		{
+			meResp = invokeurl
+			[
+				url :"https://api.calendly.com/users/me"
+				type :GET
+				connection:"calendly_connectionn"
+			];
+			info "Calendly /users/me: " + meResp;
+			if(meResp != null && meResp.containsKey("resource"))
+			{
+				res = meResp.get("resource");
+				if(res.containsKey("scheduling_url"))
+				{
+					baseUrl = "" + res.get("scheduling_url");
+					if(baseUrl.endsWith("/"))
+					{
+						meetupLink = baseUrl + "medkit";
+					}
+					else
+					{
+						meetupLink = baseUrl + "/medkit";
+					}
+				}
+			}
+		}
+		catch (e)
+		{
+			info "❌ Calendly simple link error (using fallback): " + e.toString();
+		}
+		card = Map();
+		card.put("type","links");
+		card.put("text","🌿 *Community Wellness Meetup*\n" + "Join our weekly space for mindfulness, healthy habits, and guided relaxation.\n\n" + "Invite your friends — it’s a calm, supportive group session. 🌼");
+		card.put("image","https://special-fuchsia-b7zwstvgh2-v684515qa9.edgeone.dev/MEETUP.jpg");
+		links = List();
+		btn = Map();
+		btn.put("text","📅 Reserve Your Spot");
+		btn.put("url",meetupLink);
+		links.add(btn);
+		card.put("links",links);
+		response.put("action","reply");
+		response.put("replies",{card});
+		response.put("suggestions",{"Thank You"});
+		return response;
+	}
+	response.put("action","reply");
+	response.put("replies",{"🤝 You’re always welcome! Thanks for being part of our community ✨"});
+	response.put("suggestions",{"Thank You"});
+	return response;
+}
+if(context_id != null && context_id.equals("pregnancy_month"))
+{
+	userInput = ifnull(answers.get("preg_month").get("text"),"").trim();
+	reply = "";
+	month = 0;
+	isValidNumber = true;
+	try 
+	{
+		month = userInput.toLong();
+	}
+	catch (e)
+	{
+		isValidNumber = false;
+	}
+	if(!isValidNumber || month < 1 || month > 9)
+	{
+		errMsg = "";
+		if(!isValidNumber)
+		{
+			errMsg = "😅 Oops! Please enter a **number** between **1 and 9** (like 3 or 7).";
+		}
+		else if(month < 1)
+		{
+			errMsg = "😅 Pregnancy can’t be **" + month + " month(s)** yet! Please enter between **1 and 9**.";
+		}
+		else if(month > 9)
+		{
+			errMsg = "🥰 No pregnancy lasts **" + month + " months**! Baby usually comes by **9 months** 👶💖\n\nPlease enter a month between **1 and 9**.";
+		}
+		response.put("action","context");
+		response.put("context_id","pregnancy_month");
+		q = {"name":"preg_month","replies":{errMsg},"input":{"type":"name","placeholder":"Enter your pregnancy month (1–9)","value":"","error":{"Please enter a valid month between 1 and 9 😇"}},"suggestions":{"Thank You"}};
+		response.put("questions",{q});
+		return response;
+	}
+	if(month == 1 || month == 2 || month == 3)
+	{
+		reply = "🤰✨ **First Trimester (Month " + month + ")** ✨\n\n";
+		reply = reply + "Here are your safe fitness tips, mama 💖🍼\n\n";
+		reply = reply + "👣 ✔ Light walking (15–20 minutes)\n";
+		reply = reply + "💗 ✔ Pelvic floor exercises (Kegels)\n";
+		reply = reply + "🌸 ✔ Light stretching & gentle movements\n";
+		reply = reply + "⚠️ ✔ Avoid heavy lifting\n\n";
+	}
+	else if(month == 4 || month == 5 || month == 6)
+	{
+		reply = "🤰🌼 **Second Trimester (Month " + month + ")** 🌼\n\n";
+		reply = reply + "Your energy improves—great time for safe workouts 👶💪\n\n";
+		reply = reply + "🚶‍♀️ ✔ Walking or swimming\n";
+		reply = reply + "🏋️‍♀️ ✔ Light strength training\n";
+		reply = reply + "🧘 ✔ Gentle pregnancy yoga\n\n";
+	}
+	else if(month >= 7 && month <= 9)
+	{
+		reply = "🤰🌟 **Third Trimester (Month " + month + ")** 🌟\n\n";
+		reply = reply + "You're almost there, mama! Stay active but gentle 💕🍼\n\n";
+		reply = reply + "👣 ✔ Short gentle walks\n";
+		reply = reply + "🌬️ ✔ Breathing & relaxation exercises\n";
+		reply = reply + "🤍 ✔ Gentle stretching & mobility\n\n";
+	}
+	reply = reply + "📖 **You can read more here:**\n\n";
+	reply = reply + "🔗 NHS Pregnancy Exercise: https://www.nhs.uk/pregnancy/keeping-well/exercise/ \n\n";
+	reply = reply + "📄 Pregnancy Care Guidelines (PDF): https://nhm.gov.in/images/pdf/guidelines/nrhm-guidelines/stg/pregnancy-care.pdf \n";
+	reply = reply + "\n\n💖 **Stay healthy, stay strong — you're growing a little miracle!** 👶";
+	response.put("action","reply");
+	response.put("replies",{reply});
+	response.put("suggestions",{"Thank You"});
+	return response;
+}
+if(context_id.equals("exercisegenerator"))
+{
+	trigger = "";
+	if(answers.containsKey("exerciseselect"))
+	{
+		raw = answers.get("exerciseselect").get("text");
+		if(raw != null)
+		{
+			trigger = raw.toLowerCase();
+		}
+	}
+	if(trigger.contains("go") || trigger.contains("go ahead") || trigger.contains("one more") || trigger.contains("another"))
+	{
+		exercises = List();
+		e1 = {"name":"10 Gentle Squats","bodyPart":"Legs","target":"Quads & Glutes","gif":"https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNTk1Ym41aTlycnE0dWt6b2szaG4wc2Q1a3NqNW8zdzd6dXhoN2J0biZlcD12MV9naWZzX3NlYXJjaCZjdD1n/BIQjXVXfZHoOWdiTkW/giphy.gif"};
+		exercises.add(e1);
+		e2 = {"name":"12 Knee Push-ups","bodyPart":"Chest","target":"Pectorals & Triceps","gif":"https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbW4wcHdnZmFjanE4dTNhZmRzaGQ5eXl1OWU5NW5weGh4NHZsZjNvMSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/wOaG2yUiBLar5YFvrr/giphy.gif"};
+		exercises.add(e2);
+		e3 = {"name":"15 Standing Calf Raises","bodyPart":"Calves","target":"Gastrocnemius","gif":"https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExaWcxc2JwZW1pMHl1bTlubmo1OGpmZjBiaTQzbXMwOWxmeHdyaGR4OSZlcD12MV9naWZzX3NlYXJjaCZjdD1n/XEDNpGzZ8IXhBRqfwS/giphy.gif"};
+		exercises.add(e3);
+		e4 = {"name":"20-Second Plank","bodyPart":"Core","target":"Abs & Back","gif":"https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZXQ0MHVidG1ldDFscTRpMW9nNTRlZnZuZDM1MHc3ZzY0MnhyNTN1MCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3o6ZtjwGA5CKEt4Wc0/giphy.gif"};
+		exercises.add(e4);
+		e5 = {"name":"10 jumping jack","bodyPart":"Shoulders","target":"Deltoids","gif":"https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExeGt6aHNnN3l2azNuaTNnazNmeWk3ZmM1YzB3MnJsZ3prMXJ3ZXRuciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ckMk3RKUK29lziaspI/giphy.gif"};
+		exercises.add(e5);
+		sizeInt = exercises.size();
+		idx = 0;
+		if(trigger.contains("go") || trigger.contains("go ahead"))
+		{
+			idx = 0;
+		}
+		else
+		{
+			secs = (zoho.currenttime.toLong() / 1000).toNumber();
+			idx = (secs % sizeInt).toNumber();
+		}
+		if(idx < 0 || idx >= sizeInt)
+		{
+			idx = 0;
+		}
+		item = exercises.get(idx);
+		exName = ifnull(item.get("name"),"Exercise");
+		exBody = ifnull(item.get("bodyPart"),"General");
+		exTarget = ifnull(item.get("target"),"General");
+		gifUrl = ifnull(item.get("gif"),"");
+		if(gifUrl == null || gifUrl == "")
+		{
+			gifUrl = "https://media.giphy.com/media/3o7aD2saalBwwftBIY/giphy.gif";
+		}
+		linksList = List();
+		demoMap = Map();
+		demoMap.put("url",gifUrl);
+		demoMap.put("text","View Demo");
+		demoMap.put("icon","https://cdn-icons-png.flaticon.com/512/709/709496.png");
+		linksList.add(demoMap);
+		howMap = Map();
+		howMap.put("url","https://www.google.com/search?q=how+to+" + replaceAll(exName," ","+"));
+		howMap.put("text","How To");
+		howMap.put("icon","https://cdn-icons-png.flaticon.com/512/1250/1250680.png");
+		linksList.add(howMap);
+		card = Map();
+		card.put("type","links");
+		card.put("text",exName + " — " + exTarget + " (" + exBody + ")");
+		card.put("image",gifUrl);
+		card.put("image_position","fit");
+		card.put("links",linksList);
+		response.put("action","context");
+		response.put("context_id","exercisegenerator");
+		q = Map();
+		q.put("name","exerciseselect");
+		q.put("replies",{card});
+		q.put("suggestions",{"One more","Main Menu"});
+		response.put("questions",{q});
+		return response;
+	}
+}
+if(context_id.equals("yogagenerator"))
+{
+	trigger = "";
+	if(answers != null && answers.containsKey("yogaselect"))
+	{
+		qs = answers.get("yogaselect");
+		if(qs != null && qs.get("text") != null)
+		{
+			trigger = "" + qs.get("text");
+			trigger = trigger.toLowerCase();
+		}
+	}
+	if(trigger.contains("go") || trigger.contains("more") || trigger.contains("another"))
+	{
+		cards = List();
+		url = "https://api.pexels.com/videos/search?query=yoga&per_page=3";
+		pexelsResp = null;
+		try 
+		{
+			pexelsResp = invokeurl
+			[
+				url :url
+				type :GET
+				connection:"pexels_video"
+			];
+		}
+		catch (apiErr)
+		{
+			pexelsResp = null;
+		}
+		videos = List();
+		try 
+		{
+			if(pexelsResp != null && pexelsResp.get("videos") != null)
+			{
+				videos = pexelsResp.get("videos");
+			}
+		}
+		catch (e)
+		{
+			videos = List();
+		}
+		index = 0;
+		for each  v in videos
+		{
+			if(index < 3)
+			{
+				title = "Yoga Pose";
+				thumb = "";
+				demoUrl = "";
+				try 
+				{
+					if(v.get("image") != null)
+					{
+						thumb = "" + v.get("image");
+					}
+				}
+				catch (e1)
+				{
+					thumb = "";
+				}
+				try 
+				{
+					vf = v.get("video_files");
+					if(vf != null && vf.size() > 0)
+					{
+						found = false;
+						for each  f in vf
+						{
+							try 
+							{
+								if(!found && f.get("link") != null)
+								{
+									demoUrl = "" + f.get("link");
+									found = true;
+								}
+							}
+							catch (ff)
+							{
+							}
+						}
+					}
+				}
+				catch (e2)
+				{
+					demoUrl = "";
+				}
+				try 
+				{
+					if(v.get("user") != null && v.get("user").get("name") != null)
+					{
+						title = "Yoga video by " + v.get("user").get("name");
+					}
+				}
+				catch (e3)
+				{
+					title = "Yoga Pose";
+				}
+				try 
+				{
+					if(v.get("id") != null)
+					{
+						idd = "" + v.get("id");
+						title = title + " (" + idd + ")";
+					}
+				}
+				catch (ignore)
+				{
+				}
+				if(thumb == "")
+				{
+					thumb = "https://images.pexels.com/photos/3823039/pexels-photo-3823039.jpeg";
+				}
+				if(demoUrl == "")
+				{
+					demoUrl = "https://videos.pexels.com/video-files/2908179/2908179-uhd_2560_1440_24fps.mp4";
+				}
+				linksList = List();
+				demoMap = Map();
+				demoMap.put("url",demoUrl);
+				demoMap.put("text","Download");
+				demoMap.put("icon","https://cdn-icons-png.flaticon.com/512/709/709496.png");
+				linksList.add(demoMap);
+				howMap = Map();
+				howMap.put("url","https://www.google.com/search?q=" + replaceAll(title," ","+") + "+yoga+how+to");
+				howMap.put("text","How To");
+				howMap.put("icon","https://cdn-icons-png.flaticon.com/512/1250/1250680.png");
+				linksList.add(howMap);
+				card = Map();
+				card.put("type","links");
+				card.put("text",title);
+				card.put("image",thumb);
+				card.put("image_position","fit");
+				card.put("links",linksList);
+				cards.add(card);
+			}
+			index = index + 1;
+		}
+		if(cards.size() == 0)
+		{
+			response.put("action","context");
+			response.put("context_id","yogagenerator");
+			q = Map();
+			q.put("name","yogaselect");
+			q.put("replies",{"No yoga videos found right now. Try again later."});
+			q.put("suggestions",{"Retry","Main Menu"});
+			response.put("questions",{q});
+			return response;
+		}
+		response.put("action","context");
+		response.put("context_id","yogagenerator");
+		q = Map();
+		q.put("name","yogaselect");
+		q.put("replies",cards);
+		q.put("suggestions",{"One more","Main Menu"});
+		response.put("questions",{q});
+		return response;
+	}
+}
+// Motivational Boost Context Handler 
+// ---------------------- DEPRESSED / MOTIVATE FLOW ----------------------
+if(context_id != null && context_id.equals("depressedopt"))
+{
+	opt = answers.get("depressedOpt").get("text");
+	if(opt.containsIgnoreCase("Back"))
+	{
+		response.put("action","context");
+		response.put("context_id","depressedopt");
+		question = {"name":"depressedOpt","replies":{"🥺🥺 Don't worry, your assistant is here to change your mood🤗"},"suggestions":{"Grab me some Books","Motivate me","Make me laugh","Play a song","Tell me a story","Show me a meme","Entertain me","Main Menu"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else if(opt.containsIgnoreCase("Grab me some Books") || opt.containsIgnoreCase("retry") || opt.containsIgnoreCase("search more"))
+	{
+		response.put("action","context");
+		response.put("context_id","gbooks");
+		question = {"name":"gbook","replies":{"Will you tell me which genre should I suggest books for? (eg: romcom, novel, horror)"},"input":{"type":"name","placeholder":"Eg. romcom,novel,horror...","value":"","error":{"Enter a valid genre"}},"suggestions":{"Main Menu","Back"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else if(opt != null && opt.containsIgnoreCase("MedTube"))
+	{
+		response = Map();
+		response.put("action","context");
+		response.put("context_id","MedTube");
+		query = "Tamil Relaxing Songs";
+		params = Map();
+		params.put("part","snippet");
+		params.put("type","video");
+		params.put("maxResults","3");
+		params.put("q",query);
+		ytResp = invokeurl
+		[
+			url :"https://www.googleapis.com/youtube/v3/search"
+			type :GET
+			parameters:params
+			connection:"youtube"
+		];
+		if(ytResp == null || ytResp.get("items") == null)
+		{
+			question = Map();
+			question.put("name","done");
+			question.put("replies",{"Sorry — couldn't fetch videos right now. Try again later."});
+			question.put("suggestions",{"Main Menu"});
+			response.put("questions",{question});
+			return response;
+		}
+		items = ytResp.get("items");
+		videoCards = List();
+		if(items != null && items.size() > 0)
+		{
+			for each  itm in items
+			{
+				if(itm == null)
+				{
+				}
+				else
+				{
+					vid = "";
+					title = "YouTube Video";
+					idObj = itm.get("id");
+					if(idObj != null && idObj.get("videoId") != null)
+					{
+						vid = "" + idObj.get("videoId");
+					}
+					snippet = itm.get("snippet");
+					if(snippet != null && snippet.get("title") != null)
+					{
+						title = "" + snippet.get("title");
+					}
+					if(vid != null && vid != "")
+					{
+						vmap = Map();
+						vmap.put("type","video");
+						vmap.put("text",title);
+						vmap.put("url","https://www.youtube.com/watch?v=" + vid);
+						videoCards.add(vmap);
+					}
+				}
+			}
+		}
+		if(videoCards.size() == 0)
+		{
+			fallback1 = Map();
+			fallback1.put("type","video");
+			fallback1.put("text","Fallback — You are Perfect ✨");
+			fallback1.put("url","https://www.youtube.com/watch?v=akaRg5C1VO8");
+			fallback2 = Map();
+			fallback2.put("type","video");
+			fallback2.put("text","Fallback — It's okay not to be ok !!");
+			fallback2.put("url","https://www.youtube.com/watch?v=SXGMWuJZeeo");
+			videoCards.add(fallback1);
+			videoCards.add(fallback2);
+		}
+		replies = List();
+		replies.add("Enjoy these tracks:");
+		if(videoCards != null && videoCards.size() > 0)
+		{
+			for each  v in videoCards
+			{
+				replies.add(v);
+			}
+		}
+		question = Map();
+		question.put("name","done");
+		question.put("replies",replies);
+		question.put("suggestions",{"Main Menu"});
+		response.put("questions",{question});
+		return response;
+	}
+	else if(opt.containsIgnoreCase("Motivate me"))
+	{
+		response.put("action","context");
+		response.put("context_id","quotegenerator");
+		question = {"name":"quoteselect","replies":{"Here's a quote that might help you🤗 "},"suggestions":{"Go Ahead","Main Menu"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else if(opt.containsIgnoreCase("Make me laugh"))
+	{
+		response.put("action","context");
+		response.put("context_id","jokegenerator");
+		question = {"name":"jokeselect","replies":{"Okiee, Now I'm gonna show my humorous side😁"},"suggestions":{"Go ahead","Main Menu"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else if(opt.containsIgnoreCase("Main Menu"))
+	{
+		response.put("action","context");
+		response.put("context_id","mainmenu");
+		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to MedKit 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"🧠 Mind Check","Health Hub 🩺","Care Assistant 😊","ProcureX 🛒","💬 Motivational Boost","🏋️ FitZone","🤝 Consult an Expert","Dietrix 🥗","🎮 Play Games","📞 Help Desk"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else if(opt.containsIgnoreCase("Tell me a story"))
+	{
+		response.put("action","context");
+		response.put("context_id","storygenerator");
+		question = {"name":"storyselect","replies":{"Here's a short story for you ✨"},"suggestions":{"Go ahead","Main Menu","No Thanks"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else if(opt.containsIgnoreCase("Show me a meme"))
+	{
+		response.put("action","context");
+		response.put("context_id","memegenerator");
+		question = {"name":"memeselect","replies":{"Ready for a laugh? 😄"},"suggestions":{"Go ahead","Main Menu"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else if(opt.containsIgnoreCase("Spotify"))
+	{
+		response.put("action","context");
+		response.put("context_id","spotify_focus");
+		q = {"name":"music_lang","replies":{"**🎶 Welcome to Mini-Spotify!** Just type any song or music vibe you want!\nLoFi, beats, romance, sad, chill — I’ll find it."},"input":{"type":"name","placeholder":"Eg. Search any music..."},"suggestions":{"Tamil","Hindi","English","LoFi","Main Menu"}};
+		response.put("questions",{q});
+		return response;
+	}
+	else
+	{
+		response.put("action","context");
+		response.put("context_id","main menu");
+		question = {"name":"done","replies":{"It was nice chatting with you 😊 Have a wonderful day! 👋"},"suggestions":{"Main Menu"}};
+		response.put("questions",{question});
+		return response;
+	}
+}
+if(context_id != null && context_id.equals("jokegenerator"))
+{
+	joketrigger = "";
+	if(answers.containsKey("jokeselect"))
+	{
+		joketrigger = answers.get("jokeselect").get("text").toLowerCase();
+	}
+	if(joketrigger.contains("go") || joketrigger.contains("one more") || joketrigger.contains("another"))
+	{
+		jokeText = "";
+		try 
+		{
+			jokeResp = invokeurl
+			[
+				url :"https://official-joke-api.appspot.com/random_joke"
+				type :GET
+			];
+			if(jokeResp != null && jokeResp.get("setup") != null)
+			{
+				jokeText = jokeResp.get("setup") + "\n\n" + jokeResp.get("punchline");
+			}
+			else
+			{
+				jokeText = "Hmm… couldn’t get a joke 😅 Try again!";
+			}
+		}
+		catch (e)
+		{
+			jokeText = "API failed 😩\nBut here's one:\nWhy don’t scientists trust atoms? Because they make up everything!";
+		}
+		question = {"name":"jokeselect","replies":{jokeText},"suggestions":{"One more","Main Menu"}};
+		respMap = Map();
+		respMap.put("action","context");
+		respMap.put("context_id","jokegenerator");
+		respMap.put("questions",{question});
+		return respMap;
+	}
+}
+if(context_id.equals("gbooks"))
+{
+	genre = answers.get("gbook").get("text");
+	genre = genre.getAlpha();
+	if(genre.equals(""))
+	{
+		response.put("action","context");
+		response.put("context_id","depressedopt");
+		q = Map();
+		q.put("name","depressedOpt");
+		q.put("replies",{"Please enter only alphabets 😕"});
+		q.put("suggestions",{"Retry","No Thanks"});
+		response.put("questions",{q});
+		return response;
+	}
+	api = invokeurl
+	[
+		url :"https://www.googleapis.com/books/v1/volumes?q=" + genre
+		type :GET
+		connection:"googlebooks"
+	];
+	items = List();
+	try 
+	{
+		items = api.get("items");
+	}
+	catch (e)
+	{
+		items = List();
+	}
+	readIcon = "https://cdn-icons-png.flaticon.com/512/10/10919.png";
+	buyIcon = "https://image.flaticon.com/icons/png/512/126/126083.png";
+	cards = List();
+	index = 0;
+	for each  book in items
+	{
+		if(index < 2)
+		{
+			vol = Map();
+			sale = Map();
+			try 
+			{
+				vol = book.get("volumeInfo");
+			}
+			catch (ve)
+			{
+				vol = Map();
+			}
+			try 
+			{
+				sale = book.get("saleInfo");
+			}
+			catch (se)
+			{
+				sale = Map();
+			}
+			title = "";
+			try 
+			{
+				if(vol.get("title") != null)
+				{
+					title = "" + vol.get("title");
+				}
+			}
+			catch (te)
+			{
+				title = "";
+			}
+			if(title == "")
+			{
+				title = "Untitled";
+			}
+			authorStr = "Unknown Author";
+			try 
+			{
+				authObj = vol.get("authors");
+				if(authObj != null)
+				{
+					tempA = List();
+					for each  aa in authObj
+					{
+						if(aa != null)
+						{
+							tempA.add("" + aa);
+						}
+					}
+					if(tempA.size() > 0)
+					{
+						joinedA = "";
+						jj = 0;
+						for each  sA in tempA
+						{
+							if(jj == 0)
+							{
+								joinedA = "" + sA;
+							}
+							else
+							{
+								joinedA = joinedA + ", " + sA;
+							}
+							jj = jj + 1;
+						}
+						authorStr = joinedA;
+					}
+				}
+			}
+			catch (ae)
+			{
+				authorStr = "Unknown Author";
+			}
+			thumb = "";
+			try 
+			{
+				thumb = vol.get("imageLinks").get("thumbnail");
+			}
+			catch (ime)
+			{
+				thumb = "";
+			}
+			infoLink = "";
+			try 
+			{
+				infoLink = "" + vol.get("infoLink");
+			}
+			catch (il)
+			{
+				infoLink = "";
+			}
+			if(infoLink == "")
+			{
+				infoLink = "https://www.google.com/search?q=" + title;
+			}
+			buyLink = "";
+			try 
+			{
+				buyLink = "" + sale.get("buyLink");
+			}
+			catch (bl)
+			{
+				buyLink = "";
+			}
+			if(buyLink == "")
+			{
+				buyLink = "https://www.google.com/search?q=buy+" + title;
+			}
+			linksList = List();
+			readMap = Map();
+			readMap.put("url",infoLink);
+			readMap.put("text","Read Now");
+			readMap.put("icon","https://cdn-icons-png.flaticon.com/512/10/10919.png");
+			linksList.add(readMap);
+			buyMap = Map();
+			buyMap.put("url",buyLink);
+			buyMap.put("text","Buy Now");
+			buyMap.put("icon","https://image.flaticon.com/icons/png/512/126/126083.png");
+			linksList.add(buyMap);
+			card = Map();
+			card.put("type","links");
+			card.put("text",title + " by " + authorStr + " [English].");
+			card.put("image",thumb);
+			card.put("image_position","fit");
+			card.put("links",linksList);
+			cards.add(card);
+		}
+		index = index + 1;
+	}
+	if(cards.size() == 0)
+	{
+		response.put("action","context");
+		response.put("context_id","depressedopt");
+		q = Map();
+		q.put("name","depressedOpt");
+		q.put("replies",{"No books found for: " + genre});
+		q.put("suggestions",{"Retry","No Thanks"});
+		response.put("questions",{q});
+		return response;
+	}
+	response.put("action","context");
+	response.put("context_id","depressedopt");
+	q = Map();
+	q.put("name","depressedOpt");
+	q.put("replies",cards);
+	sugs = List();
+	sugs.add("Search More");
+	sugs.add("Main Menu");
+	q.put("suggestions",sugs);
+	response.put("questions",{q});
+	return response;
+}
+if(context_id != null && context_id.equals("spotify_focus"))
+{
+	music = ifnull(answers.get("music_lang").get("text"),"").trim();
+	info "SPOTIFY >>> userText = " + music;
+	if(music.equalsIgnoreCase("Search More"))
+	{
+		response.put("action","context");
+		response.put("context_id","spotify_focus");
+		q = {"name":"music_lang","replies":{"**🎶 Welcome to Mini-Spotify!** Just type any song or music vibe you want!\nLoFi, beats, romance, sad, chill — I’ll find it."},"input":{"type":"name","placeholder":"Eg. Search any music..."},"suggestions":{"Tamil","Hindi","English","LoFi","Main Menu"}};
+		response.put("questions",{q});
+		return response;
+	}
+	if(music.equalsIgnoreCase("Main Menu") || music.equalsIgnoreCase("Mainmenu"))
+	{
+		response.put("action","context");
+		response.put("context_id","mainmenu");
+		question = {"name":"select","replies":{"Hello 🌟 You're connected with *MedKit* — what would you like to do today?"},"suggestions":{"🧠 Mind Check","Health Hub 🩺","Care Assistant 😊","ProcureX 🛒","💬 Motivational Boost","Dietrix 🥗","🤝 Consult an Expert","🏋️ FitZone","🎮 Play Games","📞 Help Desk"}};
+		response.put("questions",{question});
+		return response;
+	}
+	tokenResp = invokeurl
+	[
+		url :"https://accounts.spotify.com/api/token"
+		type :POST
+		parameters:{"grant_type":"client_credentials"}
+		connection:"spotify_conn"
+	];
+	accessToken = ifnull(tokenResp.get("access_token"),"");
+	info "SPOTIFY >>> token = " + if(accessToken != "","RECEIVED","EMPTY");
+	if(accessToken == "")
+	{
+		response.put("action","reply");
+		response.put("replies",{"Sorry, I couldn't connect to Spotify right now. Please try again later."});
+		return response;
+	}
+	searchQuery = music + " songs";
+	encodedQuery = searchQuery.replaceAll(" ","%20");
+	searchUrl = "https://api.spotify.com/v1/search?q=" + encodedQuery + "&type=track&limit=5";
+	info "SPOTIFY >>> URL = " + searchUrl;
+	searchResp = invokeurl
+	[
+		url :searchUrl
+		type :GET
+		headers:{"Authorization":"Bearer " + accessToken}
+	];
+	items = List();
+	try 
+	{
+		tracks = searchResp.get("tracks");
+		if(tracks != null && tracks.containsKey("items"))
+		{
+			items = tracks.get("items");
+		}
+	}
+	catch (e)
+	{
+		items = List();
+	}
+	cards = List();
+	index = 0;
+	spotifyIcon = "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Spotify_logo_without_text.svg/2048px-Spotify_logo_without_text.svg.png";
+	for each  track in items
+	{
+		if(index < 2)
+		{
+			title = "Untitled";
+			try 
+			{
+				if(track.get("name") != null)
+				{
+					title = "" + track.get("name");
+				}
+			}
+			catch (te)
+			{
+				title = "Untitled";
+			}
+			artistStr = "Unknown Artist";
+			try 
+			{
+				artList = track.get("artists");
+				if(artList != null)
+				{
+					tempA = List();
+					for each  aa in artList
+					{
+						if(aa != null && aa.get("name") != null)
+						{
+							tempA.add("" + aa.get("name"));
+						}
+					}
+					if(tempA.size() > 0)
+					{
+						joinTxt = "";
+						ai = 0;
+						for each  an in tempA
+						{
+							if(ai == 0)
+							{
+								joinTxt = "" + an;
+							}
+							else
+							{
+								joinTxt = joinTxt + ", " + an;
+							}
+							ai = ai + 1;
+						}
+						artistStr = joinTxt;
+					}
+				}
+			}
+			catch (ae)
+			{
+				artistStr = "Unknown Artist";
+			}
+			imgUrl = "";
+			try 
+			{
+				album = track.get("album");
+				if(album != null && album.containsKey("images"))
+				{
+					imgList = album.get("images");
+					if(imgList != null && imgList.size() > 0)
+					{
+						imgUrl = ifnull(imgList.get(0).get("url"),"");
+					}
+				}
+			}
+			catch (ie)
+			{
+				imgUrl = "";
+			}
+			trackUrl = "";
+			try 
+			{
+				ext = track.get("external_urls");
+				if(ext != null && ext.containsKey("spotify"))
+				{
+					trackUrl = ifnull(ext.get("spotify"),"");
+				}
+			}
+			catch (le)
+			{
+				trackUrl = "";
+			}
+			if(trackUrl == "")
+			{
+				trackUrl = "https://open.spotify.com/search/" + encodedQuery;
+			}
+			linksList = List();
+			playMap = Map();
+			playMap.put("url",trackUrl);
+			playMap.put("text","Play on Spotify");
+			playMap.put("icon",spotifyIcon);
+			linksList.add(playMap);
+			card = Map();
+			card.put("type","links");
+			card.put("text",title + " by " + artistStr + " [Spotify].");
+			card.put("image",imgUrl);
+			card.put("image_position","fit");
+			card.put("links",linksList);
+			cards.add(card);
+		}
+		index = index + 1;
+	}
+	if(cards.size() == 0)
+	{
+		response.put("action","reply");
+		response.put("replies",{"No results found for: " + music});
+		response.put("suggestions",{"Search More","Main Menu"});
+		return response;
+	}
+	response.put("action","context");
+	response.put("context_id","spotify_focus");
+	q = Map();
+	q.put("name","music_lang");
+	q.put("replies",cards);
+	q.put("suggestions",{"Search More","Main Menu"});
+	response.put("questions",{q});
+	return response;
+}
+if(context_id != null && context_id.equals("memegenerator"))
+{
+	memetrigger = "";
+	if(answers.containsKey("memeselect"))
+	{
+		memetrigger = answers.get("memeselect").get("text").toLowerCase();
+	}
+	if(memetrigger.contains("go") || memetrigger.contains("go ahead") || memetrigger.contains("memegenerate") || memetrigger.contains("one more") || memetrigger.contains("another"))
+	{
+		memeText = "";
+		title = "";
+		imageUrl = "";
+		try 
+		{
+			memeResp = invokeurl
+			[
+				url :"https://meme-api.com/gimme"
+				type :GET
+			];
+			if(memeResp != null && memeResp.get("url") != null)
+			{
+				title = "" + memeResp.get("title");
+				imageUrl = "" + memeResp.get("url");
+				memeText = title + "\n" + imageUrl;
+			}
+			else
+			{
+				memeText = "Hmm… couldn’t fetch a meme 😅 Try again!";
+			}
+		}
+		catch (e)
+		{
+			memeText = "API failed 😩\nBut here's a classic: Grumpy Cat — https://i.imgur.com/4M7IWwP.jpg";
+		}
+		question = {"name":"memeselect","replies":{memeText},"suggestions":{"One more","Main Menu"}};
+		respMap = Map();
+		respMap.put("action","context");
+		respMap.put("context_id","memegenerator");
+		respMap.put("questions",{question});
+		return respMap;
+	}
+}
+if(context_id != null && context_id.equals("quotegenerator"))
+{
+	quotetrigger = "";
+	if(answers != null && answers.containsKey("quoteselect"))
+	{
+		qs = answers.get("quoteselect");
+		if(qs != null && qs.get("text") != null)
+		{
+			quotetrigger = qs.get("text").toLowerCase();
+		}
+	}
+	if(quotetrigger.contains("go ahead") || quotetrigger.contains("quote") || quotetrigger.contains("go") || quotetrigger.contains("one more") || quotetrigger.contains("another"))
+	{
+		quoteText = "";
+		try 
+		{
+			quoteResp = invokeurl
+			[
+				url :"https://zenquotes.io/api/random"
+				type :GET
+			];
+			if(quoteResp != null && quoteResp.size() > 0)
+			{
+				q = quoteResp.get(0);
+				if(q != null && q.get("q") != null && q.get("a") != null)
+				{
+					quoteText = "\"" + q.get("q") + "\" — " + q.get("a");
+				}
+				else
+				{
+					quoteText = "You are capable of amazing things ✨";
+				}
+			}
+			else
+			{
+				quoteText = "Stay strong. Better days are coming 🤍";
+			}
+		}
+		catch (e)
+		{
+			quoteText = "The only person you should try to be better than is the one you were yesterday. 🌟";
+		}
+		question = {"name":"quoteselect","replies":{quoteText},"suggestions":{"One more","Main Menu"}};
+		respMap = Map();
+		respMap.put("action","context");
+		respMap.put("context_id","quotegenerator");
+		respMap.put("questions",{question});
+		return respMap;
+	}
+}
+if(context_id != null && context_id.equals("storygenerator"))
+{
+	storytrigger = "";
+	if(answers != null && answers.containsKey("storyselect"))
+	{
+		ss = answers.get("storyselect");
+		if(ss != null && ss.get("text") != null)
+		{
+			storytrigger = ss.get("text").toLowerCase();
+		}
+	}
+	if(storytrigger.contains("go ahead") || storytrigger.contains("storygenerate") || storytrigger.contains("go") || storytrigger.contains("one more") || storytrigger.contains("another"))
+	{
+		respMap = Map();
+		storyText = "";
+		try 
+		{
+			storyResp = invokeurl
+			[
+				url :"https://shortstories-api.onrender.com/"
+				type :GET
+			];
+			if(storyResp != null && storyResp.get("story") != null)
+			{
+				title = "";
+				author = "";
+				body = "";
+				moral = "";
+				if(storyResp.get("title") != null)
+				{
+					title = "" + storyResp.get("title");
+				}
+				if(storyResp.get("author") != null)
+				{
+					author = "" + storyResp.get("author");
+				}
+				if(storyResp.get("story") != null)
+				{
+					body = "" + storyResp.get("story");
+				}
+				if(storyResp.get("moral") != null)
+				{
+					moral = "" + storyResp.get("moral");
+				}
+				display = "";
+				if(title != null && title.trim() != "")
+				{
+					display = display + title;
+					if(author != null && author.trim() != "")
+					{
+						display = display + " — " + author;
+					}
+					display = display + "\n\n";
+				}
+				if(body != null)
+				{
+					display = display + body;
+				}
+				if(moral != null && moral.trim() != "")
+				{
+					display = display + "\n\nMoral: " + moral;
+				}
+				storyText = display;
+			}
+			else
+			{
+				storyText = "Hmm… couldn’t get a story 😅 Try again!";
+			}
+		}
+		catch (e)
+		{
+			storyText = "A little bird spent the night on a small windowsill and by morning had taught a lonely child to whistle again.";
+		}
+		question = Map();
+		question.put("name","storyselect");
+		question.put("replies",{storyText});
+		question.put("suggestions",{"One more","Main Menu"});
+		respMap.put("action","context");
+		respMap.put("context_id","storygenerator");
+		respMap.put("questions",{question});
+		return respMap;
+	}
+}
+// ================== CONSULT EXPERT : CONTEXT HANDLER ==================
+if(context_id != null && context_id.equals("consultopt"))
+{
+	response = Map();
+	opt = ifnull(answers.get("consultopt").get("text"),"");
+	optLower = opt.toLowerCase();
+	if(optLower.contains("doctors info") || optLower.contains("doctor info") || optLower.contains("top indian doctors"))
+	{
+		response.put("action","context");
+		response.put("context_id","consultopt");
+		text = "🇮🇳 **Top Medical Specialties & What They Treat:**\n• 1️⃣ **Cardiology** – Heart & blood vessels\n• 2️⃣ **Neurology** – Brain, nerves & spine\n• 3️⃣ **Orthopedics** – Bones, joints & muscles\n• 4️⃣ **Pediatrics** – Children’s health\n• 5️⃣ **Gynecology** – Women’s reproductive health\n• 6️⃣ **Dermatology** – Skin, hair & nails\n• 7️⃣ **ENT** – Ear, nose & throat\n• 8️⃣ **Ophthalmology** – Eyes & vision\n• 9️⃣ **Gastroenterology** – Stomach & digestive system\n• 🔟 **Psychiatry** – Mental health & behavior\n\n💡 Tell me your issue, I’ll guide you to the right specialist.\nWhat would you like to do next?";
+		q = Map();
+		q.put("name","consultopt");
+		q.put("replies",{text});
+		q.put("suggestions",{"Make an Appointment","Main Menu"});
+		response.put("questions",{q});
+		return response;
+	}
+	if(optLower.contains("medkit") || optLower.contains("first step") || optLower.contains("issue") || optLower.contains("help"))
+	{
+		response.put("action","context");
+		response.put("context_id","consult_medkit");
+		q = Map();
+		q.put("name","medkit_issue");
+		q.put("replies",{"🩺 This is MedKit – First Step Help.\nPlease describe your issue in 1–2 lines (example: 'I have headache and mild fever for 2 days').\n⚠️ I will give only general guidance, not a medical diagnosis."});
+		q.put("input",{"type":"name","placeholder":"Describe your issue here"});
+		response.put("questions",{q});
+		return response;
+	}
+	if(optLower.contains("about appointments") || optLower.contains("about appointment") || optLower.contains("about our"))
+	{
+		response.put("action","context");
+		response.put("context_id","consultopt");
+		text = "ℹ️ **About MedKit Appointments:**\n• We use an **online scheduling system** to book your slot.\n• You can choose a **date and time** that suits you.\n• Once booked, you'll receive a **confirmation email**.\n• Your details are kept **private** and used only for consultation.\n\nWould you like to **book a slot** now?";
+		q = Map();
+		q.put("name","consultopt");
+		q.put("replies",{text});
+		q.put("suggestions",{"Make an Appointment","Main Menu"});
+		response.put("questions",{q});
+		return response;
+	}
+	if(optLower.contains("make an appointment") || optLower.contains("appointment") && !optLower.contains("about"))
+	{
+		response.put("action","context");
+		response.put("context_id","consult_schedule_name");
+		q = Map();
+		q.put("name","sched_name");
+		q.put("replies",{"📅 Great! Let’s book your appointment.\nPlease share your name so we can personalize your booking."});
+		q.put("input",{"type":"name","placeholder":"Enter your name","error":{"Please enter a valid name"}});
+		response.put("questions",{q});
+		return response;
+	}
+	if(optLower.contains("main menu"))
+	{
+		response.put("action","context");
+		response.put("context_id","mainmenu");
+		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to MedKit 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"🧠 Mind Check","Health Hub 🩺","Care Assistant 😊","ProcureX 🛒","💬 Motivational Boost","🏋️ FitZone","🤝 Consult an Expert","Dietrix 🥗","🎮 Play Games","📞 Help Desk"}};
+		response.put("questions",{question});
+		return response;
+	}
+}
+if(context_id != null && context_id.equals("consult_schedule_name"))
+{
+	response = Map();
+	uname = "Friend";
+	try 
+	{
+		uname = ifnull(answers.get("sched_name").get("text"),"Friend");
+	}
+	catch (e)
+	{
+		uname = "Friend";
+	}
+	bookingUrl = "https://cal.com/medkit/medkit-health-appointment";
+	try 
+	{
+		eventTypeId = 3978675;
+		apiResponse = invokeurl
+		[
+			url :"https://api.cal.com/v2/event-types/" + eventTypeId
+			type :GET
+			connection:"cal_com_medkit"
+		];
+		info "📌 Cal API Response: " + apiResponse;
+		if(apiResponse != null && apiResponse.containsKey("data"))
+		{
+			data = apiResponse.get("data");
+			if(data.containsKey("scheduling_url"))
+			{
+				bookingUrl = data.get("scheduling_url");
+			}
+			else if(data.containsKey("url"))
+			{
+				bookingUrl = data.get("url");
+			}
+			else if(data.containsKey("slug"))
+			{
+				slug = data.get("slug");
+				bookingUrl = "https://cal.com/" + slug;
+			}
+		}
+	}
+	catch (e2)
+	{
+		info "❌ Cal API Error, using fallback. Error: " + e2.toString();
+	}
+	card = Map();
+	card.put("type","links");
+	card.put("text","Hi " + uname + " 👋\n\n📅 **Your MedKit Appointment is Ready!**\nSecure your preferred slot below:");
+	card.put("image","https://zoophagous-yellow-nmci9jkywb-l83k0cucwa.edgeone.dev/BOOKINGS.jpg");
+	links = List();
+	btn = Map();
+	btn.put("url",bookingUrl);
+	btn.put("text","Book Appointment");
+	links.add(btn);
+	card.put("links",links);
+	q = Map();
+	q.put("name","consultopt");
+	q.put("replies",{card});
+	q.put("suggestions",{"Main Menu"});
+	response.put("action","context");
+	response.put("context_id","consultopt");
+	response.put("questions",{q});
+	return response;
+}
+//---------------------------------------------------------------------------------------
+if(context_id.equals("dietaryopt"))
+{
+	ans = answers.get("customizeOrNot").get("text");
+	if(ans.containsIgnoreCase("lets proceed"))
+	{
+		response.put("action","context");
+		response.put("context_id","pickage");
+		question = {"name":"disorder","replies":{"Let me know what bothers you ?"},"input":{"type":"multiple-select","options":{"Diabetes","Obesity","Heart Problems"},"max_selection":"1"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else if(ans.containsIgnoreCase("Main Menu"))
+	{
+		response.put("action","context");
+		response.put("context_id","mainmenu");
+		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to MedKit 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"🧠 Mind Check","Health Hub 🩺","Care Assistant 😊","ProcureX 🛒","💬 Motivational Boost","🏋️ FitZone","🤝 Consult an Expert","Dietrix 🥗","🎮 Play Games","📞 Help Desk"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else if(ans.containsIgnoreCase("Meal Plan"))
+	{
+		response.put("action","context");
+		response.put("context_id","mealplan_calories");
+		question = {"name":"calories","replies":{"🔥 Great! How many calories should the meal plan be? (Eg: 1800)"},"input":{"type":"name","placeholder":"Eg. 1800","value":"","error":{"⚠️ Enter a valid calorie value"}}};
+		response.put("questions",{question});
+		return response;
+	}
+	else
+	{
+		response.put("action","context");
+		response.put("context_id","main menu");
+		question = {"name":"done","replies":{"It was nice chatting with you 😊 Have a wonderful day! 👋"},"suggestions":{"Main Menu"}};
+		response.put("questions",{question});
+		return response;
+	}
+}
+if(context_id.equals("pickage"))
+{
+	ans = answers.get("disorder").get("text");
+	if(ans.containsIgnoreCase("Diabetes"))
+	{
+		response.put("action","context");
+		response.put("context_id","diabetesopt");
+		question = {"name":"select1","replies":{{"text":"I'm here to support you with care. How would you like to continue?"}},"suggestions":{"Suggest me some remedies"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else if(ans.containsIgnoreCase("Obesity"))
+	{
+		response.put("action","context");
+		response.put("context_id","obesityopt");
+		question = {"name":"select2","replies":{{"text":"I'm here to support you with care. How would you like to continue?"}},"suggestions":{"Suggest me some remedies"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else if(ans.containsIgnoreCase("Heart Problems"))
+	{
+		response.put("action","context");
+		response.put("context_id","heartproblemopt");
+		question = {"name":"select3","replies":{{"text":"I'm here to support you with care. How would you like to continue?"}},"suggestions":{"Suggest me some remedies"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else
+	{
+		response.put("action","context");
+		response.put("context_id","main menu");
+		question = {"name":"done","replies":{"It was nice chatting with you 😊 Have a wonderful day! 👋"},"suggestions":{"Thank You"}};
+		response.put("questions",{question});
+		return response;
+	}
+}
+if(context_id.equals("diabetesopt"))
+{
+	ans = answers.get("select1").get("text");
+	if(ans.containsIgnoreCase("Suggest me some remedies"))
+	{
+		response.put("action","reply");
+		response.put("replies",{"Here are some Diabetes remedies:","🥗 Eat more fiber","🚶‍♂️ Walk 30 mins daily","💧 Drink enough water","🧘 Manage stress levels"});
+		response.put("suggestions",{"Thank You"});
+		return response;
+	}
+}
+if(context_id.equals("obesityopt"))
+{
+	ans = answers.get("select2").get("text");
+	if(ans.containsIgnoreCase("Suggest me some remedies"))
+	{
+		response.put("action","reply");
+		response.put("replies",{"Here are some Obesity remedies:","🥗 Maintain calorie deficit","🚴 Exercise 45 mins/day","🚰 Drink water before meals","🌙 Sleep 7-8 hours"});
+		response.put("suggestions",{"Thank You"});
+		return response;
+	}
+}
+if(context_id.equals("heartproblemopt"))
+{
+	ans = answers.get("select3").get("text");
+	if(ans.containsIgnoreCase("Suggest me some remedies"))
+	{
+		response.put("action","reply");
+		response.put("replies",{"Heart care remedies:","❤️ Reduce salt intake","🫒 Use healthy fats","🚶 Walk regularly","🌿 Include omega-3 rich foods"});
+		response.put("suggestions",{"Thank You"});
+		return response;
+	}
+}
+if(context_id.equals("mealplan_calories"))
+{
+	calories = ifnull(answers.get("calories").get("text"),"");
+	calories = calories.trim();
+	if(calories == "")
+	{
+		response.put("action","context");
+		response.put("context_id","mealplan_calories");
+		question = {"name":"calories","replies":{"Please enter a valid calorie goal (e.g., 1500)."},"input":{"type":"number","placeholder":"Eg. 1500","value":"","error":{"Enter a valid number"}}};
+		response.put("questions",{question});
+		return response;
+	}
+	url = "https://api.spoonacular.com/mealplanner/generate?timeFrame=day&targetCalories=" + calories;
+	try 
+	{
+		mealResponse = invokeurl
+		[
+			url :url
+			type :GET
+			connection:"spoonacular_meal"
+		];
+		meals = mealResponse.get("meals");
+		if(meals == null || meals.size() < 3)
+		{
+			response.put("action","reply");
+			response.put("replies",{"⚠️ Unable to generate a meal plan right now.","Please try again in a moment."});
+			response.put("suggestions",{"Thank You"});
+			return response;
+		}
+		breakfast = meals.get(0).get("title");
+		lunch = meals.get(1).get("title");
+		dinner = meals.get(2).get("title");
+		response.put("action","reply");
+		response.put("replies",{"✨ Your personalised *" + calories + " Calorie* Meal Plan","🍳 *Breakfast*: " + breakfast,"🥗 *Lunch*: " + lunch,"🍽️ *Dinner*: " + dinner});
+		response.put("suggestions",{"Thank You"});
+		return response;
+	}
+	catch (apiError)
+	{
+		response.put("action","reply");
+		response.put("replies",{"⚠️ Could not generate meal plan due to a connection issue.","Please try again after some time."});
+		response.put("suggestions",{"Try Again","Main Menu"});
+		return response;
+	}
+}
+if(context_id != null && context_id.equals("game_flow"))
+{
+	gameName = "";
+	if(answers.containsKey("game_name"))
+	{
+		gameName = ifnull(answers.get("game_name").get("text"),"").trim();
+	}
+	if(gameName.equalsIgnoreCase("Main Menu") || gameName.equalsIgnoreCase("mainmenu"))
+	{
+		response.put("action","context");
+		response.put("context_id","mainmenu");
+		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to MedKit 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"🧠 Mind Check","Health Hub 🩺","Care Assistant 😊","ProcureX 🛒","💬 Motivational Boost","🏋️ FitZone","🤝 Consult an Expert","Dietrix 🥗","🎮 Play Games","📞 Help Desk"}};
+		response.put("questions",{question});
+		return response;
+	}
+	if(gameName == "" || gameName.equalsIgnoreCase("Play Another"))
+	{
+		response.put("action","context");
+		response.put("context_id","game_flow");
+		q = {"name":"game_name","replies":{"Please enter a game name 🎮","Eg: subway surf, temple run"},"input":{"type":"name","placeholder":"Eg. Subway Surfers"},"suggestions":{"Subway Surfers","Temple Run","Moto X3M","Main Menu"}};
+		response.put("questions",{q});
+		return response;
+	}
+	session_map = Map();
+	session_map.put("selected_game",gameName);
+	ignoreResp = zoho.salesiq.visitorsession.set("trycatchus",session_map,"salesiqconnection");
+	response.put("action","context");
+	response.put("context_id","game_confirm");
+	q = {"name":"game_confirm_reply","replies":{"Nice choice! You want to play *" + gameName + "* 😄","Shall I open it for you?"},"suggestions":{"Go Ahead","Main Menu"}};
+	response.put("questions",{q});
+	return response;
+}
+if(context_id != null && context_id.equals("game_confirm"))
+{
+	pick = "";
+	if(answers.containsKey("game_confirm_reply"))
+	{
+		pick = ifnull(answers.get("game_confirm_reply").get("text"),"").toLowerCase();
+	}
+	gameName = "";
+	stored = zoho.salesiq.visitorsession.get("trycatchus","selected_game","salesiqconnection");
+	if(stored != null)
+	{
+		gameName = ifnull(stored.get("selected_game"),"");
+	}
+	if(gameName == "")
+	{
+		response.put("action","context");
+		response.put("context_id","game_flow");
+		q = {"name":"game_name","replies":{"Oops, I lost your game name 😅","Tell me again which game you want to play?"},"input":{"type":"name","placeholder":"Eg. Subway Surfers"},"suggestions":{"Subway Surfers","Temple Run","Moto X3M","Main Menu"}};
+		response.put("questions",{q});
+		return response;
+	}
+	if(pick.contains("main menu"))
+	{
+		response.put("action","context");
+		response.put("context_id","mainmenu");
+		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to MedKit 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"🧠 Mind Check","Health Hub 🩺","Care Assistant 😊","ProcureX 🛒","💬 Motivational Boost","🏋️ FitZone","🤝 Consult an Expert","Dietrix 🥗","🎮 Play Games","📞 Help Desk"}};
+		response.put("questions",{question});
+		return response;
+	}
+	if(!pick.contains("go"))
+	{
+		response.put("action","context");
+		response.put("context_id","game_confirm");
+		q = {"name":"game_confirm_reply","replies":{"Please choose an option 👇"},"suggestions":{"Go Ahead","Main Menu"}};
+		response.put("questions",{q});
+		return response;
+	}
+	gameKey = gameName.toLowerCase().trim();
+	slugMap = Map();
+	slugMap.put("subway surf","subway-surfers");
+	slugMap.put("subway surfers","subway-surfers");
+	slugMap.put("temple run","temple-run-2");
+	slugMap.put("moto x3m","moto-x3m");
+	slug = ifnull(slugMap.get(gameKey),"");
+	if(slug == "")
+	{
+		slug = gameKey.replaceAll(" ","-");
+	}
+	pokiUrl = "https://poki.com/en/g/" + slug;
+	response.put("action","context");
+	response.put("context_id","game_flow");
+	q = Map();
+	q.put("name","game_name");
+	replyList = List();
+	replyList.add("Here you go! 🎮  Play *" + gameName + "* here:");
+	replyList.add(pokiUrl);
+	replyList.add("Type another game name or choose an option below.");
+	q.put("replies",replyList);
+	q.put("suggestions",{"Play Another","Main Menu"});
+	response.put("questions",{q});
+	return response;
+}
+if(context_id != null && context_id.equals("mainmenu"))
+{
+	ans_lower = "";
+	try 
+	{
+		ans_lower = ifnull(answers.get("mainmenu").get("text"),"").toLowerCase();
+	}
+	catch (e)
+	{
+		ans_lower = "";
+	}
+	if(ans_lower == "")
+	{
+		for each  k in answers.keys()
+		{
+			temp_val = ifnull(answers.get(k).get("text"),"");
+			if(temp_val != "")
+			{
+				ans_lower = temp_val.toLowerCase();
+				break;
+			}
+		}
+	}
+	if(ans_lower.equalsIgnoreCase("🧠 mind check") || ans_lower.equalsIgnoreCase("mind check"))
+	{
+		response.put("action","context");
+		response.put("context_id","mindcheck_menu");
+		question = {"name":"mind_option","replies":{"Let's explore your Mind Wellness 😊","What do you want to do?"},"suggestions":{"Mood Check","Daily Affirmations","Journaling Prompts","Main Menu"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else if(ans_lower.equalsIgnoreCase("health hub 🩺") || ans_lower.equalsIgnoreCase("health hub"))
+	{
+		response.put("action","context");
+		response.put("context_id","health_hub");
+		question = {"name":"health_hub","replies":{"Welcome to **Health Hub** 🩺! Choose an option:"},"suggestions":{"🔍 Search Hospitals","Tablet Info 💊","📞 Emergency Contacts","Main Menu"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else if(ans_lower.equalsIgnoreCase("Care Assistant 😊") || ans_lower.equalsIgnoreCase("Care Assistant"))
+	{
+		response = Map();
+		response.put("action","context");
+		response.put("context_id","care_main");
+		q = {"name":"care_main","replies":{"🩺 Welcome to *MedKit Care Assistant*!"},"suggestions":{"Child Care 👶","Skin & Hair Care 💆‍♀️✨","Weather Care 😷","Health News 📰","Main Menu"}};
+		response.put("questions",{q});
+		return response;
+	}
+	else if(ans_lower.equalsIgnoreCase("procurex 🛒") || ans_lower.equalsIgnoreCase("procurex"))
+	{
+		response.put("action","context");
+		response.put("context_id","procurex");
+		question = {"name":"procurex","replies":{"Welcome to **ProcureX 🛒!** Choose an option:"},"suggestions":{"MedKit Products 🛒","About Purchasing","Main Menu"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else if(ans_lower.equalsIgnoreCase("💬 motivational boost") || ans_lower.equalsIgnoreCase("motivational boost"))
+	{
+		response.put("action","context");
+		response.put("context_id","depressedopt");
+		question = {"name":"depressedOpt","replies":{"🥺🥺 Don't worry, your assistant is here to change your mood🤗"},"suggestions":{"Grab me some Books","Spotify","Motivate me","Make me laugh","MedTube","Tell me a story","Show me a meme","Main Menu"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else if(ans_lower.equalsIgnoreCase("🏋️ FitZone"))
+	{
+		response.put("action","context");
+		response.put("context_id","fitnessopt");
+		question = {"name":"getFitnessOpt","replies":{"Welcome to **FitZone!** Being healthy and fit isn't a fad or a trend—it's a lifestyle 💪🏻"},"suggestions":{"Pregnancy Zone🤰","Yoga 🧘","Exercise 🏋️","Wellness Meetup","Main Menu"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else if(ans_lower.equalsIgnoreCase("Dietrix 🥗"))
+	{
+		response.put("action","context");
+		response.put("context_id","dietaryopt");
+		question = {"name":"customizeOrNot","replies":{"When diet is wrong, Medicine is of no use.","When diet is correct, Medicine is of no need !!✨"},"suggestions":{"Lets Proceed","Meal Plan","Main menu"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else if(ans_lower.equalsIgnoreCase("🤝 consult an expert") || ans_lower.equalsIgnoreCase("consult an expert"))
+	{
+		response.put("action","context");
+		response.put("context_id","consultopt");
+		question = {"name":"consultopt","replies":{"😁 You're at **MedKit** Expert Help."},"suggestions":{"Doctors info","Make an Appointment","About Appointments","Main Menu"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else if(ans_lower.equalsIgnoreCase("🎮 Play Games") || ans_lower.equalsIgnoreCase("Play Games"))
+	{
+		response.put("action","context");
+		response.put("context_id","game_flow");
+		q = {"name":"game_name","replies":{"🎮 Tell me the game you want to play","Eg: subway surf, temple run, shooting..."},"input":{"type":"name","placeholder":"Eg. Subway Surf"},"suggestions":{"Subway Surf","Temple Run","Shooting","Horror","Main Menu"}};
+		response.put("questions",{q});
+		return response;
+	}
+	else if(ans_lower.equalsIgnoreCase("📞 help desk") || ans_lower.equalsIgnoreCase("help desk"))
+	{
+		response.put("action","context");
+		response.put("context_id","help");
+		helpText = "📞 *HELP DESK – MEDKIT ASSISTANT*\n\n🤖 *About MedKit*\nMedKit is your all-in-one smart healthcare assistant built to support your *health*, *mind*, *fitness*, *productivity*, and *daily wellness* in one place.\n\n✨ *What MedKit Can Do (Use-Cases):*\n• 🧠 *Mind Check* – Helps you understand and manage your current mood.\n• 🩺 *Health Hub* – Provides hospital search and emergency contact options.\n• 🤗 *Care Assistant* – Offers child care, skin care, weather care, and health news.\n• 🛒 *ProcureX* – Lets you explore nutrition foods and fitness gadgets.\n• 💬 *Motivational Boost* – Lifts your mood with quotes, jokes, stories, and more.\n• 🥗 *Dietrix* – Suggests healthy diet tips to improve your daily lifestyle.\n• 🏋️ *FitZone* – Offers workout, yoga, and exercise recommendations.\n• 🤝 *Consult an Expert* – Assists you in consulting or booking with experts.\n• 🎮 *Play Games* – Lets you enjoy mini-games for relaxation and fun.\n\n👥 *Team Behind MedKit*\n\n• 👨‍💻 *Mohamed Silar M*\n  📧 Email: *mohamedsilar26@gmail.com*\n• 👩‍💻 *Shanmuga Priya AR*\n  📧 Email: *shanmugapriyaar0@gmail.com*\n\n💡 *For instant support, simply continue using our bot — I'm always here to assist you!* 😊";
+		question = {"name":"helpSugg","replies":{helpText},"suggestions":{"Main Menu"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else
+	{
+		response.put("action","context");
+		response.put("context_id","main menu");
+		question = {"name":"done","replies":{"Will you rate me out of 5 👉👈"},"input":{"type":"star-rating","level":"5"},"suggestions":{"Main Menu"}};
+		response.put("questions",{question});
+		return response;
+	}
+}
+response.put("action","context");
+response.put("context_id","mainmenu");
+question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to **MedKit 🩺!** I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"🧠 Mind Check","Health Hub 🩺","Care Assistant 😊","ProcureX 🛒","💬 Motivational Boost","🏋️ FitZone","🤝 Consult an Expert","Dietrix 🥗","🎮 Play Games","📞 Help Desk"}};
+response.put("questions",{question});
+return response;
+
+
