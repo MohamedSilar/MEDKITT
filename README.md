@@ -1,3 +1,5 @@
+![MedKit Banner](https://strange-aqua-5yfklivwfj-muznn4xg3b.edgeone.dev/MEDOOO.jpg)
+
 # MedKit – Your All-in-One Digital Health Companion 🩺🤖  
 
 **MedKit** is an intelligent, modular **healthcare chatbot (Zobot)** built using **Zoho SalesIQ**, designed to automate healthcare, wellness, and lifestyle support through conversational AI. Powered by **20+ integrated APIs**, MedKit delivers secure, real-time, and scalable digital health services across web and app platforms.
