@@ -182,30 +182,6 @@ MedKit is built for:
 
 ---
 
-## Documentation & References 📚  
-
-- https://open.fda.gov/apis/  
-- https://www.theraapi.com/  
-- https://www.who.int/data/gho/info/gho-odata-api  
-- https://spoonacular.com/food-api  
-- https://calorieninjas.com/  
-- https://cal.com/docs/api-reference/v2/introduction  
-- https://developer.calendly.com/api-docs  
-- https://razorpay.com/docs/api/  
-- https://developer.spotify.com/documentation/web-api  
-- https://developers.google.com/books/docs/v1/using  
-- https://developers.google.com/youtube/v3/docs  
-- https://gnews.io/  
-- https://openweathermap.org/api  
-- https://www.pexels.com/api/documentation/  
-- https://developers.giphy.com/docs/  
-- https://wiki.openstreetmap.org/wiki/API_v0.6  
-- https://www.reddit.com/dev/api/  
-- https://docs.zenquotes.io/zenquotes-documentation/  
-- https://sdk.poki.com/index.html  
-- https://www.zoho.com/salesiq/help/developer-section/rest-api-v2.html  
-
----
 
 ## Live Demo 🌐  
 🔗 https://medkitt.netlify.app/
