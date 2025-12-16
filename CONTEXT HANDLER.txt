@@ -1,163 +1,184 @@
 response = Map();
 response.put("action","context");
 response.put("context_id",context_id);
-// --------------------------------------------------------------------------------------
-if(context_id != null && context_id.equals("mindcheck_menu"))
+//------------------------------------------------------
+if(context_id == "care_main")
 {
-	ans = "";
-	try 
-	{
-		ans = ifnull(answers.get("mind_option").get("text"),"");
-	}
-	catch (e)
-	{
-		ans = "";
-	}
-	if(ans.equalsIgnoreCase("Mood Check"))
+	choice = ifnull(answers.get("care_main").get("text"),"");
+	if(choice.containsIgnoreCase("Back"))
 	{
 		response.put("action","context");
-		response.put("context_id","mind_mood_check");
-		question = {"name":"mood_rating","replies":{"Choose your current mood rating: (1–4 😢 Sad, 5–7 😐 Neutral, 8–10 😊 Good)"},"suggestions":{"1","2","3","4","5","6","7","8","9","10"}};
-		response.put("questions",{question});
+		response.put("context_id","care_main");
+		q = {"name":"care_main","replies":{"🩺 Welcome to *MedKit Wellness Hub*!"},"suggestions":{"Child Care 👶","Glow Care ✨","Health Care 🩺","🧠 Mind Care","Weather Care 😷","Main Menu"}};
+		response.put("questions",{q});
+	}
+	if(choice.containsIgnoreCase("Child Care"))
+	{
+		response.put("action","context");
+		response.put("context_id","child_menu");
+		q = {"name":"child_menu","replies":{"👶 *Child Care & Parenting Guide*"},"suggestions":{"🍼 Baby Nutrition","💉 Vaccine Guide","🧸 Child Safety","Back"}};
+		response.put("questions",{q});
 		return response;
 	}
-	// ---------------- Daily Affirmations (Supabase via Connection) ----------------
-	else if(ans.equalsIgnoreCase("Daily Affirmations"))
+	if(choice.containsIgnoreCase("Glow Care ✨"))
 	{
 		response.put("action","context");
-		response.put("context_id","mind");
-		url = "https://sgkucjwmpwqewpdgjocq.supabase.co/functions/v1/ai-chat";
-		payload = Map();
-		payload.put("message","Generate a daily affirmation in one sentence. It must be positive, encouraging, and short.");
-		payload.put("mood_rating",5);
-		headerMap = Map();
-		headerMap.put("Content-Type","application/json");
-		try 
-		{
-			apiResponse = invokeurl
-			[
-				url :url
-				type :POST
-				parameters:payload.toString()
-				headers:headerMap
-				connection:"supabase_thera_ai"
-			];
-			botReply = apiResponse.get("response");
-			response.put("action","reply");
-			response.put("replies",{botReply});
-			response.put("suggestions",{"Thank You"});
-			return response;
-		}
-		catch (e)
-		{
-			response.put("action","reply");
-			response.put("replies",{"Affirmation API Error: " + e.toString()});
-			response.put("suggestions",{"Thank You"});
-			return response;
-		}
+		response.put("context_id","skin_menu");
+		q = {"name":"skin_menu","replies":{"✨ Welcome to **Glow Care** — your personal skin & hair wellness guide!"},"suggestions":{"✨ Skin Care Tips","💇‍♀️ Hair Checkup","🧴 Medzon Products","Back"}};
+		response.put("questions",{q});
+		return response;
 	}
-	// ---------------- Journaling Prompts (Supabase via Connection) ----------------
-	else if(ans.equalsIgnoreCase("Journaling Prompts"))
+	if(choice.containsIgnoreCase("Weather Care"))
 	{
 		response.put("action","context");
-		response.put("context_id","journal");
-		url = "https://sgkucjwmpwqewpdgjocq.supabase.co/functions/v1/ai-chat";
-		payload = Map();
-		payload.put("message","Generate a reflective journaling prompt. It must be simple, clear, and help self-awareness.");
-		payload.put("mood_rating",5);
-		headerMap = Map();
-		headerMap.put("Content-Type","application/json");
-		try 
-		{
-			apiResponse = invokeurl
-			[
-				url :url
-				type :POST
-				parameters:payload.toString()
-				headers:headerMap
-				connection:"supabase_thera_ai"
-			];
-			botReply = apiResponse.get("response");
-			response.put("action","reply");
-			response.put("replies",{botReply});
-			response.put("suggestions",{"Thank you"});
-			return response;
-		}
-		catch (e)
-		{
-			response.put("action","reply");
-			response.put("replies",{"Journaling API Error: " + e.toString()});
-			response.put("suggestions",{"Thank You"});
-			return response;
-		}
+		response.put("context_id","weather_care");
+		q = {"name":"location","replies":{"🌤 *Weather Health Tips*","Could you tell me your location? 🌍"},"input":{"type":"location","radius":"10 kms","label":"Share Location","select_label":"Send my location"}};
+		response.put("questions",{q});
+		return response;
 	}
-	else if(ans.equalsIgnoreCase("Main Menu"))
+	if(choice.containsIgnoreCase("Mind Care"))
+	{
+		response.put("action","context");
+		response.put("context_id","mindcheck_menu");
+		q = {"name":"mind_option","replies":{"Let's explore your **Mind Wellness** 😊"},"suggestions":{"Mood Check","Daily Affirmations","Journaling Prompts","Back"}};
+		response.put("questions",{q});
+		return response;
+	}
+	if(choice.containsIgnoreCase("Health Care"))
+	{
+		response.put("action","context");
+		response.put("context_id","health_hub");
+		q = {"name":"health_hub","replies":{"Welcome to **Health Hub** 🩺! Choose an option:"},"suggestions":{"🔍 Search Hospitals","Tablet Info 💊","📞 Emergency Contacts","Health News 📰","Back"}};
+		response.put("questions",{q});
+		return response;
+	}
+	if(choice.equalsIgnoreCase("Main Menu"))
 	{
 		response.put("action","context");
 		response.put("context_id","mainmenu");
-		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to MedKit 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"🧠 Mind Check","Health Hub 🩺","Care Assistant 😊","ProcureX 🛒","💬 Motivational Boost","🏋️ FitZone","🤝 Consult an Expert","Dietrix 🥗","🎮 Play Games","📞 Help Desk"}};
+		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to **MedKit** 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"MedKit Wellness Hub 🌿","🏋️ FitZone","ProcureX 🛒","💬 Motivational Boost","🤝 Consult an Expert","📞 Help Desk"}};
 		response.put("questions",{question});
 		return response;
+	}
+}
+if(context_id == "child_menu")
+{
+	opt = ifnull(answers.get("child_menu").get("text"),"");
+	childSug = {"Thank You","Back"};
+	if(opt.containsIgnoreCase("Baby Nutrition"))
+	{
+		response.put("action","context");
+		response.put("context_id","baby_nutri");
+		q = {"name":"food_name","replies":{"🍼 *Baby Nutrition*","Enter a **Food Name** to fetch nutrition details.","**Eg: mashed banana,porridge, apple puree**"},"input":{"type":"name","placeholder":"Eg. mashed banana"}};
+		response.put("questions",{q});
+		return response;
+	}
+	else if(opt.containsIgnoreCase("Vaccine Guide"))
+	{
+		if(answers.containsKey("vaccine_select"))
+		{
+			backTxt = ifnull(answers.get("vaccine_select").get("text"),"").toLowerCase().trim();
+			if(backTxt.contains("back"))
+			{
+				response = Map();
+				response.put("action","context");
+				response.put("context_id","child_menu");
+				q = {"name":"child_menu","replies":{"👶 *Child Care & Parenting Guide*"},"suggestions":{"🍼 Baby Nutrition","💉 Vaccine Guide","🧸 Child Safety","Back"}};
+				response.put("questions",{q});
+				return response;
+			}
+		}
+		vaccineText = "💉 *Child Immunization Schedule*\n";
+		vaccineText = vaccineText + "━━━━━━━━━━━━━━━━━\n\n";
+		vaccineText = vaccineText + "👶 *At Birth*\n";
+		vaccineText = vaccineText + "• BCG\n";
+		vaccineText = vaccineText + "• OPV (0 dose)\n";
+		vaccineText = vaccineText + "• Hepatitis B (Birth dose)\n\n";
+		vaccineText = vaccineText + "🍼 *6 Weeks*\n";
+		vaccineText = vaccineText + "• Pentavalent Vaccine (1st dose)\n";
+		vaccineText = vaccineText + "• OPV (1st dose)\n";
+		vaccineText = vaccineText + "• Rotavirus (1st dose)\n";
+		vaccineText = vaccineText + "• IPV – Fractional (1st dose)\n\n";
+		vaccineText = vaccineText + "🍼 *10 Weeks*\n";
+		vaccineText = vaccineText + "• Pentavalent Vaccine (2nd dose)\n";
+		vaccineText = vaccineText + "• OPV (2nd dose)\n";
+		vaccineText = vaccineText + "• Rotavirus (2nd dose)\n\n";
+		vaccineText = vaccineText + "🍼 *14 Weeks*\n";
+		vaccineText = vaccineText + "• Pentavalent Vaccine (3rd dose)\n";
+		vaccineText = vaccineText + "• OPV (3rd dose)\n";
+		vaccineText = vaccineText + "• Rotavirus (3rd dose)\n";
+		vaccineText = vaccineText + "• IPV – Fractional (2nd dose)\n\n";
+		vaccineText = vaccineText + "🧒 *9–12 Months*\n";
+		vaccineText = vaccineText + "• MR (Measles–Rubella) – 1st dose\n";
+		vaccineText = vaccineText + "• Vitamin A – 1st dose\n\n";
+		vaccineText = vaccineText + "🧒 *16–24 Months*\n";
+		vaccineText = vaccineText + "• DPT Booster\n";
+		vaccineText = vaccineText + "• OPV Booster\n";
+		vaccineText = vaccineText + "• MR – 2nd dose\n\n";
+		vaccineText = vaccineText + "🎒 *5–6 Years*\n";
+		vaccineText = vaccineText + "• DPT Booster (2nd booster)\n\n";
+		vaccineText = vaccineText + "🧑 *10–16 Years*\n";
+		vaccineText = vaccineText + "• Td / TT Vaccine\n\n";
+		vaccineText = vaccineText + "_⚠️ Always follow your pediatrician’s official schedule._";
+		question = {"name":"vaccine_select","replies":{vaccineText},"suggestions":{"Back"}};
+		response = Map();
+		response.put("action","context");
+		response.put("context_id","child_menu");
+		response.put("questions",{question});
+		return response;
+	}
+	else if(opt.containsIgnoreCase("Child Safety"))
+	{
+		if(answers.containsKey("child_safety"))
+		{
+			backTxt = ifnull(answers.get("child_safety").get("text"),"").toLowerCase().trim();
+			if(backTxt.contains("back"))
+			{
+				response = Map();
+				response.put("action","context");
+				response.put("context_id","child_menu");
+				q = {"name":"child_menu","replies":{"👶 *Child Care & Parenting Guide*"},"suggestions":{"🍼 Baby Nutrition","💉 Vaccine Guide","🧸 Child Safety","Back"}};
+				response.put("questions",{q});
+				return response;
+			}
+		}
+		WHO_GHO_BASE_URL = "https://ghoapi.azureedge.net/api";
+		try 
+		{
+			ignore = invokeurl
+			[
+				url :WHO_GHO_BASE_URL + "/Indicator?$top=1"
+				type :GET
+			];
+		}
+		catch (e)
+		{
+		}
+		contentLines = {"🧸 *Child Safety – Quick Tips*","Here are some basic safety tips at home:","• Keep medicines and small objects out of reach.","• Use corner guards & plug / socket covers.","• Never leave babies unattended on beds or sofas.","• Always install safety gates on stairs.","","Take care of your children well ❤️"};
+		question = {"name":"child_safety","replies":contentLines,"suggestions":{"Back"}};
+		respMap = Map();
+		respMap.put("action","context");
+		respMap.put("context_id","child_menu");
+		respMap.put("questions",{question});
+		return respMap;
 	}
 	else
 	{
 		response.put("action","context");
-		response.put("context_id","mainmenu");
-		question = {"name":"done","replies":{"It was nice chatting with you 😊 Have a wonderful day! 👋"},"suggestions":{"Main Menu"}};
-		response.put("questions",{question});
+		response.put("context_id","care_main");
+		q = {"name":"care_main","replies":{"🩺 Welcome to *MedKit Wellness Hub*!"},"suggestions":{"Child Care 👶","Glow Care ✨","Health Care 🩺","🧠 Mind Care","Weather Care 😷","Main Menu"}};
+		response.put("questions",{q});
 		return response;
 	}
 }
-if(context_id != null && context_id.equals("mind_mood_check"))
-{
-	userMood = "";
-	try 
-	{
-		userMood = ifnull(answers.get("mood_rating").get("text"),"5");
-	}
-	catch (e)
-	{
-		userMood = "5";
-	}
-	url = "https://sgkucjwmpwqewpdgjocq.supabase.co/functions/v1/ai-chat";
-	payload = Map();
-	payload.put("message","Respond based on the user's mood rating using the following scale: " + "1–4 = very low mood, 5–7 = okay/neutral, 8–10 = good mood. " + "Give only a supportive message. Do NOT ask any questions.");
-	payload.put("mood_rating",userMood.toLong());
-	headerMap = Map();
-	headerMap.put("Content-Type","application/json");
-	try 
-	{
-		apiResponse = invokeurl
-		[
-			url :url
-			type :POST
-			parameters:payload.toString()
-			headers:headerMap
-			connection:"supabase_thera_ai"
-		];
-		botReply = apiResponse.get("response");
-		response.put("action","reply");
-		response.put("replies",{botReply});
-		response.put("suggestions",{"Thank You"});
-		return response;
-	}
-	catch (e)
-	{
-		response.put("action","reply");
-		response.put("replies",{"Oops! Unable to connect 😔"});
-		return response;
-	}
-}
-// ---End Mind Check Context Handler ---
-// ----------------------------------------------------------------------------------------
-if(context_id != null && context_id.equals("health_hub"))
+if(context_id == "health_hub")
 {
 	opt_trim = ifnull(answers.get("health_hub").get("text"),"");
 	if(opt_trim.containsIgnoreCase("Search Hospitals") || opt_trim.containsIgnoreCase("Search More") || opt_trim.containsIgnoreCase("Hospitals"))
 	{
 		response.put("action","context");
 		response.put("context_id","search_hospitals");
-		question = {"name":"city_name","replies":{"Please enter the city name where you want to find hospitals (e.g., Madurai)."},"input":{"type":"name","placeholder":"Eg. Madurai, Chennai, Mumbai...","value":"","error":{"Enter a valid city name"}},"suggestions":{"Main Menu"}};
+		question = {"name":"city_name","replies":{"Please enter the **City Name** where you want to find hospitals (e.g., Madurai)."},"input":{"type":"name","placeholder":"Eg. Madurai, Chennai, Mumbai...","value":"","error":{"Enter a valid city name"}},"suggestions":{"Main Menu"}};
 		response.put("questions",{question});
 		return response;
 	}
@@ -165,8 +186,100 @@ if(context_id != null && context_id.equals("health_hub"))
 	{
 		response.put("action","context");
 		response.put("context_id","tablet_info");
-		question = {"name":"tablet_name","replies":{"Please enter the tablet name you want information about (e.g., Paracetamol)."},"input":{"type":"name","placeholder":"Eg. Paracetamol, Ibuprofen","value":"","error":{"Enter a valid tablet name"}},"suggestions":{"Main Menu"}};
+		question = {"name":"tablet_name","replies":{"Please enter the **Tablet Name** you want information about (e.g., Paracetamol)."},"input":{"type":"name","placeholder":"Eg. Paracetamol, Ibuprofen","value":"","error":{"Enter a valid tablet name"}},"suggestions":{"Main Menu","Back"}};
 		response.put("questions",{question});
+		return response;
+	}
+	else if(opt_trim.containsIgnoreCase("Health News") || opt_trim.containsIgnoreCase("Health News"))
+	{
+		if(answers.containsKey("health_news"))
+		{
+			backTxt = ifnull(answers.get("health_news").get("text"),"").toLowerCase().trim();
+			if(backTxt.contains("back"))
+			{
+				response = Map();
+				response.put("action","context");
+				response.put("context_id","health_hub");
+				q = {"name":"health_hub","replies":{"Welcome to **Health Hub** 🩺! Choose an option:"},"suggestions":{"🔍 Search Hospitals","Tablet Info 💊","📞 Emergency Contacts","Health News 📰","Back"}};
+				response.put("questions",{q});
+				return response;
+			}
+		}
+		GNEWS_BASE_URL = "https://gnews.io/api/v4";
+		try 
+		{
+			newsUrl = GNEWS_BASE_URL + "/top-headlines?topic=health&country=in&lang=en&max=5";
+			newsResp = invokeurl
+			[
+				url :newsUrl
+				type :GET
+				connection:"gnews_salesiq"
+			];
+			articles = newsResp.get("articles");
+			if(articles == null || articles.size() == 0)
+			{
+				question = {"name":"health_news","replies":{"❌ No recent health headlines available right now."},"suggestions":{"Back"}};
+				respMap = Map();
+				respMap.put("action","context");
+				respMap.put("context_id","health_hub");
+				respMap.put("questions",{question});
+				return respMap;
+			}
+			text = "📰 *Top Health Headlines (India)*\n\n";
+			count = 0;
+			for each  art in articles
+			{
+				if(count >= 5)
+				{
+					break;
+				}
+				title = ifnull(art.get("title"),"");
+				urlArt = ifnull(art.get("url"),"");
+				if(title != "")
+				{
+					cleanUrl = urlArt;
+					if(cleanUrl != null && cleanUrl != "")
+					{
+						cleanUrl = cleanUrl.replaceAll("<br>","").replaceAll("<br/>","").replaceAll("<br />","").trim();
+					}
+					text = text + "• *" + title + "*\n";
+					if(cleanUrl != null && cleanUrl != "")
+					{
+						text = text + cleanUrl + "\n\n";
+					}
+					else
+					{
+						text = text + "\n";
+					}
+					count = count + 1;
+				}
+			}
+			text = text + "_Source: GNews.io – open links to read full articles._";
+			question = {"name":"health_news","replies":{text},"suggestions":{"Back"}};
+			respMap = Map();
+			respMap.put("action","context");
+			respMap.put("context_id","health_hub");
+			respMap.put("questions",{question});
+			return respMap;
+		}
+		catch (e)
+		{
+			info "GNEWS ERROR ===>";
+			info e;
+			question = {"name":"health_news","replies":{"⚠️ Couldn’t fetch health news right now.","Please try again later."},"suggestions":{"Back"}};
+			respErr = Map();
+			respErr.put("action","context");
+			respErr.put("context_id","health_hub");
+			respErr.put("questions",{question});
+			return respErr;
+		}
+	}
+	else if(opt_trim.containsIgnoreCase("Back") || opt_trim.containsIgnoreCase("back"))
+	{
+		response.put("action","context");
+		response.put("context_id","care_main");
+		q = {"name":"care_main","replies":{"🩺 Welcome to *MedKit Wellness Hub*!"},"suggestions":{"Child Care 👶","Glow Care ✨","Health Care 🩺","🧠 Mind Care","Weather Care 😷","Main Menu"}};
+		response.put("questions",{q});
 		return response;
 	}
 	else if(opt_trim.containsIgnoreCase("Emergency Contacts") || opt_trim.containsIgnoreCase("Emergency") || opt_trim.containsIgnoreCase("Contacts"))
@@ -193,7 +306,7 @@ if(context_id != null && context_id.equals("health_hub"))
 		q.put("replies",cards);
 		sugs = List();
 		sugs.add("Search Hospitals");
-		sugs.add("Main Menu");
+		sugs.add("Back");
 		q.put("suggestions",sugs);
 		response.put("questions",{q});
 		return response;
@@ -202,17 +315,234 @@ if(context_id != null && context_id.equals("health_hub"))
 	{
 		response.put("action","context");
 		response.put("context_id","mainmenu");
-		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to MedKit 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"🧠 Mind Check","Health Hub 🩺","Care Assistant 😊","ProcureX 🛒","💬 Motivational Boost","🏋️ FitZone","🤝 Consult an Expert","Dietrix 🥗","🎮 Play Games","📞 Help Desk"}};
+		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to **MedKit** 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"MedKit Wellness Hub 🌿","🏋️ FitZone","ProcureX 🛒","💬 Motivational Boost","🤝 Consult an Expert","📞 Help Desk"}};
 		response.put("questions",{question});
 		return response;
 	}
 	else
 	{
 		response.put("action","context");
-		response.put("context_id","main menu");
-		question = {"name":"done","replies":{"It was nice chatting with you 😊 Have a wonderful day! 👋"},"suggestions":{"Main Menu"}};
+		response.put("context_id","care_main");
+		q = {"name":"care_main","replies":{"🩺 Welcome to *MedKit Wellness Hub*!"},"suggestions":{"Child Care 👶","Glow Care ✨","Health Care 🩺","🧠 Mind Care","Weather Care 😷","Main Menu"}};
+		response.put("questions",{q});
+		return response;
+	}
+}
+// --------------------------------------------------------------------------------------
+if(context_id != null && context_id.equals("mindcheck_menu"))
+{
+	ans = "";
+	try 
+	{
+		ans = ifnull(answers.get("mind_option").get("text"),"");
+	}
+	catch (e)
+	{
+		ans = "";
+	}
+	if(ans.equalsIgnoreCase("Mood Check"))
+	{
+		response.put("action","context");
+		response.put("context_id","mind_mood_check");
+		question = {"name":"mood_rating","replies":{"Choose your current **Mood Rating:** (1–4 😢 Sad, 5–7 😐 Neutral, 8–10 😊 Good)"},"suggestions":{"1","2","3","4","5","6","7","8","9","10"}};
 		response.put("questions",{question});
 		return response;
+	}
+	// ---------------- Daily Affirmations (Supabase via Connection) ----------------
+	else if(ans.equalsIgnoreCase("Daily Affirmations"))
+	{
+		if(answers.containsKey("affirm_select"))
+		{
+			backTxt = ifnull(answers.get("affirm_select").get("text"),"").toLowerCase();
+			if(backTxt.contains("back"))
+			{
+				resp = Map();
+				resp.put("action","context");
+				resp.put("context_id","mindcheck_menu");
+				q = {"name":"mind_option","replies":{"Let's explore your **Mind Wellness** 😊"},"suggestions":{"Mood Check","Daily Affirmations","Journaling Prompts","Back"}};
+				resp.put("questions",{q});
+				return resp;
+			}
+		}
+		url = "https://sgkucjwmpwqewpdgjocq.supabase.co/functions/v1/ai-chat";
+		payload = Map();
+		payload.put("message","Generate a daily affirmation in one sentence. It must be positive, encouraging, and short.");
+		payload.put("mood_rating",5);
+		headerMap = Map();
+		headerMap.put("Content-Type","application/json");
+		try 
+		{
+			apiResponse = invokeurl
+			[
+				url :url
+				type :POST
+				parameters:payload.toString()
+				headers:headerMap
+				connection:"supabase_thera_ai"
+			];
+			botReply = ifnull(apiResponse.get("response"),"Sorry — no response from affirmation API.");
+			question = {"name":"affirm_select","replies":{botReply},"suggestions":{"Back"}};
+			respMap = Map();
+			respMap.put("action","context");
+			respMap.put("context_id","mindcheck_menu");
+			respMap.put("questions",{question});
+			return respMap;
+		}
+		catch (e)
+		{
+			errText = "Affirmation API Error: " + e.toString();
+			question = {"name":"affirm_select","replies":{errText},"suggestions":{"Back"}};
+			respErr = Map();
+			respErr.put("action","context");
+			respErr.put("context_id","mindcheck_menu");
+			respErr.put("questions",{question});
+			return respErr;
+		}
+	}
+	// ---------------- Journaling Prompts (Supabase via Connection) ----------------
+	else if(ans.equalsIgnoreCase("Journaling Prompts"))
+	{
+		if(answers.containsKey("journal_select"))
+		{
+			backTxt = ifnull(answers.get("journal_select").get("text"),"").toLowerCase();
+			if(backTxt.contains("back"))
+			{
+				resp = Map();
+				resp.put("action","context");
+				resp.put("context_id","mindcheck_menu");
+				q = {"name":"mind_option","replies":{"Let's explore your **Mind Wellness** 😊"},"suggestions":{"Mood Check","Daily Affirmations","Journaling Prompts","Back"}};
+				resp.put("questions",{q});
+				return resp;
+			}
+		}
+		url = "https://sgkucjwmpwqewpdgjocq.supabase.co/functions/v1/ai-chat";
+		payload = Map();
+		payload.put("message","Generate a reflective journaling prompt. It must be simple, clear, and help self-awareness.");
+		payload.put("mood_rating",5);
+		headerMap = Map();
+		headerMap.put("Content-Type","application/json");
+		try 
+		{
+			apiResponse = invokeurl
+			[
+				url :url
+				type :POST
+				parameters:payload.toString()
+				headers:headerMap
+				connection:"supabase_thera_ai"
+			];
+			botReply = ifnull(apiResponse.get("response"),"Sorry — no response from journaling API.");
+			question = {"name":"journal_select","replies":{botReply},"suggestions":{"Back"}};
+			respMap = Map();
+			respMap.put("action","context");
+			respMap.put("context_id","mindcheck_menu");
+			respMap.put("questions",{question});
+			return respMap;
+		}
+		catch (e)
+		{
+			errText = "Journaling API Error: " + e.toString();
+			question = {"name":"journal_select","replies":{errText},"suggestions":{"Back"}};
+			respErr = Map();
+			respErr.put("action","context");
+			respErr.put("context_id","mindcheck_menu");
+			respErr.put("questions",{question});
+			return respErr;
+		}
+	}
+	else if(ans.equalsIgnoreCase("Back"))
+	{
+		response.put("action","context");
+		response.put("context_id","care_main");
+		q = {"name":"care_main","replies":{"🩺 Welcome to *MedKit Wellness Hub*!"},"suggestions":{"Child Care 👶","Glow Care ✨","Health Care 🩺","🧠 Mind Care","Weather Care 😷","Main Menu"}};
+		response.put("questions",{q});
+		return response;
+	}
+	else
+	{
+		resp = Map();
+		resp.put("action","context");
+		resp.put("context_id","mindcheck_menu");
+		q = {"name":"mind_option","replies":{"Let's explore your **Mind Wellness** 😊"},"suggestions":{"Mood Check","Daily Affirmations","Journaling Prompts","Back"}};
+		resp.put("questions",{q});
+		return resp;
+	}
+}
+if(context_id != null && context_id.equals("mind_mood_check"))
+{
+	if(answers != null && answers.containsKey("mood_select"))
+	{
+		backTxt = ifnull(answers.get("mood_select").get("text"),"");
+		backTxt = backTxt.toLowerCase();
+		backTxt = backTxt.trim();
+		if(backTxt.contains("back"))
+		{
+			resp = Map();
+			resp.put("action","context");
+			resp.put("context_id","mindcheck_menu");
+			q = {"name":"mind_option","replies":{"Let's explore your **Mind Wellness** 😊"},"suggestions":{"Mood Check","Daily Affirmations","Journaling Prompts","Back"}};
+			resp.put("questions",{q});
+			return resp;
+		}
+	}
+	userMood = "5";
+	if(answers != null && answers.containsKey("mood_rating"))
+	{
+		tmp = ifnull(answers.get("mood_rating").get("text"),"5");
+		tmp = tmp.toLowerCase();
+		tmp = tmp.trim();
+		// if typed "back" in rating input
+		if(tmp.contains("back"))
+		{
+			resp = Map();
+			resp.put("action","context");
+			resp.put("context_id","mindcheck_menu");
+			q = {"name":"mind_option","replies":{"Let's explore your **Mind Wellness** 😊"},"suggestions":{"Mood Check","Daily Affirmations","Journaling Prompts","Back"}};
+			resp.put("questions",{q});
+			return resp;
+		}
+		userMood = tmp;
+	}
+	url = "https://sgkucjwmpwqewpdgjocq.supabase.co/functions/v1/ai-chat";
+	payload = Map();
+	try 
+	{
+		mr = userMood.toLong();
+	}
+	catch (e)
+	{
+		mr = 5;
+	}
+	payload.put("message","Respond based on the user's mood rating using: 1–4 = low, 5–7 neutral, 8–10 good.");
+	payload.put("mood_rating",mr);
+	headerMap = Map();
+	headerMap.put("Content-Type","application/json");
+	try 
+	{
+		apiResponse = invokeurl
+		[
+			url :url
+			type :POST
+			parameters:payload.toString()
+			headers:headerMap
+			connection:"supabase_thera_ai"
+		];
+		botReply = ifnull(apiResponse.get("response"),"Sorry — no response from journaling API.");
+		question = {"name":"mood_select","replies":{botReply},"suggestions":{"Back"}};
+		resp = Map();
+		resp.put("action","context");
+		resp.put("context_id","mindcheck_menu");
+		resp.put("questions",{question});
+		return resp;
+	}
+	catch (e)
+	{
+		question = {"name":"mood_select","replies":{"Oops! Unable to connect 😔"},"suggestions":{"Back"}};
+		resp = Map();
+		resp.put("action","context");
+		resp.put("context_id","mindcheck_menu");
+		resp.put("questions",{question});
+		return resp;
 	}
 }
 if(context_id != null && context_id.equals("tablet_info"))
@@ -223,9 +553,18 @@ if(context_id != null && context_id.equals("tablet_info"))
 	{
 		trigger = ifnull(answers.get("tablet_trigger").get("text"),"").toLowerCase().trim();
 	}
+	if(trigger.contains("back"))
+	{
+		response = Map();
+		response.put("action","context");
+		response.put("context_id","health_hub");
+		q = {"name":"health_hub","replies":{"Welcome to **Health Hub** 🩺! Choose an option:"},"suggestions":{"🔍 Search Hospitals","Tablet Info 💊","📞 Emergency Contacts","Health News 📰","Back"}};
+		response.put("questions",{q});
+		return response;
+	}
 	if(trigger.contains("search again") || trigger.contains("search") && !trigger.contains("hospital"))
 	{
-		question = {"name":"tablet_name","replies":{"Please enter the tablet name you want information about (e.g., Paracetamol)."},"input":{"type":"name","placeholder":"Eg. Paracetamol, Ibuprofen","value":"","error":{"Enter a valid tablet name"}},"suggestions":{"Main Menu","Search Hospitals"}};
+		question = {"name":"tablet_name","replies":{"Please enter the **Tablet Name** you want information about (e.g., Paracetamol)."},"input":{"type":"name","placeholder":"Eg. Paracetamol, Ibuprofen","value":"","error":{"Enter a valid tablet name"}},"suggestions":{"Main Menu","Search Hospitals","Back"}};
 		response.put("action","context");
 		response.put("context_id","tablet_info");
 		response.put("questions",{question});
@@ -235,7 +574,7 @@ if(context_id != null && context_id.equals("tablet_info"))
 	{
 		response.put("action","context");
 		response.put("context_id","search_hospitals");
-		question = {"name":"city_name","replies":{"Please enter the city name where you want to find hospitals (e.g., Madurai)."},"input":{"type":"name","placeholder":"Eg. Madurai, Chennai, Mumbai...","value":"","error":{"Enter a valid city name"}},"suggestions":{"Main Menu"}};
+		question = {"name":"city_name","replies":{"Please enter the **City Name** where you want to find hospitals (e.g., Madurai)."},"input":{"type":"name","placeholder":"Eg. Madurai, Chennai, Mumbai...","value":"","error":{"Enter a valid city name"}},"suggestions":{"Main Menu","Back"}};
 		response.put("questions",{question});
 		return response;
 	}
@@ -243,7 +582,7 @@ if(context_id != null && context_id.equals("tablet_info"))
 	{
 		response.put("action","context");
 		response.put("context_id","mainmenu");
-		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to MedKit 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"🧠 Mind Check","Health Hub 🩺","Care Assistant 😊","ProcureX 🛒","💬 Motivational Boost","🏋️ FitZone","🤝 Consult an Expert","Dietrix 🥗","🎮 Play Games","📞 Help Desk"}};
+		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to **MedKit** 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"MedKit Wellness Hub 🌿","🏋️ FitZone","ProcureX 🛒","💬 Motivational Boost","🤝 Consult an Expert","📞 Help Desk"}};
 		response.put("questions",{question});
 		return response;
 	}
@@ -254,7 +593,7 @@ if(context_id != null && context_id.equals("tablet_info"))
 	}
 	if(tabname == "")
 	{
-		question = {"name":"tablet_name","replies":{"Please enter a valid medicine or tablet name."},"input":{"type":"name","placeholder":"Eg. Paracetamol, Ibuprofen","value":"","error":{"Enter a valid tablet name"}},"suggestions":{"Main Menu","Search Hospitals"}};
+		question = {"name":"tablet_name","replies":{"Please enter a valid **Medicine or Tablet Name.**"},"input":{"type":"name","placeholder":"Eg. Paracetamol, Ibuprofen","value":"","error":{"Enter a valid tablet name"}},"suggestions":{"Main Menu","Search Hospitals"}};
 		response.put("action","context");
 		response.put("context_id","tablet_info");
 		response.put("questions",{question});
@@ -289,7 +628,7 @@ if(context_id != null && context_id.equals("tablet_info"))
 		desc = "⚠️ No detailed information found for **" + tabname + "** right now.";
 	}
 	finalText = "💊 *Medicine Information for*: **" + tabname + "**\n\n" + desc;
-	question = {"name":"tablet_trigger","replies":{finalText},"suggestions":{"Search Hospitals","Main Menu"}};
+	question = {"name":"tablet_trigger","replies":{finalText},"suggestions":{"Search Hospitals","Main Menu","Back"}};
 	response.put("action","context");
 	response.put("context_id","tablet_info");
 	response.put("questions",{question});
@@ -315,8 +654,8 @@ if(context_id != null && context_id.equals("search_hospitals"))
 		response.put("context_id","search_hospitals");
 		q = Map();
 		q.put("name","city_name");
-		q.put("replies",{"⚠️ Please enter a valid city name using *letters only* (e.g., Chennai). 🏙️"});
-		q.put("suggestions",{"Search","Main Menu"});
+		q.put("replies",{"⚠️ Please enter a valid **City Name** using *letters only* (e.g., Chennai). 🏙️"});
+		q.put("suggestions",{"Search","Main Menu","Back"});
 		response.put("questions",{q});
 		return response;
 	}
@@ -351,7 +690,7 @@ if(context_id != null && context_id.equals("search_hospitals"))
 		q = Map();
 		q.put("name","health_hub");
 		q.put("replies",{"Sorry — couldn't find hospitals in " + city_trim + "."});
-		q.put("suggestions",{"Search Another","Main Menu"});
+		q.put("suggestions",{"Search Another","Main Menu","Back"});
 		response.put("questions",{q});
 		return response;
 	}
@@ -503,270 +842,107 @@ if(context_id != null && context_id.equals("search_hospitals"))
 	q.put("replies",cards);
 	sugList = List();
 	sugList.add("Search More");
-	sugList.add("Main Menu");
+	sugList.add("Back");
 	q.put("suggestions",sugList);
 	response.put("questions",{q});
 	return response;
 }
-// ---End Health Hub Context Handler ---
-//------------------------------------------------------
-if(context_id == "care_main")
+if(context_id != null && context_id == "baby_nutri")
 {
-	choice = ifnull(answers.get("care_main").get("text"),"");
-	if(choice.containsIgnoreCase("Child Care"))
+	nutr_trigger = "";
+	if(answers.containsKey("nutriselect"))
+	{
+		nutr_trigger = ifnull(answers.get("nutriselect").get("text"),"").toLowerCase();
+	}
+	if(nutr_trigger.contains("back") || nutr_trigger.contains("main"))
 	{
 		response.put("action","context");
 		response.put("context_id","child_menu");
-		q = {"name":"child_menu","replies":{"👶 *Child Care & Parenting Guide*"},"suggestions":{"🍼 Baby Nutrition","💉 Vaccine Guide","🧸 Child Safety","Main Menu"}};
+		q = {"name":"child_menu","replies":{"👶 *Child Care & Parenting Guide*"},"suggestions":{"🍼 Baby Nutrition","💉 Vaccine Guide","🧸 Child Safety","Back"}};
 		response.put("questions",{q});
 		return response;
 	}
-	if(choice.containsIgnoreCase("Skin & Hair"))
-	{
-		response.put("action","context");
-		response.put("context_id","skin_menu");
-		q = {"name":"skin_menu","replies":{"💆‍♀️ *Skin & Hair Care*"},"suggestions":{"✨ Skin Care Tips","💇‍♀️ Hair Checkup","🧴 Medzon Products","Main Menu"}};
-		response.put("questions",{q});
-		return response;
-	}
-	if(choice.containsIgnoreCase("Weather Care"))
-	{
-		response.put("action","context");
-		response.put("context_id","weather_care");
-		q = {"name":"location","replies":{"🌤 *Weather Health Tips*","Could you tell me your location? 🌍"},"input":{"type":"location","radius":"2 kms","label":"Share Location","select_label":"Send my location"}};
-		response.put("questions",{q});
-		return response;
-	}
-	if(choice.containsIgnoreCase("Health News"))
-	{
-		GNEWS_BASE_URL = "https://gnews.io/api/v4";
-		try 
-		{
-			newsUrl = GNEWS_BASE_URL + "/top-headlines?topic=health&country=in&lang=en&max=5";
-			newsResp = invokeurl
-			[
-				url :newsUrl
-				type :GET
-				connection:"gnews_salesiq"
-			];
-			articles = newsResp.get("articles");
-			if(articles == null || articles.size() == 0)
-			{
-				response.put("action","reply");
-				response.put("replies",{"❌ No recent health headlines available right now."});
-				response.put("suggestions",{"Thank you 🙏"});
-				return response;
-			}
-			text = "📰 *Top Health Headlines (India)*\n\n";
-			count = 0;
-			for each  art in articles
-			{
-				if(count >= 5)
-				{
-					break;
-				}
-				title = ifnull(art.get("title"),"");
-				urlArt = ifnull(art.get("url"),"");
-				if(title != "")
-				{
-					cleanUrl = urlArt;
-					if(cleanUrl != null && cleanUrl != "")
-					{
-						cleanUrl = cleanUrl.replaceAll("<br>","").replaceAll("<br/>","").replaceAll("<br />","").trim();
-					}
-					text = text + "• *" + title + "*\n\n";
-					if(cleanUrl != null && cleanUrl != "")
-					{
-						text = text + cleanUrl + "\n\n\n";
-					}
-					else
-					{
-						text = text + "\n";
-					}
-					count = count + 1;
-				}
-			}
-			text = text + "_Source: GNews.io – open links to read full articles._";
-			response.put("action","reply");
-			response.put("replies",{text});
-			response.put("suggestions",{"Thank you 🙏"});
-			return response;
-		}
-		catch (e)
-		{
-			info "GNEWS ERROR ===>";
-			info e;
-			response.put("action","reply");
-			response.put("replies",{"⚠️ Couldn’t fetch health news right now.","Please try again later."});
-			response.put("suggestions",{"Thank you 🙏"});
-			return response;
-		}
-	}
-	if(choice.equalsIgnoreCase("Main Menu"))
-	{
-		response.put("action","context");
-		response.put("context_id","mainmenu");
-		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to **MedKit** 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"🧠 Mind Check","Health Hub 🩺","Care Assistant 😊","ProcureX 🛒","💬 Motivational Boost","🏋️ FitZone","🤝 Consult an Expert","Dietrix 🥗","🎮 Play Games","📞 Help Desk"}};
-		response.put("questions",{question});
-		return response;
-	}
-}
-if(context_id == "child_menu")
-{
-	opt = ifnull(answers.get("child_menu").get("text"),"");
-	childSug = {"Thank You"};
-	if(opt.containsIgnoreCase("Baby Nutrition"))
-	{
-		response.put("action","context");
-		response.put("context_id","baby_nutri");
-		q = {"name":"food_name","replies":{"🍼 *Baby Nutrition*","Enter a food name to fetch nutrition details.","**Eg: mashed banana,porridge, apple puree**"},"input":{"type":"name","placeholder":"Eg. mashed banana"}};
-		response.put("questions",{q});
-		return response;
-	}
-	else if(opt.containsIgnoreCase("Vaccine Guide"))
-	{
-		OPENFDA_DRUG_URL = "https://api.fda.gov/drug/label.json";
-		try 
-		{
-			apiResp = invokeurl
-			[
-				url :OPENFDA_DRUG_URL + "?search=vaccine&limit=1"
-				type :GET
-			];
-			desc = "";
-			results = apiResp.get("results");
-			if(results != null && results.size() > 0)
-			{
-				d = results.get(0);
-				if(d.containsKey("description"))
-				{
-					descList = d.get("description");
-					if(descList != null && descList.size() > 0)
-					{
-						desc = descList.get(0);
-					}
-				}
-			}
-			replyTxt = "💉 *Vaccine Guide* (general info)\n\n";
-			if(desc != "")
-			{
-				replyTxt = replyTxt + desc + "\n\n";
-			}
-			replyTxt = replyTxt + "_Follow your pediatrician’s official schedule._";
-			response.put("action","reply");
-			response.put("replies",{replyTxt});
-			response.put("suggestions",childSug);
-			return response;
-		}
-		catch (e)
-		{
-			response.put("action","reply");
-			response.put("replies",{"⚠️ Couldn’t fetch vaccine info.","Please try again later."});
-			response.put("suggestions",childSug);
-			return response;
-		}
-	}
-	else if(opt.containsIgnoreCase("Child Safety"))
-	{
-		WHO_GHO_BASE_URL = "https://ghoapi.azureedge.net/api";
-		try 
-		{
-			ignore = invokeurl
-			[
-				url :WHO_GHO_BASE_URL + "/Indicator?$top=1"
-				type :GET
-			];
-		}
-		catch (e)
-		{
-		}
-		response.put("action","context");
-		response.put("context_id","child_safety");
-		q = Map();
-		q.put("name","child_safety");
-		q.put("replies",{"🧸 *Child Safety – Quick Tips*","Here are some basic safety tips at home:","• Keep medicines and small objects out of reach.","• Use corner guards & plug / socket covers.","• Never leave babies unattended on beds or sofas.","","Take care of your children well ❤️"});
-		q.put("suggestions",{"Main Menu"});
-		response.put("questions",{q});
-		return response;
-	}
-	else
-	{
-		response.put("action","context");
-		response.put("context_id","mainmenu");
-		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to MedKit 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"🧠 Mind Check","Health Hub 🩺","Care Assistant 😊","ProcureX 🛒","💬 Motivational Boost","🏋️ FitZone","🤝 Consult an Expert","Dietrix 🥗","🎮 Play Games","📞 Help Desk"}};
-		response.put("questions",{question});
-		return response;
-	}
-}
-if(context_id != null && context_id.equals("baby_nutri"))
-{
 	food = ifnull(answers.get("food_name").get("text"),"").trim();
-	sug = {"Thank You"};
 	if(food == "")
 	{
-		response.put("action","context");
-		response.put("context_id","baby_nutri");
-		q = {"name":"food_name","replies":{"Please enter a valid food name 😊"}};
-		response.put("questions",{q});
-		return response;
+		resp = Map();
+		resp.put("action","context");
+		resp.put("context_id","baby_nutri");
+		q = {"name":"food_name","replies":{"Please enter a **Food Name** 😊"},"suggestions":{"Main Menu","Back"}};
+		resp.put("questions",{q});
+		return resp;
 	}
+	nutriText = "";
 	try 
 	{
-		nutriResp = invokeurl
+		apiResp = invokeurl
 		[
 			url :"https://api.api-ninjas.com/v1/nutrition?query=" + encodeUrl(food)
 			type :GET
 			connection:"apininjas_nutri_conn"
 		];
-		text = "🍎 *Nutrition for* **" + food.toUpperCase() + "**:\n\n";
-		if(nutriResp != null && nutriResp.size() > 0)
+		if(apiResp != null && apiResp.size() > 0)
 		{
-			item = nutriResp.get(0);
-			fat = item.get("fat_total_g");
-			carbs = item.get("carbohydrates_total_g");
-			fiber = item.get("fiber_g");
-			sugar = item.get("sugar_g");
-			if(fat != null)
-			{
-				text = text + "• **Fat**: " + fat + " g\n";
-			}
-			if(carbs != null)
-			{
-				text = text + "• **Carbs**: " + carbs + " g\n";
-			}
-			if(fiber != null)
-			{
-				text = text + "• **Fiber**: " + fiber + " g\n";
-			}
-			if(sugar != null)
-			{
-				text = text + "• **Sugar**: " + sugar + " g\n";
-			}
-			text = text + "\n_Always consult a **pediatrician** for baby diets._";
+			item = apiResp.get(0);
+			nutriText = "🍎 *Nutrition for* **" + food.toUpperCase() + "**\n" + "━━━━━━━━━━━━━━━━━━\n\n" + "🥑 **Fat:** " + item.get("fat_total_g") + " g\n" + "🍞 **Carbohydrates:** " + item.get("carbohydrates_total_g") + " g\n" + "🌾 **Fiber:** " + item.get("fiber_g") + " g\n" + "🍬 **Sugar:** " + item.get("sugar_g") + " g\n" + "🧂 **Sodium:** " + item.get("sodium_mg") + " mg\n" + "🍌 **Potassium:** " + item.get("potassium_mg") + " mg\n" + "🩸 **Cholesterol:** " + item.get("cholesterol_mg") + " mg\n\n" + "⚠️ _Always consult a **pediatrician** before introducing new foods to babies._";
 		}
 		else
 		{
-			text = "⚠️ No nutrition data found for this food.";
+			nutriText = "⚠️ No nutrition data found. Try a simpler food name.";
 		}
-		response.put("action","reply");
-		response.put("replies",{text});
-		response.put("suggestions",sug);
-		return response;
 	}
 	catch (e)
 	{
-		response.put("action","reply");
-		response.put("replies",{"⚠️ Couldn't fetch nutrition info.","Try again later."});
-		response.put("suggestions",sug);
-		return response;
+		nutriText = "⚠️ Could not fetch nutrition info. Try again later.";
 	}
+	question = {"name":"nutriselect","replies":{nutriText},"suggestions":{"Back"}};
+	respMap = Map();
+	respMap.put("action","context");
+	respMap.put("context_id","baby_nutri");
+	respMap.put("questions",{question});
+	return respMap;
 }
-// ========= SKIN & HAIR MENU HANDLER =========
 if(context_id != null && context_id.equals("skin_menu"))
 {
+	if(answers != null)
+	{
+		keysList = answers.keys();
+		for each  k in keysList
+		{
+			backTxt = ifnull(answers.get(k).get("text"),"");
+			backTxt = backTxt.toLowerCase();
+			backTxt = backTxt.trim();
+			if(backTxt.contains("back"))
+			{
+				response = Map();
+				response.put("action","context");
+				response.put("context_id","care_main");
+				q = {"name":"care_main","replies":{"🩺 Welcome to *MedKit Wellness Hub*!"},"suggestions":{"Child Care 👶","Glow Care ✨","Health Care 🩺","🧠 Mind Care","Weather Care 😷","Main Menu"}};
+				response.put("questions",{q});
+			}
+		}
+	}
+	// ---------- Normal Skin Care Tips flow ----------
 	opt = ifnull(answers.get("skin_menu").get("text"),"");
 	if(opt.containsIgnoreCase("Skin Care Tips"))
 	{
+		// ---------- SIMPLE BACK HANDLER ----------
+		if(answers != null && answers.containsKey("skin_select"))
+		{
+			backTxt = ifnull(answers.get("skin_select").get("text"),"");
+			backTxt = backTxt.toLowerCase();
+			backTxt = backTxt.trim();
+			if(backTxt.contains("back"))
+			{
+				resp = Map();
+				resp.put("action","context");
+				resp.put("context_id","skin_menu");
+				q = {"name":"skin_menu","replies":{"✨ Welcome to **Glow Care** — your personal skin & hair wellness guide!"},"suggestions":{"✨ Skin Care Tips","💇‍♀️ Hair Checkup","🧴 Medzon Products","Back"}};
+				resp.put("questions",{q});
+				return resp;
+			}
+		}
+		// ---------- NORMAL SKIN CARE TIPS FLOW ----------
 		response = Map();
 		response.put("action","context");
 		response.put("context_id","skin_menu");
@@ -786,9 +962,9 @@ if(context_id != null && context_id.equals("skin_menu"))
 		if(ytResp == null || ytResp.get("items") == null)
 		{
 			question = Map();
-			question.put("name","skin_menu");
+			question.put("name","skin_select");
 			question.put("replies",{"Sorry — couldn't fetch *skin care videos* right now. Please try again later."});
-			question.put("suggestions",{"Main Menu"});
+			question.put("suggestions",{"Back","Main Menu"});
 			response.put("questions",{question});
 			return response;
 		}
@@ -843,14 +1019,27 @@ if(context_id != null && context_id.equals("skin_menu"))
 			replies.add(v);
 		}
 		question = Map();
-		question.put("name","skin_menu");
+		question.put("name","skin_select");
 		question.put("replies",replies);
-		question.put("suggestions",{"Main Menu"});
+		question.put("suggestions",{"Back"});
 		response.put("questions",{question});
 		return response;
 	}
-	if(opt.containsIgnoreCase("Medzon"))
+	else if(opt.containsIgnoreCase("Medzon"))
 	{
+		if(answers.containsKey("medzon_select"))
+		{
+			backTxt = ifnull(answers.get("medzon_select").get("text"),"").toLowerCase();
+			if(backTxt.contains("back"))
+			{
+				resp = Map();
+				resp.put("action","context");
+				resp.put("context_id","skin_menu");
+				q = {"name":"skin_menu","replies":{"✨ Welcome to **Glow Care** — your personal skin & hair wellness guide!"},"suggestions":{"✨ Skin Care Tips","💇‍♀️ Hair Checkup","🧴 Medzon Products","Back"}};
+				resp.put("questions",{q});
+				return resp;
+			}
+		}
 		products = List();
 		product1 = {"type":"links","text":"**Sunscreen SPF 50 – Oil Free\n\nPrice: ₹443**\nLightweight, non-greasy sunscreen for daily use.","image":"https://m.media-amazon.com/images/I/61GWPBUra2L._AC_UF1000%2C1000_QL80_.jpg","image_position":"fit","links":{{"url":"https://amzn.in/d/fJxHirT","text":"Buy Now","icon":"https://image.flaticon.com/icons/png/512/126/126083.png"}}};
 		products.add(product1);
@@ -865,12 +1054,15 @@ if(context_id != null && context_id.equals("skin_menu"))
 		{
 			replies.add(p);
 		}
-		response.put("action","reply");
-		response.put("replies",replies);
-		response.put("suggestions",{"Thank You"});
-		return response;
+		question = {"name":"medzon_select","replies":replies,"suggestions":{"Back"}};
+		respMap = Map();
+		respMap.put("action","context");
+		respMap.put("context_id","skin_menu");
+		// keep user in skin_menu context so Back works naturally
+		respMap.put("questions",{question});
+		return respMap;
 	}
-	if(opt.containsIgnoreCase("Hair Checkup"))
+	else if(opt.containsIgnoreCase("Hair Checkup"))
 	{
 		response.put("action","context");
 		response.put("context_id","hair_checkup");
@@ -878,63 +1070,100 @@ if(context_id != null && context_id.equals("skin_menu"))
 		response.put("questions",{q});
 		return response;
 	}
+	else if(opt.containsIgnoreCase("Back"))
+	{
+		response.put("action","context");
+		response.put("context_id","care_main");
+		q = {"name":"care_main","replies":{"🩺 Welcome to *MedKit Wellness Hub*!"},"suggestions":{"Child Care 👶","Glow Care ✨","Health Care 🩺","🧠 Mind Care","Weather Care 😷","Main Menu"}};
+		response.put("questions",{q});
+		return response;
+	}
+	else
+	{
+		response.put("action","context");
+		response.put("context_id","skin_menu");
+		q = {"name":"skin_menu","replies":{"✨ Welcome to Glow Care — your personal skin & hair wellness guide!"},"suggestions":{"✨ Skin Care Tips","💇‍♀️ Hair Checkup","🧴 Medzon Products","Back"}};
+		response.put("questions",{q});
+		return response;
+	}
 }
 if(context_id != null && context_id.equals("hair_checkup"))
 {
-	response = Map();
+	resp = Map();
 	washText = "";
 	if(answers.containsKey("hair_wash_count"))
 	{
-		washText = ifnull(answers.get("hair_wash_count").get("text"),"").trim();
+		washText = ifnull(answers.get("hair_wash_count").get("text"),"").trim().toLowerCase();
+	}
+	if(washText.contains("back") || washText.contains("main"))
+	{
+		response.put("action","context");
+		response.put("context_id","skin_menu");
+		q = {"name":"skin_menu","replies":{"✨ Welcome to **Glow Care** — your personal skin & hair wellness guide!"},"suggestions":{"✨ Skin Care Tips","💇‍♀️ Hair Checkup","🧴 Medzon Products","Back"}};
+		response.put("questions",{q});
+		return response;
 	}
 	isValid = true;
-	washCount = 0;
+	washCountNum = 0;
 	try 
 	{
-		washCount = washText.toLong();
+		washCountNum = washText.toLong();
 	}
 	catch (e)
 	{
 		isValid = false;
 	}
-	if(!isValid || washCount < 0 || washCount > 14)
+	if(!isValid || washCountNum < 0 || washCountNum > 14)
 	{
-		response.put("action","context");
-		response.put("context_id","hair_checkup");
-		q = {"name":"hair_wash_count","replies":{"Please enter a number between *0 and 14* only 🙂","How many times do you wash your hair per week?"},"input":{"type":"name","placeholder":"Eg. 3"}};
-		response.put("questions",{q});
-		return response;
+		q = {"name":"hair_wash_count","replies":{"Please **Enter a Number** between *0 and 14* only 🙂","How many times do you wash your hair per week?"},"input":{"type":"name","placeholder":"Eg. 3"},"suggestions":{"Back"}};
+		resp.put("action","context");
+		resp.put("context_id","hair_checkup");
+		resp.put("questions",{q});
+		return resp;
 	}
-	msg = "💇‍♀️ *Your Hair Wash Habit Check*\n\n";
-	msg = msg + "You wash your hair *" + washCount + " time(s) per week*.\n\n";
-	if(washCount == 0)
+	msg = "";
+	if(washCountNum == 0)
 	{
-		msg = "😬 Not washing at all can cause oil, sweat and dandruff build-up.\n\n" + "✅ *Try this:*\n• Wash at least 2 times per week.\n• Use a mild shampoo (sulfate-free if possible).\n• Apply hair oil 1–2 hours before wash.";
+		msg = "😬 Not washing at all can cause oil, sweat and dandruff build-up.\n\n" + "✅ *Try this:*\n• Wash at least 2 times per week.\n• Use mild shampoo.\n• Oil 1–2 hours before wash.";
 	}
-	else if(washCount == 1 || washCount == 2)
+	else if(washCountNum == 1 || washCountNum == 2)
 	{
-		msg = "🌿 This is okay for *dry or normal hair*.\n\n" + "✅ *Tips:*\n• Oil your hair once or twice a week (coconut / almond / sesame).\n• Use lukewarm water, not very hot.\n• Gently massage the scalp while shampooing.";
+		msg = "🌿 Good for *dry or normal hair*.\n\n" + "✅ *Tips:*\n• Oil once or twice weekly.\n• Use lukewarm water.\n• Massage scalp gently.";
 	}
-	else if(washCount == 3 || washCount == 4)
+	else if(washCountNum == 3 || washCountNum == 4)
 	{
-		msg = "👌 This is a *good balance* for most people.\n\n" + "✅ *Maintain like this:*\n• Use mild shampoo, focus on scalp.\n• Apply conditioner only on hair length.\n• Use hair oil 1–2 times weekly before wash.";
+		msg = "👌 *Ideal balance* for most hair types.\n\n" + "✅ *Maintain:*\n• Mild shampoo.\n• Conditioner only on ends.\n• Oil 1–2 times weekly.";
 	}
-	else if(washCount >= 5 && washCount <= 7)
+	else if(washCountNum >= 5 && washCountNum <= 7)
 	{
-		msg = "⚠️ You may be *washing too frequently*.\n\n" + "Too much washing can cause dryness & frizz.\n\n" + "✅ *Try this:*\n• Reduce to 3–4 times per week.\n• Use very gentle / baby shampoo.\n• Use light hair oil or serum on hair ends.";
+		msg = "⚠️ You may be *washing too frequently*.\n\n" + "Too much washing → dryness & frizz.\n\n" + "✅ *Try this:*\n• Reduce to 3–4 times weekly.\n• Baby shampoo.\n• Light serum on ends.";
 	}
-	else if(washCount > 7)
+	else if(washCountNum > 7)
 	{
-		msg = "🚨 You are *over-washing* your hair.\n\n" + "This can strip natural oils and cause dryness & hair fall.\n\n" + "✅ *What to do:*\n• Reduce washing slowly (daily → alternate days).\n• Use very mild, sulfate-free shampoo.\n• Oil before wash & apply serum after wash.\n• Avoid hot water & harsh towel rubbing.";
+		msg = "🚨 *Over-washing alert!*\n\n" + "Daily washing strips natural oils → dryness + hair fall.\n\n" + "✅ *Do this:*\n• Reduce frequency slowly.\n• Sulfate-free shampoo.\n• Oil before wash.\n• Avoid hot water.";
 	}
-	msg = msg + "\n\n🧴 *General Healthy Hair Tips:*\n• Comb gently (avoid tight hairstyles).\n• Eat protein-rich foods.\n• Drink enough water.\n• Sleep well.";
-	response.put("action","reply");
-	response.put("replies",{msg});
-	response.put("suggestions",{"Thank you"});
-	return response;
+	msg = msg + "\n\n🧴 *General Healthy Hair Tips:*\n• Comb gently.\n• Eat protein-rich foods.\n• Drink water.\n• Sleep well.";
+	question = {"name":"hair_wash_count","replies":{msg},"suggestions":{"Back"}};
+	resp.put("action","context");
+	resp.put("context_id","hair_checkup");
+	resp.put("questions",{question});
+	return resp;
 }
-if(context_id == "weather_care")
+if(context_id != null && context_id.equals("weather_care"))
 {
+	if(answers.containsKey("weatherselect"))
+	{
+		backText = ifnull(answers.get("weatherselect").get("text"),"").toLowerCase();
+		if(backText.contains("back"))
+		{
+			resp = Map();
+			resp.put("action","context");
+			resp.put("context_id","care_main");
+			q = {"name":"care_main","replies":{"🩺 Welcome to *MedKit Wellness Hub*!"},"suggestions":{"Child Care 👶","Glow Care ✨","Health Care 🩺","🧠 Mind Care","Weather Care 😷","Main Menu"}};
+			resp.put("questions",{q});
+			return resp;
+		}
+	}
 	if(!answers.containsKey("location"))
 	{
 		response.put("action","context");
@@ -987,10 +1216,12 @@ if(context_id == "weather_care")
 		];
 		if(geoResp == null || geoResp.size() == 0)
 		{
-			response.put("action","reply");
-			response.put("replies",{"⚠️ I couldn’t find weather info for `" + cityName + "`.","Please try again after some time."});
-			response.put("suggestions",{"Thank You"});
-			return response;
+			question = {"name":"weatherselect","replies":{"⚠️ I couldn’t find weather info for `" + cityName + "`.","Please try again later."},"suggestions":{"Back"}};
+			resp = Map();
+			resp.put("action","context");
+			resp.put("context_id","weather_care");
+			resp.put("questions",{question});
+			return resp;
 		}
 		g0 = geoResp.get(0);
 		lat = g0.get("lat");
@@ -1021,7 +1252,7 @@ if(context_id == "weather_care")
 			connection:"openweather_salesiq"
 		];
 		aqiText = "Not available";
-		healthTips = "General conditions look okay. Normal outdoor activity is usually fine.";
+		healthTips = "General conditions look okay. Normal outdoor activity is fine.";
 		if(aResp.containsKey("list"))
 		{
 			listA = aResp.get("list");
@@ -1032,31 +1263,31 @@ if(context_id == "weather_care")
 				if(aqi == 1)
 				{
 					aqiText = "Good";
-					healthTips = "Air looks clean. Elders and kids can go out as usual.";
+					healthTips = "Air looks clean. Elders & kids can go out normally.";
 				}
 				else if(aqi == 2)
 				{
 					aqiText = "Fair";
-					healthTips = "Okay for most people. If anyone has asthma, keep inhaler/medicine handy.";
+					healthTips = "Okay for most. Asthma patients keep inhaler ready.";
 				}
 				else if(aqi == 3)
 				{
 					aqiText = "Moderate";
-					healthTips = "Avoid long walks on traffic roads. Elders, kids and heart/lung patients should reduce outdoor time.";
+					healthTips = "Avoid long outdoor exposure for kids/elders.";
 				}
 				else if(aqi == 4)
 				{
 					aqiText = "Poor";
-					healthTips = "Try to stay indoors near peak traffic. Sensitive people may use a light mask outside.";
+					healthTips = "Limit outdoor activity. Light mask recommended.";
 				}
 				else if(aqi == 5)
 				{
 					aqiText = "Very Poor";
-					healthTips = "Limit outdoor activity, keep windows closed near roads, and consult a doctor if breathing issues appear.";
+					healthTips = "Avoid going outside, close windows near roadside.";
 				}
 			}
 		}
-		replyTxt = "🌦️ *Weather health tips for* `" + cityName + "`\n\n";
+		replyTxt = "🌦️ Weather health tips for `" + cityName + "`\n\n";
 		if(temp != "")
 		{
 			replyTxt = replyTxt + "• Temperature: " + temp + "°C\n";
@@ -1066,19 +1297,23 @@ if(context_id == "weather_care")
 			replyTxt = replyTxt + "• Condition: " + desc + "\n";
 		}
 		replyTxt = replyTxt + "• Air quality: " + aqiText + "\n\n";
-		replyTxt = replyTxt + "👨‍⚕️ *Advice*: " + healthTips + "\n\n";
-		replyTxt = replyTxt + "_This is general information only. For medical concerns, please consult a doctor._";
-		response.put("action","reply");
-		response.put("replies",{replyTxt});
-		response.put("suggestions",{"Thank You"});
-		return response;
+		replyTxt = replyTxt + "👨‍⚕️ Advice: " + healthTips + "\n\n";
+		replyTxt = replyTxt + "_This is general advice only. Consult a doctor for medical issues._";
+		question = {"name":"weatherselect","replies":{replyTxt},"suggestions":{"Back"}};
+		respMap = Map();
+		respMap.put("action","context");
+		respMap.put("context_id","weather_care");
+		respMap.put("questions",{question});
+		return respMap;
 	}
 	catch (e)
 	{
-		response.put("action","reply");
-		response.put("replies",{"⚠️ Unable to fetch weather right now.","Please try again later."});
-		response.put("suggestions",{"Thank You"});
-		return response;
+		question = {"name":"weatherselect","replies":{"⚠️ Unable to fetch weather.","Please try again later."},"suggestions":{"Back"}};
+		resp = Map();
+		resp.put("action","context");
+		resp.put("context_id","weather_care");
+		resp.put("questions",{question});
+		return resp;
 	}
 }
 // ----------------------------------------------------------------------------------------
@@ -1127,7 +1362,15 @@ if(context_id != null && context_id.equals("procurex"))
 	{
 		response.put("action","context");
 		response.put("context_id","mainmenu");
-		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to MedKit 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"🧠 Mind Check","Health Hub 🩺","Care Assistant 😊","ProcureX 🛒","💬 Motivational Boost","🏋️ FitZone","🤝 Consult an Expert","Dietrix 🥗","🎮 Play Games","📞 Help Desk"}};
+		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to **MedKit** 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"MedKit Wellness Hub 🌿","🏋️ FitZone","ProcureX 🛒","💬 Motivational Boost","🤝 Consult an Expert","📞 Help Desk"}};
+		response.put("questions",{question});
+		return response;
+	}
+	if(trigLower.equalsIgnoreCase("Back") || trigLower.equalsIgnoreCase("back"))
+	{
+		response.put("action","context");
+		response.put("context_id","procurex");
+		question = {"name":"procurex","replies":{"Welcome to ProcureX 🛒 — explore our **MedKit Premium Products 🛍️** below:"},"suggestions":{"🛍️ MedKit Products","ℹ️ About Purchasing","Main Menu"}};
 		response.put("questions",{question});
 		return response;
 	}
@@ -1237,6 +1480,8 @@ if(context_id != null && context_id.equals("procurex"))
 		prod = products.get(prodIndex);
 		prodName = prod.get("name");
 		prodPrice = prod.get("price");
+		prodDesc = ifnull(prod.get("desc"),"");
+		prodImg = ifnull(prod.get("img"),"");
 		verified = false;
 		payStatus = "";
 		payAmount = 0;
@@ -1327,15 +1572,61 @@ if(context_id != null && context_id.equals("procurex"))
 		{
 			emailMsg = "Email not available, so confirmation mail was not sent.";
 		}
-		response.put("action","context");
-		response.put("context_id","procurex");
-		msgList = {"✅ Payment verified successfully with Razorpay! 🎉","Product: " + prodName + " — ₹" + prodPrice,"Payment ID: " + paymentId,emailMsg,"Our MedKit delivery team will contact you shortly. 🙌"};
-		q = Map();
-		q.put("name","procurex");
-		q.put("replies",msgList);
-		q.put("suggestions",{"More Products","Main Menu"});
-		response.put("questions",{q});
-		return response;
+		try 
+		{
+			invNo = "INV" + randomNumber(100000,999999).toString();
+			customerDisplay = uname;
+			if(uemail != null && uemail.trim() != "")
+			{
+				customerDisplay = uname + " (" + uemail + ")";
+			}
+			invoiceText = "";
+			invoiceText = invoiceText + "-------------------------------------\n";
+			invoiceText = invoiceText + "  🧾 **MEDKIT PRODUCT INVOICE**\n";
+			invoiceText = invoiceText + "-------------------------------------\n";
+			invoiceText = invoiceText + "**Invoice No** : " + invNo + "\n";
+			invoiceText = invoiceText + "**Customer**   : " + customerDisplay + "\n";
+			invoiceText = invoiceText + "**Product**    : " + prodName + "\n";
+			invoiceText = invoiceText + "**Amount**     : **₹" + prodPrice + "**\n";
+			invoiceText = invoiceText + "**Payment ID** : " + paymentId + "\n";
+			invoiceText = invoiceText + "**Status**     : Verified (Captured)\n";
+			invoiceText = invoiceText + "-------------------------------------\n";
+			invoiceText = invoiceText + "**Thank You For Shopping With MedKit! 🙌**\n";
+			invoiceText = invoiceText + "📦 Our MedKit Delivery Team Will Contact You Soon.\n";
+			card = Map();
+			card.put("type","links");
+			card.put("text",invoiceText);
+			if(prodImg != null && prodImg.trim() != "")
+			{
+				card.put("image",prodImg);
+				card.put("image_position","fit");
+			}
+			links = List();
+			supportBtn = Map();
+			supportBtn.put("text","Visit MedKit Store");
+			supportBtn.put("url","https://medkit-mart.netlify.app/");
+			links.add(supportBtn);
+			card.put("links",links);
+			q = Map();
+			q.put("name","procurex");
+			q.put("replies",{"✅ Payment verified successfully with Razorpay! 🎉","Here is your invoice:",card});
+			q.put("suggestions",{"More Products","Main Menu","Back"});
+			response.put("action","context");
+			response.put("context_id","procurex");
+			response.put("questions",{q});
+			return response;
+		}
+		catch (e)
+		{
+			response.put("action","context");
+			response.put("context_id","procurex");
+			q = Map();
+			q.put("name","procurex");
+			q.put("replies",{"✅ Payment Verified!","Invoice created, but a minor error occurred while rendering the card."});
+			q.put("suggestions",{"More Products","Main Menu","Back"});
+			response.put("questions",{q});
+			return response;
+		}
 	}
 	if(trigLower.contains("about purchasing"))
 	{
@@ -1344,7 +1635,7 @@ if(context_id != null && context_id.equals("procurex"))
 		q = Map();
 		q.put("name","procurex");
 		q.put("replies",{"Here is how ProcureX – MedKit purchasing works 🛒:","1️⃣ Click *MedKit Products 🛒* to start.","2️⃣ Enter your *name* and *email address*.","3️⃣ We send a 6-digit *OTP* to your email for verification.","4️⃣ After OTP is verified, we show product cards with a *Pay with Razorpay* button.","5️⃣ Complete the payment using Razorpay.","6️⃣ Click *Payment Done ✅* and paste your *Razorpay Payment ID*.","7️⃣ You will receive a MedKit *order confirmation email* with your product and payment details. 🎉"});
-		q.put("suggestions",{"MedKit Products 🛒","Main Menu"});
+		q.put("suggestions",{"🛍️ MedKit Products","Main Menu","Back"});
 		response.put("questions",{q});
 		return response;
 	}
@@ -1591,7 +1882,7 @@ if(context_id != null && context_id.equals("procurex"))
 		response.put("context_id","procurex");
 		q = Map();
 		q.put("name","nf_otp");
-		q.put("replies",{"We have sent a 6-digit OTP to " + uemail + ". Please enter it below 🔐:"});
+		q.put("replies",{"We Have Sent a 6-Digit OTP to **" + uemail + "**. Please Enter It Below 🔐:"});
 		inputMap = Map();
 		inputMap.put("type","name");
 		inputMap.put("placeholder","Enter OTP");
@@ -1606,25 +1897,25 @@ if(context_id != null && context_id.equals("procurex"))
 		response.put("context_id","procurex");
 		q = Map();
 		q.put("name","nf_email");
-		q.put("replies",{"Hi " + uname + ", please enter your email so I can send your OTP 🔐."});
+		q.put("replies",{"Hi **" + uname + "**, Please Enter Your **Email** So I Can Send Your OTP 🔐."});
 		inputMap = Map();
-		inputMap.put("type","name");
-		inputMap.put("placeholder","example@gmail.com");
+		inputMap.put("type","email");
+		inputMap.put("placeholder","medkit@gmail.com");
 		inputMap.put("error",{"Enter a valid email"});
 		q.put("input",inputMap);
 		response.put("questions",{q});
 		return response;
 	}
-	if(trigLower.contains("medkit product") || trigLower.contains("medkit products") || trigLower.contains("nutrition food"))
+	if(trigLower.contains("🛍️ MedKit Products") || trigLower.contains("medkit products") || trigLower.contains("nutrition food"))
 	{
 		response.put("action","context");
 		response.put("context_id","procurex");
 		q = Map();
 		q.put("name","nf_name");
-		q.put("replies",{"Great choice! 🛒 Before we show the MedKit products, please tell me your name 😊:"});
+		q.put("replies",{"Great Choice! 🛒 Please Share Your **Name** So I Can Show You Our MedKit Products 😊"});
 		inputMap = Map();
 		inputMap.put("type","name");
-		inputMap.put("placeholder","Enter your name");
+		inputMap.put("placeholder","Enter your name!");
 		q.put("input",inputMap);
 		response.put("questions",{q});
 		return response;
@@ -1639,7 +1930,7 @@ if(context_id.equals("fitnessopt"))
 	{
 		response.put("action","context");
 		response.put("context_id","pregnancy_month");
-		question = {"name":"preg_month","replies":{"Welcome to Pregnancy Zone 🤰Baby bump month? 😊 (1–9))"},"input":{"type":"name","placeholder":"Enter your pregnancy month (1–9)","value":"","error":{"Please enter a valid month (1–9)"}},"suggestions":{"Main Menu"}};
+		question = {"name":"preg_month","replies":{"Welcome to **Pregnancy Zone** 🤰Baby bump month? 😊 (1–9))"},"input":{"type":"name","placeholder":"Enter your pregnancy month (1–9)","value":"","error":{"Please enter a valid month (1–9)"}},"suggestions":{"Main Menu"}};
 		response.put("questions",{question});
 		return response;
 	}
@@ -1647,7 +1938,15 @@ if(context_id.equals("fitnessopt"))
 	{
 		response.put("action","context");
 		response.put("context_id","exercisegenerator");
-		question = {"name":"exerciseselect","replies":{"Here's a short exercise to boost your mood 🤗"},"suggestions":{"Go Ahead","Main Menu"}};
+		question = {"name":"exerciseselect","replies":{"Here's a Short **Exercise** to boost your mood 🤗"},"suggestions":{"Go Ahead","Back","Main Menu"}};
+		response.put("questions",{question});
+		return response;
+	}
+	if(opt.containsIgnoreCase("Dietrix 🥗"))
+	{
+		response.put("action","context");
+		response.put("context_id","dietaryopt");
+		question = {"name":"customizeOrNot","replies":{"When **Diet Is Wrong**, Medicine is of no use.","When **Diet Is Correct**, Medicine is of no need !!✨"},"suggestions":{"Lets Proceed","Meal Plan","Back","Main menu"}};
 		response.put("questions",{question});
 		return response;
 	}
@@ -1655,15 +1954,15 @@ if(context_id.equals("fitnessopt"))
 	{
 		response.put("action","context");
 		response.put("context_id","yogagenerator");
-		question = {"name":"yogaselect","replies":{"🧘 Yoga helps calm your mind and improve flexibility!"},"suggestions":{"Go","Main Menu"}};
+		question = {"name":"yogaselect","replies":{"🧘 Yoga helps **Calm Your Mind** and improve flexibility!"},"suggestions":{"Go","Back","Main Menu"}};
 		response.put("questions",{question});
 		return response;
 	}
-	if(opt.containsIgnoreCase("Wellness Meetup"))
+	if(opt.containsIgnoreCase("Wellness Meetup 🌿"))
 	{
 		response.put("action","context");
 		response.put("context_id","community_meetup");
-		question = {"name":"community_meetup","replies":{"🌿 Welcome to the Community Wellness Meetup!"},"suggestions":{"Join Now","Main Menu"}};
+		question = {"name":"community_meetup","replies":{"🌿 Welcome to the **Community Wellness Meetup!**"},"suggestions":{"Join Now","Back"}};
 		response.put("questions",{question});
 		return response;
 	}
@@ -1671,6 +1970,21 @@ if(context_id.equals("fitnessopt"))
 if(context_id != null && context_id.equals("community_meetup"))
 {
 	response = Map();
+	if(answers != null && answers.containsKey("community_meetup"))
+	{
+		backTxt = ifnull(answers.get("community_meetup").get("text"),"");
+		backTxt = backTxt.toLowerCase();
+		backTxt = backTxt.trim();
+		if(backTxt.contains("back"))
+		{
+			response = Map();
+			response.put("action","context");
+			response.put("context_id","fitnessopt");
+			q = {"name":"getFitnessOpt","replies":{"Welcome to **FitZone!** Being healthy and fit isn't a fad or a trend—it's a lifestyle 💪🏻"},"suggestions":{"Pregnancy Zone🤰","Dietrix 🥗","Yoga 🧘","Exercise 🏋️","Wellness Meetup 🌿","Main Menu"}};
+			response.put("questions",{q});
+			return response;
+		}
+	}
 	userChoice = "";
 	if(answers.containsKey("community_meetup"))
 	{
@@ -1678,7 +1992,7 @@ if(context_id != null && context_id.equals("community_meetup"))
 	}
 	if(userChoice.equalsIgnoreCase("Join Now"))
 	{
-		meetupLink = "https://calendly.com/medkitent/medkit";
+		meetupLink = "https://calendly.com/mohamedsilar26/30min";
 		try 
 		{
 			meResp = invokeurl
@@ -1711,26 +2025,46 @@ if(context_id != null && context_id.equals("community_meetup"))
 		}
 		card = Map();
 		card.put("type","links");
-		card.put("text","🌿 *Community Wellness Meetup*\n" + "Join our weekly space for mindfulness, healthy habits, and guided relaxation.\n\n" + "Invite your friends — it’s a calm, supportive group session. 🌼");
+		card.put("text","🌿 *Community Wellness Meetup*\nJoin our weekly space for mindfulness, healthy habits, and guided relaxation.\n\nInvite your friends — it’s a calm, supportive group session. 🌼");
 		card.put("image","https://special-fuchsia-b7zwstvgh2-v684515qa9.edgeone.dev/MEETUP.jpg");
 		links = List();
 		btn = Map();
 		btn.put("text","📅 Reserve Your Spot");
-		btn.put("url",meetupLink);
+		btn.put("url","https://calendly.com/mohamedsilar26/30min");
 		links.add(btn);
 		card.put("links",links);
-		response.put("action","reply");
-		response.put("replies",{card});
-		response.put("suggestions",{"Thank You"});
+		response.put("action","context");
+		response.put("context_id","community_meetup");
+		// keep context on the meetup card
+		question = {"name":"community_meetup","replies":{card},"suggestions":{"Back"}};
+		response.put("questions",{question});
 		return response;
 	}
-	response.put("action","reply");
-	response.put("replies",{"🤝 You’re always welcome! Thanks for being part of our community ✨"});
-	response.put("suggestions",{"Thank You"});
+	response.put("action","context");
+	response.put("context_id","community_meetup");
+	question = {"name":"community_meetup","replies":{"🤝 You’re always welcome! Thanks for being part of our community ✨"},"suggestions":{"Thank You","Back"}};
+	response.put("questions",{question});
 	return response;
 }
 if(context_id != null && context_id.equals("pregnancy_month"))
 {
+	// ---------- BACK handler: if user pressed Back from the preg_month card ----------
+	if(answers.containsKey("preg_month"))
+	{
+		backTxt = ifnull(answers.get("preg_month").get("text"),"");
+		backTxt = backTxt.toLowerCase();
+		backTxt = backTxt.trim();
+		if(backTxt.contains("back"))
+		{
+			response = Map();
+			response.put("action","context");
+			response.put("context_id","fitnessopt");
+			question = {"name":"getFitnessOpt","replies":{"Welcome to **FitZone!** Being healthy and fit isn't a fad or a trend—it's a lifestyle 💪🏻"},"suggestions":{"Pregnancy Zone🤰","Dietrix 🥗","Yoga 🧘","Exercise 🏋️","Wellness Meetup 🌿","Main Menu"}};
+			response.put("questions",{question});
+			return response;
+		}
+	}
+	// ---------- Normal pregnancy-month processing ----------
 	userInput = ifnull(answers.get("preg_month").get("text"),"").trim();
 	reply = "";
 	month = 0;
@@ -1743,6 +2077,7 @@ if(context_id != null && context_id.equals("pregnancy_month"))
 	{
 		isValidNumber = false;
 	}
+	// Invalid input handling: return as question card with input (so user can re-enter)
 	if(!isValidNumber || month < 1 || month > 9)
 	{
 		errMsg = "";
@@ -1758,12 +2093,14 @@ if(context_id != null && context_id.equals("pregnancy_month"))
 		{
 			errMsg = "🥰 No pregnancy lasts **" + month + " months**! Baby usually comes by **9 months** 👶💖\n\nPlease enter a month between **1 and 9**.";
 		}
+		response = Map();
 		response.put("action","context");
 		response.put("context_id","pregnancy_month");
-		q = {"name":"preg_month","replies":{errMsg},"input":{"type":"name","placeholder":"Enter your pregnancy month (1–9)","value":"","error":{"Please enter a valid month between 1 and 9 😇"}},"suggestions":{"Thank You"}};
+		q = {"name":"preg_month","replies":{errMsg},"input":{"type":"name","placeholder":"Enter your pregnancy month (1–9)","value":"","error":{"Please enter a valid month between 1 and 9 😇"}},"suggestions":{"Back"}};
 		response.put("questions",{q});
 		return response;
 	}
+	// ---------- Build trimester-specific reply ----------
 	if(month == 1 || month == 2 || month == 3)
 	{
 		reply = "🤰✨ **First Trimester (Month " + month + ")** ✨\n\n";
@@ -1793,13 +2130,32 @@ if(context_id != null && context_id.equals("pregnancy_month"))
 	reply = reply + "🔗 NHS Pregnancy Exercise: https://www.nhs.uk/pregnancy/keeping-well/exercise/ \n\n";
 	reply = reply + "📄 Pregnancy Care Guidelines (PDF): https://nhm.gov.in/images/pdf/guidelines/nrhm-guidelines/stg/pregnancy-care.pdf \n";
 	reply = reply + "\n\n💖 **Stay healthy, stay strong — you're growing a little miracle!** 👶";
-	response.put("action","reply");
-	response.put("replies",{reply});
-	response.put("suggestions",{"Thank You"});
+	response = Map();
+	response.put("action","context");
+	response.put("context_id","pregnancy_month");
+	question = {"name":"preg_month","replies":{reply},"suggestions":{"Back"}};
+	response.put("questions",{question});
 	return response;
 }
 if(context_id.equals("exercisegenerator"))
 {
+	// ---------- BACK handler: if user pressed Back from the exerciseselect card ----------
+	if(answers.containsKey("exerciseselect"))
+	{
+		backTxt = ifnull(answers.get("exerciseselect").get("text"),"");
+		backTxt = backTxt.toLowerCase();
+		backTxt = backTxt.trim();
+		if(backTxt.contains("back"))
+		{
+			response = Map();
+			response.put("action","context");
+			response.put("context_id","fitnessopt");
+			question = {"name":"getFitnessOpt","replies":{"Welcome to **FitZone!** Being healthy and fit isn't a fad or a trend—it's a lifestyle 💪🏻"},"suggestions":{"Pregnancy Zone🤰","Dietrix 🥗","Yoga 🧘","Exercise 🏋️","Wellness Meetup 🌿","Main Menu"}};
+			response.put("questions",{question});
+			return response;
+		}
+	}
+	// ---------- Normal exercise generation flow ----------
 	trigger = "";
 	if(answers.containsKey("exerciseselect"))
 	{
@@ -1820,7 +2176,7 @@ if(context_id.equals("exercisegenerator"))
 		exercises.add(e3);
 		e4 = {"name":"20-Second Plank","bodyPart":"Core","target":"Abs & Back","gif":"https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZXQ0MHVidG1ldDFscTRpMW9nNTRlZnZuZDM1MHc3ZzY0MnhyNTN1MCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3o6ZtjwGA5CKEt4Wc0/giphy.gif"};
 		exercises.add(e4);
-		e5 = {"name":"10 jumping jack","bodyPart":"Shoulders","target":"Deltoids","gif":"https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExeGt6aHNnN3l2azNuaTNnazNmeWk3ZmM1YzB3MnJsZ3prMXJ3ZXRuciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ckMk3RKUK29lziaspI/giphy.gif"};
+		e5 = {"name":"10 Jumping Jacks","bodyPart":"Full Body","target":"Cardio & Shoulders","gif":"https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExeGt6aHNnN3l2azNuaTNnazNmeWk3ZmM1YzB3MnJsZ3prMXJ3ZXRuciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ckMk3RKUK29lziaspI/giphy.gif"};
 		exercises.add(e5);
 		sizeInt = exercises.size();
 		idx = 0;
@@ -1868,13 +2224,29 @@ if(context_id.equals("exercisegenerator"))
 		q = Map();
 		q.put("name","exerciseselect");
 		q.put("replies",{card});
-		q.put("suggestions",{"One more","Main Menu"});
+		// include Back suggestion so user can return to FitZone
+		q.put("suggestions",{"One more","Back","Main Menu"});
 		response.put("questions",{q});
 		return response;
 	}
 }
 if(context_id.equals("yogagenerator"))
 {
+	if(answers != null && answers.containsKey("yogaselect"))
+	{
+		bs = ifnull(answers.get("yogaselect").get("text"),"");
+		bs = bs.toLowerCase();
+		bs = bs.trim();
+		if(bs.contains("back"))
+		{
+			response = Map();
+			response.put("action","context");
+			response.put("context_id","fitnessopt");
+			question = {"name":"getFitnessOpt","replies":{"Welcome to **FitZone!** Being healthy and fit isn't a fad or a trend—it's a lifestyle 💪🏻"},"suggestions":{"Pregnancy Zone🤰","Dietrix 🥗","Yoga 🧘","Exercise 🏋️","Wellness Meetup 🌿","Main Menu"}};
+			response.put("questions",{question});
+			return response;
+		}
+	}
 	trigger = "";
 	if(answers != null && answers.containsKey("yogaselect"))
 	{
@@ -1883,6 +2255,7 @@ if(context_id.equals("yogagenerator"))
 		{
 			trigger = "" + qs.get("text");
 			trigger = trigger.toLowerCase();
+			trigger = trigger.trim();
 		}
 	}
 	if(trigger.contains("go") || trigger.contains("more") || trigger.contains("another"))
@@ -2018,7 +2391,7 @@ if(context_id.equals("yogagenerator"))
 			q = Map();
 			q.put("name","yogaselect");
 			q.put("replies",{"No yoga videos found right now. Try again later."});
-			q.put("suggestions",{"Retry","Main Menu"});
+			q.put("suggestions",{"Retry","Back","Main Menu"});
 			response.put("questions",{q});
 			return response;
 		}
@@ -2027,8 +2400,216 @@ if(context_id.equals("yogagenerator"))
 		q = Map();
 		q.put("name","yogaselect");
 		q.put("replies",cards);
-		q.put("suggestions",{"One more","Main Menu"});
+		q.put("suggestions",{"One more","Back","Main Menu"});
 		response.put("questions",{q});
+		return response;
+	}
+}
+//---------------------------------------------------------------------------------------
+if(context_id.equals("dietaryopt"))
+{
+	ans = answers.get("customizeOrNot").get("text");
+	if(ans.containsIgnoreCase("lets proceed"))
+	{
+		response.put("action","context");
+		response.put("context_id","pickage");
+		question = {"name":"disorder","replies":{"Let me know what bothers you ?"},"input":{"type":"multiple-select","options":{"Diabetes","Obesity","Heart Problems","Back"},"max_selection":"1"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else if(ans.containsIgnoreCase("Main Menu"))
+	{
+		response.put("action","context");
+		response.put("context_id","mainmenu");
+		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to **MedKit** 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"MedKit Wellness Hub 🌿","🏋️ FitZone","ProcureX 🛒","💬 Motivational Boost","🤝 Consult an Expert","📞 Help Desk"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else if(ans.containsIgnoreCase("Meal Plan"))
+	{
+		response.put("action","context");
+		response.put("context_id","mealplan_calories");
+		question = {"name":"calories","replies":{"🔥 Great! **How many Calories** should the Meal Plan Be? (Eg: 1800)"},"input":{"type":"name","placeholder":"Eg. 1800","value":"","error":{"⚠️ Enter a valid calorie value"}}};
+		response.put("questions",{question});
+		return response;
+	}
+	else if(ans.containsIgnoreCase("Back"))
+	{
+		response.put("action","context");
+		response.put("context_id","fitnessopt");
+		question = {"name":"getFitnessOpt","replies":{"Welcome to **FitZone!** Being healthy and fit isn't a fad or a trend—it's a lifestyle 💪🏻"},"suggestions":{"Pregnancy Zone🤰","Dietrix 🥗","Yoga 🧘","Exercise 🏋️","Wellness Meetup 🌿","Main Menu"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else
+	{
+		response.put("action","context");
+		response.put("context_id","main menu");
+		question = {"name":"done","replies":{"It was nice chatting with you 😊 Have a wonderful day! 👋"},"suggestions":{"Main Menu"}};
+		response.put("questions",{question});
+		return response;
+	}
+}
+if(context_id.equals("pickage"))
+{
+	ans = answers.get("disorder").get("text");
+	if(ans.containsIgnoreCase("Diabetes"))
+	{
+		response.put("action","context");
+		response.put("context_id","diabetesopt");
+		question = {"name":"select1","replies":{{"text":"I'm Here To **Support You With Care 💖** How Would You Like To Continue?"}},"suggestions":{"Suggest Me Some Remedies"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else if(ans.containsIgnoreCase("Obesity"))
+	{
+		response.put("action","context");
+		response.put("context_id","obesityopt");
+		question = {"name":"select2","replies":{{"text":"I'm Here To **Support You With Care 💖** How Would You Like To Continue?"}},"suggestions":{"Suggest Me Some Remedies"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else if(ans.containsIgnoreCase("Heart Problems"))
+	{
+		response.put("action","context");
+		response.put("context_id","heartproblemopt");
+		question = {"name":"select3","replies":{{"text":"I'm Here To **Support You With Care 💖** How Would You Like To Continue?"}},"suggestions":{"Suggest Me Some Remedies"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else if(ans.containsIgnoreCase("Back"))
+	{
+		response.put("action","context");
+		response.put("context_id","dietaryopt");
+		question = {"name":"customizeOrNot","replies":{"When **Diet Is Wrong**, Medicine is of no use.","When **Diet Is Correct**, Medicine is of no need !!✨"},"suggestions":{"Lets Proceed","Meal Plan","Back","Main menu"}};
+		response.put("questions",{question});
+		return response;
+	}
+	else
+	{
+		response.put("action","context");
+		response.put("context_id","main menu");
+		question = {"name":"done","replies":{"It was nice chatting with you 😊 Have a wonderful day! 👋"},"suggestions":{"Thank You"}};
+		response.put("questions",{question});
+		return response;
+	}
+}
+if(context_id.equals("diabetesopt"))
+{
+	txt = ifnull(answers.get("select1").get("text"),"");
+	txtLower = txt.toLowerCase().trim();
+	if(txtLower.contains("back"))
+	{
+		response = Map();
+		response.put("action","context");
+		response.put("context_id","dietaryopt");
+		q = {"name":"customizeOrNot","replies":{"When **Diet Is Wrong**, Medicine is of no use.","When **Diet Is Correct**, Medicine is of no need !!✨"},"suggestions":{"Lets Proceed","Meal Plan","Back","Main menu"}};
+		response.put("questions",{q});
+		return response;
+	}
+	if(txtLower.contains("suggest me some remedies"))
+	{
+		response = Map();
+		response.put("action","context");
+		response.put("context_id","diabetesopt");
+		q = {"name":"select1","replies":{"**Here Are Some Diabetes Remedies:**","🥗 Eat More Fiber","🚶‍♂️ Walk 30 Minutes Daily","💧 Drink Enough Water","🧘 Manage Stress Levels"},"suggestions":{"Back"}};
+		response.put("questions",{q});
+		return response;
+	}
+}
+if(context_id.equals("obesityopt"))
+{
+	txt = ifnull(answers.get("select2").get("text"),"");
+	txtLower = txt.toLowerCase().trim();
+	if(txtLower.contains("back"))
+	{
+		response = Map();
+		response.put("action","context");
+		response.put("context_id","dietaryopt");
+		q = {"name":"customizeOrNot","replies":{"When **Diet Is Wrong**, Medicine is of no use.","When **Diet Is Correct**, Medicine is of no need !!✨"},"suggestions":{"Lets Proceed","Meal Plan","Back","Main menu"}};
+		response.put("questions",{q});
+		return response;
+	}
+	// ---------- Remedies ----------
+	if(txtLower.contains("suggest me some remedies"))
+	{
+		response = Map();
+		response.put("action","context");
+		response.put("context_id","obesityopt");
+		q = {"name":"select2","replies":{"**Here Are Some Obesity Remedies:**","🥗 Maintain a Calorie Deficit","🚴 Exercise for 45 Minutes Daily","🚰 Drink Water Before Meals","🌙 Sleep 7–8 Hours"},"suggestions":{"Back"}};
+		response.put("questions",{q});
+		return response;
+	}
+}
+if(context_id.equals("heartproblemopt"))
+{
+	txt = ifnull(answers.get("select3").get("text"),"");
+	txtLower = txt.toLowerCase().trim();
+	// ---------- BACK ----------
+	if(txtLower.contains("back"))
+	{
+		response = Map();
+		response.put("action","context");
+		response.put("context_id","dietaryopt");
+		q = {"name":"customizeOrNot","replies":{"When **Diet Is Wrong**, Medicine is of no use.","When **Diet Is Correct**, Medicine is of no need !!✨"},"suggestions":{"Lets Proceed","Meal Plan","Back","Main menu"}};
+		response.put("questions",{q});
+		return response;
+	}
+	// ---------- Remedies ----------
+	if(txtLower.contains("suggest me some remedies"))
+	{
+		response = Map();
+		response.put("action","context");
+		response.put("context_id","heartproblemopt");
+		q = {"name":"select3","replies":{"**Heart Care Remedies:**","❤️ Reduce Salt Intake","🫒 Use Healthy Fats","🚶 Walk Regularly","🌿 Include Omega-3-Rich Foods"},"suggestions":{"Back"}};
+		response.put("questions",{q});
+		return response;
+	}
+}
+if(context_id.equals("mealplan_calories"))
+{
+	txt = ifnull(answers.get("calories").get("text"),"");
+	txtLower = txt.toLowerCase().trim();
+	if(txtLower.contains("back"))
+	{
+		response.put("action","context");
+		response.put("context_id","dietaryopt");
+		q = {"name":"customizeOrNot","replies":{"When **Diet Is Wrong**, Medicine is of no use.","When **Diet Is Correct**, Medicine is of no need !!✨"},"suggestions":{"Lets Proceed","Meal Plan","Back","Main menu"}};
+		response.put("questions",{q});
+		return response;
+	}
+	if(txt == "")
+	{
+		response.put("action","context");
+		response.put("context_id","mealplan_calories");
+		q = {"name":"calories","replies":{"Please enter a valid calorie goal (e.g., 1500)."},"input":{"type":"number","placeholder":"Eg. 1500"},"suggestions":{"Back"}};
+		response.put("questions",{q});
+		return response;
+	}
+	url = "https://api.spoonacular.com/mealplanner/generate?timeFrame=day&targetCalories=" + txt;
+	try 
+	{
+		data = invokeurl
+		[
+			url :url
+			type :GET
+			connection:"spoonacular_meal"
+		];
+		meals = data.get("meals");
+		breakfast = meals.get(0).get("title");
+		lunch = meals.get(1).get("title");
+		dinner = meals.get(2).get("title");
+		response.put("action","context");
+		response.put("context_id","mealplan_calories");
+		q = {"name":"calories","replies":{"✨ Your personalised *" + txt + " Calorie* Meal Plan","🍳 Breakfast: " + breakfast,"🥗 Lunch: " + lunch,"🍽️ Dinner: " + dinner},"suggestions":{"Back"}};
+		response.put("questions",{q});
+		return response;
+	}
+	catch (e)
+	{
+		response.put("action","reply");
+		response.put("replies",{"⚠️ Failed to generate meal plan. Try again later."});
+		response.put("suggestions",{"Back"});
 		return response;
 	}
 }
@@ -2041,20 +2622,42 @@ if(context_id != null && context_id.equals("depressedopt"))
 	{
 		response.put("action","context");
 		response.put("context_id","depressedopt");
-		question = {"name":"depressedOpt","replies":{"🥺🥺 Don't worry, your assistant is here to change your mood🤗"},"suggestions":{"Grab me some Books","Motivate me","Make me laugh","Play a song","Tell me a story","Show me a meme","Entertain me","Main Menu"}};
+		question = {"name":"depressedOpt","replies":{"😊 Don’t worry, your assistant is right here to lift you up 🤗"},"suggestions":{"Grab me some Books 📚","Spotify 🎵","Motivate me 💪","Make me laugh 😂","MedTube 🎥","Show me a meme 🖼️","Tell me a story 📖","Play Games 🎮","Main Menu"}};
 		response.put("questions",{question});
 		return response;
 	}
-	else if(opt.containsIgnoreCase("Grab me some Books") || opt.containsIgnoreCase("retry") || opt.containsIgnoreCase("search more"))
+	else if(opt.containsIgnoreCase("Grab me some Books") || opt.containsIgnoreCase("Grab me some Books 📚") || opt.containsIgnoreCase("search more"))
 	{
 		response.put("action","context");
 		response.put("context_id","gbooks");
-		question = {"name":"gbook","replies":{"Will you tell me which genre should I suggest books for? (eg: romcom, novel, horror)"},"input":{"type":"name","placeholder":"Eg. romcom,novel,horror...","value":"","error":{"Enter a valid genre"}},"suggestions":{"Main Menu","Back"}};
+		question = {"name":"gbook","replies":{"Will you tell me which genre should **I Suggest Books** for? (eg: romcom, novel, horror)"},"input":{"type":"name","placeholder":"Eg. romcom,novel,horror...","value":"","error":{"Enter a valid genre"}},"suggestions":{"Main Menu","Back"}};
 		response.put("questions",{question});
 		return response;
 	}
-	else if(opt != null && opt.containsIgnoreCase("MedTube"))
+	else if(opt != null && opt.containsIgnoreCase("MedTube 🎥"))
 	{
+		// ---------- UNIVERSAL BACK HANDLER (DELUGE-SAFE) ----------
+		if(answers != null)
+		{
+			keysList = answers.keys();
+			// valid in Deluge
+			for each  k in keysList
+			{
+				backTxt = ifnull(answers.get(k).get("text"),"");
+				backTxt = backTxt.toLowerCase();
+				backTxt = backTxt.trim();
+				if(backTxt.contains("back"))
+				{
+					response = Map();
+					response.put("action","context");
+					response.put("context_id","depressedopt");
+					q = {"name":"depressedOpt","replies":{"😊 Don’t worry, your assistant is right here to lift you up 🤗"},"suggestions":{"Grab me some Books 📚","Spotify 🎵","Motivate me 💪","Make me laugh 😂","MedTube 🎥","Show me a meme 🖼️","Tell me a story 📖","Play Games 🎮","Main Menu"}};
+					response.put("questions",{q});
+					return response;
+				}
+			}
+		}
+		// ---------- Normal MedTube flow ----------
 		response = Map();
 		response.put("action","context");
 		response.put("context_id","MedTube");
@@ -2076,7 +2679,7 @@ if(context_id != null && context_id.equals("depressedopt"))
 			question = Map();
 			question.put("name","done");
 			question.put("replies",{"Sorry — couldn't fetch videos right now. Try again later."});
-			question.put("suggestions",{"Main Menu"});
+			question.put("suggestions",{"Back","Main Menu"});
 			response.put("questions",{question});
 			return response;
 		}
@@ -2086,10 +2689,7 @@ if(context_id != null && context_id.equals("depressedopt"))
 		{
 			for each  itm in items
 			{
-				if(itm == null)
-				{
-				}
-				else
+				if(itm != null)
 				{
 					vid = "";
 					title = "YouTube Video";
@@ -2129,33 +2729,32 @@ if(context_id != null && context_id.equals("depressedopt"))
 		}
 		replies = List();
 		replies.add("Enjoy these tracks:");
-		if(videoCards != null && videoCards.size() > 0)
+		for each  v in videoCards
 		{
-			for each  v in videoCards
-			{
-				replies.add(v);
-			}
+			replies.add(v);
 		}
+		response.put("action","context");
+		response.put("context_id","depressedopt");
 		question = Map();
 		question.put("name","done");
 		question.put("replies",replies);
-		question.put("suggestions",{"Main Menu"});
+		question.put("suggestions",{"Back","Main Menu"});
 		response.put("questions",{question});
 		return response;
 	}
-	else if(opt.containsIgnoreCase("Motivate me"))
+	else if(opt.containsIgnoreCase("Motivate me 💪"))
 	{
 		response.put("action","context");
 		response.put("context_id","quotegenerator");
-		question = {"name":"quoteselect","replies":{"Here's a quote that might help you🤗 "},"suggestions":{"Go Ahead","Main Menu"}};
+		question = {"name":"quoteselect","replies":{"Here's a **Quote** that might help you🤗 "},"suggestions":{"Go Ahead"}};
 		response.put("questions",{question});
 		return response;
 	}
-	else if(opt.containsIgnoreCase("Make me laugh"))
+	else if(opt.containsIgnoreCase("Make me laugh 😂") || opt.containsIgnoreCase("More Jokes"))
 	{
 		response.put("action","context");
 		response.put("context_id","jokegenerator");
-		question = {"name":"jokeselect","replies":{"Okiee, Now I'm gonna show my humorous side😁"},"suggestions":{"Go ahead","Main Menu"}};
+		question = {"name":"jokeselect","replies":{"Okiee, Now I'm gonna **Show My Humorous Side😁**"},"suggestions":{"Go ahead"}};
 		response.put("questions",{question});
 		return response;
 	}
@@ -2163,31 +2762,41 @@ if(context_id != null && context_id.equals("depressedopt"))
 	{
 		response.put("action","context");
 		response.put("context_id","mainmenu");
-		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to MedKit 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"🧠 Mind Check","Health Hub 🩺","Care Assistant 😊","ProcureX 🛒","💬 Motivational Boost","🏋️ FitZone","🤝 Consult an Expert","Dietrix 🥗","🎮 Play Games","📞 Help Desk"}};
+		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to **MedKit** 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"MedKit Wellness Hub 🌿","🏋️ FitZone","ProcureX 🛒","💬 Motivational Boost","🤝 Consult an Expert","📞 Help Desk"}};
 		response.put("questions",{question});
 		return response;
 	}
-	else if(opt.containsIgnoreCase("Tell me a story"))
+	else if(opt.containsIgnoreCase("Tell me a story 📖"))
 	{
 		response.put("action","context");
 		response.put("context_id","storygenerator");
-		question = {"name":"storyselect","replies":{"Here's a short story for you ✨"},"suggestions":{"Go ahead","Main Menu","No Thanks"}};
+		question = {"name":"storyselect","replies":{"Here's a **short story** for you ✨"},"suggestions":{"Go ahead"}};
 		response.put("questions",{question});
 		return response;
 	}
-	else if(opt.containsIgnoreCase("Show me a meme"))
+	else if(opt.containsIgnoreCase("Show me a meme 🖼️"))
 	{
 		response.put("action","context");
 		response.put("context_id","memegenerator");
-		question = {"name":"memeselect","replies":{"Ready for a laugh? 😄"},"suggestions":{"Go ahead","Main Menu"}};
+		question = {"name":"memeselect","replies":{"**Ready for a laugh?** 😄"},"suggestions":{"Go ahead"}};
 		response.put("questions",{question});
 		return response;
 	}
-	else if(opt.containsIgnoreCase("Spotify"))
+	// --- Mini-Games quick-entry (Spotify-style) ---
+	else if(opt.containsIgnoreCase("Play Games 🎮") || opt.containsIgnoreCase("Games") || opt.containsIgnoreCase("Game"))
+	{
+		response.put("action","context");
+		response.put("context_id","game_flow");
+		// Redirect directly to your existing game flow
+		q = {"name":"game_name","replies":{"🎮 Tell me the game you want to play","**Eg: subway surf, temple run, master chess...**"},"input":{"type":"name","placeholder":"Eg. Subway Surf"},"suggestions":{"Subway Surf","Temple Run","Shooting","Horror","Main Menu"}};
+		response.put("questions",{q});
+		return response;
+	}
+	else if(opt.containsIgnoreCase("Spotify 🎵"))
 	{
 		response.put("action","context");
 		response.put("context_id","spotify_focus");
-		q = {"name":"music_lang","replies":{"**🎶 Welcome to Mini-Spotify!** Just type any song or music vibe you want!\nLoFi, beats, romance, sad, chill — I’ll find it."},"input":{"type":"name","placeholder":"Eg. Search any music..."},"suggestions":{"Tamil","Hindi","English","LoFi","Main Menu"}};
+		q = {"name":"music_lang","replies":{"**🎶 Welcome to Mini-Spotify!** Just type any song or music vibe you want!\nLoFi, beats, romance, chill — I’ll find it."},"input":{"type":"name","placeholder":"Eg. Search any music..."},"suggestions":{"Tamil","Hindi","English","LoFi","Main Menu"}};
 		response.put("questions",{q});
 		return response;
 	}
@@ -2206,6 +2815,14 @@ if(context_id != null && context_id.equals("jokegenerator"))
 	if(answers.containsKey("jokeselect"))
 	{
 		joketrigger = answers.get("jokeselect").get("text").toLowerCase();
+	}
+	if(joketrigger.contains("Back") || joketrigger.contains("Back") || joketrigger.contains("back"))
+	{
+		response.put("action","context");
+		response.put("context_id","depressedopt");
+		question = {"name":"depressedOpt","replies":{"😊 Don’t worry, your assistant is right here to lift you up 🤗"},"suggestions":{"Grab me some Books 📚","Spotify 🎵","Motivate me 💪","Make me laugh 😂","MedTube 🎥","Show me a meme 🖼️","Tell me a story 📖","Play Games 🎮","Main Menu"}};
+		response.put("questions",{question});
+		return response;
 	}
 	if(joketrigger.contains("go") || joketrigger.contains("one more") || joketrigger.contains("another"))
 	{
@@ -2230,7 +2847,7 @@ if(context_id != null && context_id.equals("jokegenerator"))
 		{
 			jokeText = "API failed 😩\nBut here's one:\nWhy don’t scientists trust atoms? Because they make up everything!";
 		}
-		question = {"name":"jokeselect","replies":{jokeText},"suggestions":{"One more","Main Menu"}};
+		question = {"name":"jokeselect","replies":{jokeText},"suggestions":{"One more","Main Menu","Back"}};
 		respMap = Map();
 		respMap.put("action","context");
 		respMap.put("context_id","jokegenerator");
@@ -2423,6 +3040,7 @@ if(context_id.equals("gbooks"))
 	sugs = List();
 	sugs.add("Search More");
 	sugs.add("Main Menu");
+	sugs.add("Back");
 	q.put("suggestions",sugs);
 	response.put("questions",{q});
 	return response;
@@ -2435,7 +3053,7 @@ if(context_id != null && context_id.equals("spotify_focus"))
 	{
 		response.put("action","context");
 		response.put("context_id","spotify_focus");
-		q = {"name":"music_lang","replies":{"**🎶 Welcome to Mini-Spotify!** Just type any song or music vibe you want!\nLoFi, beats, romance, sad, chill — I’ll find it."},"input":{"type":"name","placeholder":"Eg. Search any music..."},"suggestions":{"Tamil","Hindi","English","LoFi","Main Menu"}};
+		q = {"name":"music_lang","replies":{"**🎶 Welcome to Mini-Spotify!** Just type any song or music vibe you want!\nLoFi, beats, romance,chill — I’ll find it."},"input":{"type":"name","placeholder":"Eg. Search any music..."},"suggestions":{"Tamil","Hindi","English","LoFi","Main Menu"}};
 		response.put("questions",{q});
 		return response;
 	}
@@ -2443,7 +3061,15 @@ if(context_id != null && context_id.equals("spotify_focus"))
 	{
 		response.put("action","context");
 		response.put("context_id","mainmenu");
-		question = {"name":"select","replies":{"Hello 🌟 You're connected with *MedKit* — what would you like to do today?"},"suggestions":{"🧠 Mind Check","Health Hub 🩺","Care Assistant 😊","ProcureX 🛒","💬 Motivational Boost","Dietrix 🥗","🤝 Consult an Expert","🏋️ FitZone","🎮 Play Games","📞 Help Desk"}};
+		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to **MedKit** 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"MedKit Wellness Hub 🌿","🏋️ FitZone","ProcureX 🛒","💬 Motivational Boost","🤝 Consult an Expert","📞 Help Desk"}};
+		response.put("questions",{question});
+		return response;
+	}
+	if(music.equalsIgnoreCase("Back") || music.equalsIgnoreCase("back"))
+	{
+		response.put("action","context");
+		response.put("context_id","depressedopt");
+		question = {"name":"depressedOpt","replies":{"😊 Don’t worry, your assistant is right here to lift you up 🤗"},"suggestions":{"Grab me some Books 📚","Spotify 🎵","Motivate me 💪","Make me laugh 😂","MedTube 🎥","Show me a meme 🖼️","Tell me a story 📖","Play Games 🎮","Main Menu"}};
 		response.put("questions",{question});
 		return response;
 	}
@@ -2596,7 +3222,7 @@ if(context_id != null && context_id.equals("spotify_focus"))
 	{
 		response.put("action","reply");
 		response.put("replies",{"No results found for: " + music});
-		response.put("suggestions",{"Search More","Main Menu"});
+		response.put("suggestions",{"Search More","Main Menu","Back"});
 		return response;
 	}
 	response.put("action","context");
@@ -2604,7 +3230,7 @@ if(context_id != null && context_id.equals("spotify_focus"))
 	q = Map();
 	q.put("name","music_lang");
 	q.put("replies",cards);
-	q.put("suggestions",{"Search More","Main Menu"});
+	q.put("suggestions",{"Search More","Main Menu","Back"});
 	response.put("questions",{q});
 	return response;
 }
@@ -2614,6 +3240,14 @@ if(context_id != null && context_id.equals("memegenerator"))
 	if(answers.containsKey("memeselect"))
 	{
 		memetrigger = answers.get("memeselect").get("text").toLowerCase();
+	}
+	if(memetrigger.contains("BACK") || memetrigger.contains("Back") || memetrigger.contains("back"))
+	{
+		response.put("action","context");
+		response.put("context_id","depressedopt");
+		question = {"name":"depressedOpt","replies":{"😊 Don’t worry, your assistant is right here to lift you up 🤗"},"suggestions":{"Grab me some Books 📚","Spotify 🎵","Motivate me 💪","Make me laugh 😂","MedTube 🎥","Show me a meme 🖼️","Tell me a story 📖","Play Games 🎮","Main Menu"}};
+		response.put("questions",{question});
+		return response;
 	}
 	if(memetrigger.contains("go") || memetrigger.contains("go ahead") || memetrigger.contains("memegenerate") || memetrigger.contains("one more") || memetrigger.contains("another"))
 	{
@@ -2642,7 +3276,7 @@ if(context_id != null && context_id.equals("memegenerator"))
 		{
 			memeText = "API failed 😩\nBut here's a classic: Grumpy Cat — https://i.imgur.com/4M7IWwP.jpg";
 		}
-		question = {"name":"memeselect","replies":{memeText},"suggestions":{"One more","Main Menu"}};
+		question = {"name":"memeselect","replies":{memeText},"suggestions":{"One more","Back"}};
 		respMap = Map();
 		respMap.put("action","context");
 		respMap.put("context_id","memegenerator");
@@ -2660,6 +3294,14 @@ if(context_id != null && context_id.equals("quotegenerator"))
 		{
 			quotetrigger = qs.get("text").toLowerCase();
 		}
+	}
+	if(quotetrigger.contains("Back") || quotetrigger.contains("BACK") || quotetrigger.contains("back"))
+	{
+		response.put("action","context");
+		response.put("context_id","depressedopt");
+		question = {"name":"depressedOpt","replies":{"😊 Don’t worry, your assistant is right here to lift you up 🤗"},"suggestions":{"Grab me some Books 📚","Spotify 🎵","Motivate me 💪","Make me laugh 😂","MedTube 🎥","Show me a meme 🖼️","Tell me a story 📖","Play Games 🎮","Main Menu"}};
+		response.put("questions",{question});
+		return response;
 	}
 	if(quotetrigger.contains("go ahead") || quotetrigger.contains("quote") || quotetrigger.contains("go") || quotetrigger.contains("one more") || quotetrigger.contains("another"))
 	{
@@ -2692,7 +3334,7 @@ if(context_id != null && context_id.equals("quotegenerator"))
 		{
 			quoteText = "The only person you should try to be better than is the one you were yesterday. 🌟";
 		}
-		question = {"name":"quoteselect","replies":{quoteText},"suggestions":{"One more","Main Menu"}};
+		question = {"name":"quoteselect","replies":{quoteText},"suggestions":{"One more","Back"}};
 		respMap = Map();
 		respMap.put("action","context");
 		respMap.put("context_id","quotegenerator");
@@ -2710,6 +3352,14 @@ if(context_id != null && context_id.equals("storygenerator"))
 		{
 			storytrigger = ss.get("text").toLowerCase();
 		}
+	}
+	if(storytrigger.contains("Back") || storytrigger.contains("back"))
+	{
+		response.put("action","context");
+		response.put("context_id","depressedopt");
+		question = {"name":"depressedOpt","replies":{"😊 Don’t worry, your assistant is right here to lift you up 🤗"},"suggestions":{"Grab me some Books 📚","Spotify 🎵","Motivate me 💪","Make me laugh 😂","MedTube 🎥","Show me a meme 🖼️","Tell me a story 📖","Play Games 🎮","Main Menu"}};
+		response.put("questions",{question});
+		return response;
 	}
 	if(storytrigger.contains("go ahead") || storytrigger.contains("storygenerate") || storytrigger.contains("go") || storytrigger.contains("one more") || storytrigger.contains("another"))
 	{
@@ -2776,71 +3426,1136 @@ if(context_id != null && context_id.equals("storygenerator"))
 		question = Map();
 		question.put("name","storyselect");
 		question.put("replies",{storyText});
-		question.put("suggestions",{"One more","Main Menu"});
+		question.put("suggestions",{"One more","Back"});
 		respMap.put("action","context");
 		respMap.put("context_id","storygenerator");
 		respMap.put("questions",{question});
 		return respMap;
 	}
 }
-// ================== CONSULT EXPERT : CONTEXT HANDLER ==================
-if(context_id != null && context_id.equals("consultopt"))
+portalId = "trycatchus";
+API_KEY_PLACEHOLDER = "5b95bfaa-d69d-11f0-a6b2-0200cd936042";
+// 2factor key (replace)
+CAL_API_KEY = "Bearer cal_live_d9e30fb446552d87e771b5f3d8ba7cf1";
+// cal.com key (replace)
+RESEND_MIN_SECONDS = 15;
+MAX_OTP_ATTEMPTS_LOCAL = 5;
+if(context_id != null && (context_id.equalsIgnoreCase("consultopt") || context_id.equalsIgnoreCase("consultopt")))
 {
-	response = Map();
-	opt = ifnull(answers.get("consultopt").get("text"),"");
-	optLower = opt.toLowerCase();
-	if(optLower.contains("doctors info") || optLower.contains("doctor info") || optLower.contains("top indian doctors"))
+	trig = "";
+	if(answers.containsKey("consultopt"))
 	{
-		response.put("action","context");
-		response.put("context_id","consultopt");
-		text = "🇮🇳 **Top Medical Specialties & What They Treat:**\n• 1️⃣ **Cardiology** – Heart & blood vessels\n• 2️⃣ **Neurology** – Brain, nerves & spine\n• 3️⃣ **Orthopedics** – Bones, joints & muscles\n• 4️⃣ **Pediatrics** – Children’s health\n• 5️⃣ **Gynecology** – Women’s reproductive health\n• 6️⃣ **Dermatology** – Skin, hair & nails\n• 7️⃣ **ENT** – Ear, nose & throat\n• 8️⃣ **Ophthalmology** – Eyes & vision\n• 9️⃣ **Gastroenterology** – Stomach & digestive system\n• 🔟 **Psychiatry** – Mental health & behavior\n\n💡 Tell me your issue, I’ll guide you to the right specialist.\nWhat would you like to do next?";
-		q = Map();
-		q.put("name","consultopt");
-		q.put("replies",{text});
-		q.put("suggestions",{"Make an Appointment","Main Menu"});
-		response.put("questions",{q});
-		return response;
+		trig = ifnull(answers.get("consultopt").get("text"),"");
 	}
-	if(optLower.contains("medkit") || optLower.contains("first step") || optLower.contains("issue") || optLower.contains("help"))
-	{
-		response.put("action","context");
-		response.put("context_id","consult_medkit");
-		q = Map();
-		q.put("name","medkit_issue");
-		q.put("replies",{"🩺 This is MedKit – First Step Help.\nPlease describe your issue in 1–2 lines (example: 'I have headache and mild fever for 2 days').\n⚠️ I will give only general guidance, not a medical diagnosis."});
-		q.put("input",{"type":"name","placeholder":"Describe your issue here"});
-		response.put("questions",{q});
-		return response;
-	}
-	if(optLower.contains("about appointments") || optLower.contains("about appointment") || optLower.contains("about our"))
-	{
-		response.put("action","context");
-		response.put("context_id","consultopt");
-		text = "ℹ️ **About MedKit Appointments:**\n• We use an **online scheduling system** to book your slot.\n• You can choose a **date and time** that suits you.\n• Once booked, you'll receive a **confirmation email**.\n• Your details are kept **private** and used only for consultation.\n\nWould you like to **book a slot** now?";
-		q = Map();
-		q.put("name","consultopt");
-		q.put("replies",{text});
-		q.put("suggestions",{"Make an Appointment","Main Menu"});
-		response.put("questions",{q});
-		return response;
-	}
-	if(optLower.contains("make an appointment") || optLower.contains("appointment") && !optLower.contains("about"))
+	trigLower = trig.toLowerCase();
+	if(trigLower.equalsIgnoreCase("📅 make an appointment") || trigLower.equalsIgnoreCase("Make an Appointment") || trigLower.contains("make an appointment"))
 	{
 		response.put("action","context");
 		response.put("context_id","consult_schedule_name");
 		q = Map();
 		q.put("name","sched_name");
-		q.put("replies",{"📅 Great! Let’s book your appointment.\nPlease share your name so we can personalize your booking."});
+		q.put("replies",{"📅 Great! Let’s book your appointment.\nPlease share your **Name** so we can personalize your booking."});
 		q.put("input",{"type":"name","placeholder":"Enter your name","error":{"Please enter a valid name"}});
 		response.put("questions",{q});
 		return response;
 	}
-	if(optLower.contains("main menu"))
+	if(trigLower.equalsIgnoreCase("ℹ️ about") || trigLower.equalsIgnoreCase("about") || trigLower.contains("About"))
+	{
+		response.put("action","context");
+		response.put("context_id","consultopt");
+		text = "ℹ️ **About MedKit Appointments**\n\n**Step 1: Make An Appointment**\n\n• Enter your **Name**\n• Verify your **Email (OTP)**\n• Verify your **Phone Number**\n• Select your preferred **Date & Time**\n• Your appointment will be **successfully booked**\n\n**Step 2: My Appointments**\n\n• Open **My Appointments**\n• Verify using **Name, Email (OTP), and Phone (OTP)**\n• View your **Scheduled Appointments**\n• **Reschedule ⏰** or **Cancel ❌** if needed\n📞 Our **MedKit Team** will contact you via **Email** after verification.\n\n❤️ **Thank You For Choosing MedKit — We’re Always Here To Support You!**";
+		q = Map();
+		q.put("name","consultopt");
+		q.put("replies",{text});
+		q.put("suggestions",{"Back","📅 Make an Appointment","📘 My Appointments","Main Menu"});
+		response.put("questions",{q});
+		return response;
+	}
+	if(trigLower.equalsIgnoreCase("Back") || trigLower.equalsIgnoreCase("back"))
+	{
+		response.put("action","context");
+		response.put("context_id","consultopt");
+		question = {"name":"consultopt","replies":{"😁 Welcome to **MedKit Expert Help!**"},"suggestions":{"ℹ️ About","📅 Make an Appointment","📘 My Appointments","Main Menu"}};
+		response.put("questions",{question});
+		return response;
+	}
+	if(trigLower.equalsIgnoreCase("📘 my appointments") || trigLower.equalsIgnoreCase("my appointments") || trigLower.contains("my appointments"))
+	{
+		existingName = "";
+		try 
+		{
+			tmp = zoho.salesiq.visitorsession.get(portalId,"nf_name");
+			if(tmp.containsKey("data"))
+			{
+				existingName = ifnull(tmp.get("data").get("nf_name"),"");
+			}
+		}
+		catch (e)
+		{
+			existingName = "";
+		}
+		if(existingName == null || existingName.trim() == "")
+		{
+			response.put("action","context");
+			response.put("context_id","my_appointments_name");
+			// ask name step
+			q = Map();
+			q.put("name","nf_name");
+			q.put("replies",{"📅 To fetch appointments we need to verify you. What's your **Name?**"});
+			q.put("input",{"type":"name","placeholder":"Enter your name"});
+			q.put("suggestions",{"Main Menu"});
+			response.put("questions",{q});
+			return response;
+		}
+		else
+		{
+			nfEmail = "";
+			try 
+			{
+				tmp2 = zoho.salesiq.visitorsession.get(portalId,"nf_email");
+				if(tmp2.containsKey("data"))
+				{
+					nfEmail = ifnull(tmp2.get("data").get("nf_email"),"");
+				}
+			}
+			catch (e)
+			{
+				nfEmail = "";
+			}
+			if(nfEmail == null || nfEmail.trim() == "")
+			{
+				response.put("action","context");
+				response.put("context_id","my_appointments_email");
+				q = Map();
+				q.put("name","nf_email");
+				q.put("replies",{"📧 Please enter your **Email** so I can send a verification OTP."});
+				q.put("input",{"type":"email","placeholder":"example@gmail.com"});
+				q.put("suggestions",{"Main Menu"});
+				response.put("questions",{q});
+				return response;
+			}
+			else
+			{
+				response.put("action","context");
+				response.put("context_id","my_appointments_phone_collect");
+				q = Map();
+				q.put("name","sched_phone");
+				q.put("replies",{"📲 Please enter your **Phone Number** to verify (example: 9198xxxxxxxx)."});
+				q.put("input",{"type":"name","placeholder":"9198xxxxxxxx"});
+				q.put("suggestions",{"Main Menu"});
+				response.put("questions",{q});
+				return response;
+			}
+		}
+	}
+}
+if(context_id != null && context_id.equals("my_appointments_name") && answers.containsKey("nf_name") && !answers.containsKey("nf_email"))
+{
+	uname = ifnull(answers.get("nf_name").get("text"),"Friend");
+	tmpMap = Map();
+	tmpMap.put("nf_name",uname);
+	try 
+	{
+		zoho.salesiq.visitorsession.set(portalId,tmpMap);
+	}
+	catch (e)
+	{
+	}
+	response.put("action","context");
+	response.put("context_id","my_appointments_email");
+	q = Map();
+	q.put("name","nf_email");
+	q.put("replies",{"Hi **" + uname + "**, please enter your **Email** so I can send your OTP 🔐."});
+	inputMap = Map();
+	inputMap.put("type","email");
+	inputMap.put("placeholder","medkit@gmail.com");
+	inputMap.put("error",{"Enter a valid email"});
+	q.put("input",inputMap);
+	response.put("questions",{q});
+	return response;
+}
+if(context_id != null && context_id.equals("my_appointments_email") && answers.containsKey("nf_email") && !answers.containsKey("nf_otp"))
+{
+	uname = "";
+	try 
+	{
+		tmpN = zoho.salesiq.visitorsession.get(portalId,"nf_name");
+		if(tmpN.containsKey("data"))
+		{
+			uname = ifnull(tmpN.get("data").get("nf_name"),"Customer");
+		}
+	}
+	catch (e)
+	{
+		uname = "Customer";
+	}
+	uemail = ifnull(answers.get("nf_email").get("text"),"");
+	isValidEmail = true;
+	if(uemail == null || uemail.trim() == "")
+	{
+		isValidEmail = false;
+	}
+	else if(uemail.indexOf("@") == -1 || uemail.indexOf(".") == -1)
+	{
+		isValidEmail = false;
+	}
+	if(!isValidEmail)
+	{
+		response.put("action","context");
+		response.put("context_id","my_appointments_email");
+		q = Map();
+		q.put("name","nf_email");
+		q.put("replies",{"❌ That does not look like a valid email.","Hi " + uname + ", please enter a **Correct Email Address** (example: user@gmail.com) so I can send your OTP 🔐."});
+		inputMap = Map();
+		inputMap.put("type","email");
+		inputMap.put("placeholder","medkit@gmail.com");
+		inputMap.put("error",{"Enter a valid email"});
+		q.put("input",inputMap);
+		response.put("questions",{q});
+		return response;
+	}
+	// Generate OTP and save to session (ProcureX exact keys)
+	otpNum = randomNumber(100000,999999);
+	otpStr = otpNum.toString();
+	sessMap = Map();
+	sessMap.put("nf_otp_value",otpStr);
+	sessMap.put("nf_name",uname);
+	sessMap.put("nf_email",uemail);
+	sessMap.put("nf_otp_sent_ts",zoho.currenttime);
+	try 
+	{
+		sessMap.put("nf_otp_attempts",0);
+	}
+	catch (e)
+	{
+	}
+	try 
+	{
+		zoho.salesiq.visitorsession.set(portalId,sessMap);
+	}
+	catch (e)
+	{
+	}
+	sendmail
+	[
+		from :zoho.adminuserid
+		to :uemail
+		subject :"MedKit - Here is your OTP"
+		message :"<div style='background:#f7f7fb;padding:32px 0;font-family:Arial,Helvetica,sans-serif;'><div style='max-width:600px;margin:0 auto;background:#ffffff;border-radius:12px;padding:32px 28px;border:1px solid #e5e7eb;text-align:center;'><img src='https://strange-aqua-5yfklivwfj-muznn4xg3b.edgeone.dev/MEDOOO.jpg' alt='MedKit' style='width:60px;margin-bottom:12px;'><h2 style='color:#111827;margin:0 0 12px 0;font-weight:700;'>MedKit Appointment Verification</h2><p style='color:#4b5563;font-size:14px;margin:0 0 22px 0;'>We received a request to verify your appointment booking in MedKit. Please enter the verification code below in the chatbot to continue confirming your appointment.</p><div style='background:#f3f4f6;padding:18px 0;font-size:32px;font-weight:700;border-radius:10px;color:#111827;margin-bottom:22px;'>" + otpStr + "</div><p style='color:#6b7280;font-size:12px;margin-bottom:22px;'>If you did not request an appointment, please ignore this email. This OTP is valid for 10 minutes.</p><hr style='border:none;border-top:1px solid #e5e7eb;margin:24px 0;'><p style='font-size:12px;color:#9ca3af;'>MedKit – Smart Appointment Booking Made Simple 🩺📅</p></div></div>"
+	]
+	response.put("action","context");
+	response.put("context_id","my_appointments_email_verify");
+	q = Map();
+	q.put("name","nf_otp");
+	q.put("replies",{"We have sent a **6-digit** OTP to " + uemail + ". Please enter it below 🔐:"});
+	inputMap = Map();
+	inputMap.put("type","name");
+	inputMap.put("placeholder","Enter OTP");
+	q.put("input",inputMap);
+	q.put("suggestions",{"Resend OTP","Try Again","Main Menu"});
+	response.put("questions",{q});
+	return response;
+}
+if(context_id != null && context_id.equals("my_appointments_email_verify") && answers.containsKey("nf_otp"))
+{
+	enteredOtp = answers.get("nf_otp").get("text");
+	realOtp = "";
+	try 
+	{
+		vsResp = zoho.salesiq.visitorsession.get(portalId,"nf_otp_value");
+		if(vsResp.containsKey("data"))
+		{
+			realOtp = ifnull(vsResp.get("data").get("nf_otp_value"),"");
+		}
+	}
+	catch (e)
+	{
+		realOtp = "";
+	}
+	attempts = 0;
+	try 
+	{
+		tmpA = zoho.salesiq.visitorsession.get(portalId,"nf_otp_attempts");
+		if(tmpA.containsKey("data"))
+		{
+			attempts = ifnull(tmpA.get("data").get("nf_otp_attempts"),0).toLong();
+		}
+	}
+	catch (e)
+	{
+		attempts = 0;
+	}
+	if(enteredOtp != realOtp)
+	{
+		// increment attempts and prompt again (ProcureX style)
+		try 
+		{
+			tmap = Map();
+			tmap.put("nf_otp_attempts",attempts + 1);
+			zoho.salesiq.visitorsession.set(portalId,tmap);
+		}
+		catch (e)
+		{
+		}
+		response.put("action","context");
+		response.put("context_id","my_appointments_email_verify");
+		q = Map();
+		q.put("name","nf_otp");
+		q.put("replies",{"❌ That OTP is **Incorrect**. Please enter the correct 6-digit OTP sent to your email."});
+		inputMap = Map();
+		inputMap.put("type","name");
+		inputMap.put("placeholder","Enter OTP again");
+		q.put("input",inputMap);
+		q.put("suggestions",{"Try Again","Main Menu"});
+		response.put("questions",{q});
+		return response;
+	}
+	try 
+	{
+		tmpv = Map();
+		tmpv.put("nf_otp_value","");
+		tmpv.put("nf_otp_attempts",0);
+		tmpv.put("nf_email_verified",true);
+		zoho.salesiq.visitorsession.set(portalId,tmpv);
+	}
+	catch (e)
+	{
+	}
+	response.put("action","context");
+	response.put("context_id","my_appointments_phone_collect");
+	q = Map();
+	q.put("name","sched_phone");
+	q.put("replies",{"🎉 Email verified **Successfully!**\nPlease enter your **Phone Number** to receive a verification code via **SMS or Call** 📲."});
+	q.put("input",{"type":"name","placeholder":"9198xxxxxxxx"});
+	q.put("suggestions",{"Main Menu"});
+	response.put("questions",{q});
+	return response;
+}
+if(context_id != null && context_id.equals("my_appointments_phone_collect") && answers.containsKey("sched_phone") && !answers.containsKey("sched_otp"))
+{
+	phoneRaw = ifnull(answers.get("sched_phone").get("text"),"").trim();
+	phone = phoneRaw.replaceAll("\\+","").replaceAll("\\s+","");
+	if(phone == null || phone == "" || phone.length() < 10)
+	{
+		response.put("action","context");
+		response.put("context_id","my_appointments_phone_collect");
+		q = Map();
+		q.put("name","sched_phone");
+		q.put("replies",{"⚠️ Oops! Please enter a correct **Phone Number** with at least 10 digits"});
+		q.put("input",{"type":"name"});
+		q.put("suggestions",{"Try Again","Main Menu"});
+		response.put("questions",{q});
+		return response;
+	}
+	// anti-resend check (consult logic)
+	lastTs = 0;
+	try 
+	{
+		vsResp = zoho.salesiq.visitorsession.get(portalId,"consult_otp_sent_ts");
+		if(vsResp.containsKey("data"))
+		{
+			rawVal = ifnull(vsResp.get("data").get("consult_otp_sent_ts"),"");
+			if(rawVal != "")
+			{
+				lastTs = rawVal.toLong();
+			}
+		}
+	}
+	catch (e)
+	{
+		lastTs = 0;
+	}
+	now = zoho.currenttime.toLong();
+	if(lastTs != 0 && now - lastTs < RESEND_MIN_SECONDS)
+	{
+		response.put("action","context");
+		response.put("context_id","my_appointments_phone_collect");
+		q = Map();
+		q.put("name","sched_phone");
+		q.put("replies",{"⏳ Please wait a **Few Seconds** before requesting OTP again."});
+		q.put("suggestions",{"Try Again","Main Menu"});
+		response.put("questions",{q});
+		return response;
+	}
+	// call 2factor.in AUTOGEN (consult exact)
+	sendUrl = "https://2factor.in/API/V1/" + API_KEY_PLACEHOLDER + "/SMS/" + phone + "/AUTOGEN";
+	sendResp = Map();
+	try 
+	{
+		raw = getUrl(sendUrl);
+		try 
+		{
+			sendResp = raw.toMap();
+		}
+		catch (e)
+		{
+			sendResp = raw;
+		}
+	}
+	catch (e)
+	{
+		sendResp = Map();
+		sendResp.put("Status","Error");
+		sendResp.put("Message","Failed to call OTP API: " + e.toString());
+	}
+	success = false;
+	details = "";
+	try 
+	{
+		if(sendResp != null)
+		{
+			tmp = sendResp;
+			try 
+			{
+				tmp = tmp.toMap();
+			}
+			catch (innerEx)
+			{
+				tmp = tmp;
+			}
+			sendResp = tmp;
+			if(tmp.containsKey("Status"))
+			{
+				st = tmp.get("Status").toString().toLowerCase();
+				if(st.equals("success"))
+				{
+					success = true;
+				}
+			}
+			if(!success && tmp.containsKey("status"))
+			{
+				st2 = tmp.get("status").toString().toLowerCase();
+				if(st2.equals("success"))
+				{
+					success = true;
+				}
+			}
+			if(tmp.containsKey("Details"))
+			{
+				details = tmp.get("Details");
+				try 
+				{
+					tmpMap = Map();
+					tmpMap.put("consult_otp_session",details);
+					zoho.salesiq.visitorsession.set(portalId,tmpMap);
+				}
+				catch (e2)
+				{
+				}
+			}
+		}
+	}
+	catch (e)
+	{
+	}
+	if(success)
+	{
+		try 
+		{
+			tmpTimeMap = Map();
+			tmpTimeMap.put("consult_otp_sent_ts",zoho.currenttime);
+			zoho.salesiq.visitorsession.set(portalId,tmpTimeMap);
+		}
+		catch (e)
+		{
+		}
+		try 
+		{
+			tmpAttemptsMap = Map();
+			tmpAttemptsMap.put("consult_otp_attempts",0);
+			zoho.salesiq.visitorsession.set(portalId,tmpAttemptsMap);
+		}
+		catch (e)
+		{
+		}
+		try 
+		{
+			tmp3 = Map();
+			tmp3.put("consult_phone",phone);
+			zoho.salesiq.visitorsession.set(portalId,tmp3);
+		}
+		catch (e)
+		{
+		}
+		response.put("action","context");
+		response.put("context_id","consult_verify_otp");
+		// reuse consult verify context
+		q = Map();
+		q.put("name","sched_otp");
+		q.put("replies",{"📞 OTP sent to **" + phone + "**. Please enter the 6-digit OTP you received."});
+		q.put("input",{"type":"name","placeholder":"Enter OTP"});
+		q.put("suggestions",{"Try Again","Main Menu"});
+		response.put("questions",{q});
+		return response;
+	}
+	else
+	{
+		errMsg = "";
+		try 
+		{
+			errMsg = sendResp.get("Message");
+		}
+		catch (e)
+		{
+			errMsg = sendResp.toString();
+		}
+		response.put("action","context");
+		response.put("context_id","consult_phone");
+		q = Map();
+		q.put("name","sched_phone");
+		q.put("replies",{"❌ Could not send OTP: " + errMsg + "\nWould you like to try again?"});
+		q.put("suggestions",{"Try Again","Main Menu"});
+		response.put("questions",{q});
+		return response;
+	}
+}
+if(context_id != null && context_id.equals("consult_verify_otp") && answers.containsKey("sched_otp"))
+{
+	userOtp = ifnull(answers.get("sched_otp").get("text"),"").trim();
+	if(userOtp == "Refresh" || userOtp == "refresh")
+	{
+		response = Map();
+		userEmail = "";
+		try 
+		{
+			e = zoho.salesiq.visitorsession.get(portalId,"nf_email");
+			if(e.containsKey("data"))
+			{
+				userEmail = ifnull(e.get("data").get("nf_email"),"");
+			}
+		}
+		catch (e)
+		{
+		}
+		if(userEmail == "")
+		{
+			response.put("action","context");
+			response.put("context_id","consultopt");
+			return response;
+		}
+		bookingURL = "https://api.cal.com/v2/bookings?email=" + userEmail;
+		bookingResp = invokeurl
+		[
+			url :bookingURL
+			type :GET
+			headers:{"Authorization":CAL_API_KEY}
+		];
+		if(bookingResp.get("status") != "success")
+		{
+			response.put("action","reply");
+			response.put("replies",{"❌ Could not fetch your appointments."});
+			return response;
+		}
+		bookings = bookingResp.get("data").get("bookings");
+		myBookings = List();
+		for each  b in bookings
+		{
+			attendees = ifnull(b.get("attendees"),List());
+			for each  a in attendees
+			{
+				if(a.get("email") == userEmail)
+				{
+					myBookings.add(b);
+				}
+			}
+		}
+		if(myBookings.isEmpty())
+		{
+			response.put("action","reply");
+			response.put("replies",{"😕 No appointments found for *" + userEmail + "*"});
+			sugs = List();
+			sugs.add("Main Menu");
+			response.put("suggestions",sugs);
+			return response;
+		}
+		finalMsg = "📅 *Your Appointments*\n\n";
+		count = 1;
+		cleanEmail = userEmail.replaceAll(" ","%20");
+		cards = List();
+		staticImage = "https://image2url.com/images/1765648240188-21fc1436-74ed-446e-a15b-f4bca8e87299.jpg";
+		monthNames = {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
+		for each  booking in myBookings
+		{
+			title = booking.get("title");
+			startISO = booking.get("startTime");
+			endISO = booking.get("endTime");
+			year = startISO.substring(0,4).toLong();
+			month = startISO.substring(5,7).toLong();
+			day = startISO.substring(8,10).toLong();
+			// Parse time parts
+			hour = startISO.substring(11,13).toLong();
+			minute = startISO.substring(14,16).toLong();
+			// Add IST offset
+			hour = hour + 5;
+			minute = minute + 30;
+			if(minute >= 60)
+			{
+				minute = minute - 60;
+				hour = hour + 1;
+			}
+			if(hour >= 24)
+			{
+				hour = hour - 24;
+				day = day + 1;
+				// basic rollover (ok for appointment display)
+			}
+			monthName = monthNames.get(month - 1);
+			// Format hour → 12 hr
+			ampm = "AM";
+			displayHour = hour;
+			if(hour == 0)
+			{
+				displayHour = 12;
+			}
+			else if(hour == 12)
+			{
+				ampm = "PM";
+			}
+			else if(hour > 12)
+			{
+				displayHour = hour - 12;
+				ampm = "PM";
+			}
+			minuteStr = if(minute < 10,"0" + minute.toString(),minute.toString());
+			formattedStart = day.toString() + " " + monthName + " " + year.toString() + ", " + displayHour.toString() + ":" + minuteStr + " " + ampm + " IST";
+			endYear = endISO.substring(0,4).toLong();
+			endMonth = endISO.substring(5,7).toLong();
+			endDay = endISO.substring(8,10).toLong();
+			endHour = endISO.substring(11,13).toLong();
+			endMinute = endISO.substring(14,16).toLong();
+			endHour = endHour + 5;
+			endMinute = endMinute + 30;
+			if(endMinute >= 60)
+			{
+				endMinute = endMinute - 60;
+				endHour = endHour + 1;
+			}
+			if(endHour >= 24)
+			{
+				endHour = endHour - 24;
+				endDay = endDay + 1;
+			}
+			endAMPM = "AM";
+			endDispHour = endHour;
+			if(endHour == 0)
+			{
+				endDispHour = 12;
+			}
+			else if(endHour == 12)
+			{
+				endAMPM = "PM";
+			}
+			else if(endHour > 12)
+			{
+				endDispHour = endHour - 12;
+				endAMPM = "PM";
+			}
+			endMinStr = if(endMinute < 10,"0" + endMinute.toString(),endMinute.toString());
+			formattedEnd = endDay.toString() + " " + monthName + " " + endYear.toString() + ", " + endDispHour.toString() + ":" + endMinStr + " " + endAMPM + " IST";
+			username = "medkit";
+			eventSlug = booking.get("eventType").get("slug");
+			bookingUid = booking.get("uid");
+			organizerEmail = booking.get("userPrimaryEmail");
+			rescheduleUrl = "https://cal.com/" + username + "/" + eventSlug + "?rescheduleUid=" + bookingUid + "&rescheduledBy=" + organizerEmail + "&overlayCalendar=true";
+			cancelUrl = "https://cal.com/booking/" + bookingUid + "?email=" + cleanEmail + "&eventTypeSlug=" + eventSlug + "&uid=" + bookingUid + "&cancel=true";
+			finalMsg = finalMsg + "🗂️ *Appointment #" + count + "*\n" + "• *Title:* " + title + "\n" + "• *Starts:* " + formattedStart + "\n" + "• *Ends:* " + formattedEnd + "\n" + "• 🔁 *Reschedule:* [Click here to reschedule](" + rescheduleUrl + ")\n" + "• ❌ *Cancel:* [Click here to cancel](" + cancelUrl + ")\n\n";
+			count = count + 1;
+			cardText = "";
+			cardText = cardText + "*Appointment #" + (count - 1) + "*\n\n";
+			cardText = cardText + "• *Title:* " + title + "\n";
+			if(formattedStart != null && formattedStart != "")
+			{
+				cardText = cardText + "• *Starts:* **" + formattedStart + "**\n";
+			}
+			if(formattedEnd != null && formattedEnd != "")
+			{
+				cardText = cardText + "• *Ends:* **" + formattedEnd + "**\n";
+			}
+			linksList = List();
+			readMap = Map();
+			readMap.put("url",rescheduleUrl);
+			readMap.put("text","Reschedule");
+			linksList.add(readMap);
+			cancelMap = Map();
+			cancelMap.put("url",cancelUrl);
+			cancelMap.put("text","Cancel");
+			linksList.add(cancelMap);
+			card = Map();
+			card.put("type","links");
+			card.put("text",cardText);
+			card.put("image",staticImage);
+			card.put("image_position","fit");
+			card.put("links",linksList);
+			cards.add(card);
+		}
+		response.put("action","context");
+		response.put("context_id","consult_verify_otp");
+		q = Map();
+		q.put("name","sched_otp");
+		q.put("replies",cards);
+		sugs = List();
+		sugs.add("Refresh");
+		sugs.add("Main Menu");
+		q.put("suggestions",sugs);
+		response.put("questions",{q});
+		return response;
+	}
+	if(userOtp == "Main Menu" || userOtp == "main menu")
 	{
 		response.put("action","context");
 		response.put("context_id","mainmenu");
-		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to MedKit 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"🧠 Mind Check","Health Hub 🩺","Care Assistant 😊","ProcureX 🛒","💬 Motivational Boost","🏋️ FitZone","🤝 Consult an Expert","Dietrix 🥗","🎮 Play Games","📞 Help Desk"}};
+		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to **MedKit** 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"MedKit Wellness Hub 🌿","🏋️ FitZone","ProcureX 🛒","💬 Motivational Boost","🤝 Consult an Expert","📞 Help Desk"}};
 		response.put("questions",{question});
+		return response;
+	}
+	if(userOtp == null || userOtp == "" || userOtp.length() < 3)
+	{
+		response.put("action","context");
+		response.put("context_id","consult_verify_otp");
+		q = Map();
+		q.put("name","sched_otp");
+		q.put("replies",{"📩 Please enter the **6-digit OTP** we just sent you."});
+		q.put("input",{"type":"name"});
+		q.put("suggestions",{"Try Again","Main Menu"});
+		response.put("questions",{q});
+		return response;
+	}
+	sessId = "";
+	phone = "";
+	attempts = 0;
+	try 
+	{
+		vsResp1 = zoho.salesiq.visitorsession.get(portalId,"consult_otp_session");
+		if(vsResp1.containsKey("data"))
+		{
+			sessId = ifnull(vsResp1.get("data").get("consult_otp_session"),"");
+		}
+	}
+	catch (e)
+	{
+		sessId = "";
+	}
+	try 
+	{
+		vsResp2 = zoho.salesiq.visitorsession.get(portalId,"consult_phone");
+		if(vsResp2.containsKey("data"))
+		{
+			phone = ifnull(vsResp2.get("data").get("consult_phone"),"");
+		}
+	}
+	catch (e)
+	{
+		phone = "";
+	}
+	try 
+	{
+		vsResp3 = zoho.salesiq.visitorsession.get(portalId,"consult_otp_attempts");
+		if(vsResp3.containsKey("data"))
+		{
+			attempts = ifnull(vsResp3.get("data").get("consult_otp_attempts"),0).toLong();
+		}
+	}
+	catch (e)
+	{
+		attempts = 0;
+	}
+	if(sessId == null || sessId == "")
+	{
+		response.put("action","context");
+		response.put("context_id","consult_phone");
+		q = Map();
+		q.put("name","sched_phone");
+		q.put("replies",{"⚠️ No active OTP session found. Please **Re-enter Your Phone Number** to request a new OTP."});
+		q.put("input",{"type":"name"});
+		response.put("questions",{q});
+		return response;
+	}
+	if(attempts >= MAX_OTP_ATTEMPTS_LOCAL)
+	{
+		try 
+		{
+			tmp = Map();
+			tmp.put("consult_otp_session","");
+			zoho.salesiq.visitorsession.set(portalId,tmp);
+		}
+		catch (e)
+		{
+		}
+		try 
+		{
+			tmp = Map();
+			tmp.put("consult_otp_attempts",0);
+			zoho.salesiq.visitorsession.set(portalId,tmp);
+		}
+		catch (e)
+		{
+		}
+		try 
+		{
+			tmp = Map();
+			tmp.put("consult_otp_sent_ts","");
+			zoho.salesiq.visitorsession.set(portalId,tmp);
+		}
+		catch (e)
+		{
+		}
+		response.put("action","context");
+		response.put("context_id","consult_phone");
+		q = Map();
+		q.put("name","sched_phone");
+		q.put("replies",{"❌ Too many incorrect attempts. Please **Re-Enter Your Phone Number** to request a fresh OTP."});
+		q.put("input",{"type":"name"});
+		response.put("questions",{q});
+		return response;
+	}
+	try 
+	{
+		tmp = Map();
+		tmp.put("consult_otp_attempts",attempts + 1);
+		zoho.salesiq.visitorsession.set(portalId,tmp);
+	}
+	catch (e)
+	{
+	}
+	verifyUrl = "https://2factor.in/API/V1/" + API_KEY_PLACEHOLDER + "/SMS/VERIFY/" + sessId + "/" + userOtp;
+	verifyResp = Map();
+	try 
+	{
+		rawv = getUrl(verifyUrl);
+		try 
+		{
+			verifyResp = rawv.toMap();
+		}
+		catch (e)
+		{
+			verifyResp = rawv;
+		}
+	}
+	catch (e)
+	{
+		verifyResp = Map();
+		verifyResp.put("Status","Error");
+		verifyResp.put("Details","Verification failed: " + e.toString());
+	}
+	verified = false;
+	reason = "";
+	try 
+	{
+		if(verifyResp.containsKey("Details"))
+		{
+			d = verifyResp.get("Details").toString().toLowerCase();
+			if(d.contains("otp matched"))
+			{
+				verified = true;
+			}
+			else
+			{
+				reason = verifyResp.get("Details");
+			}
+		}
+		else
+		{
+			if(verifyResp.containsKey("Status"))
+			{
+				sts = verifyResp.get("Status").toString().toLowerCase();
+				if(sts.equals("success"))
+				{
+					verified = true;
+				}
+			}
+		}
+	}
+	catch (e)
+	{
+	}
+	if(verified)
+	{
+		try 
+		{
+			tmp = Map();
+			tmp.put("consult_phone_verified",true);
+			tmp.put("consult_user_phone",phone);
+			zoho.salesiq.visitorsession.set(portalId,tmp);
+		}
+		catch (e)
+		{
+		}
+		try 
+		{
+			tmp = Map();
+			tmp.put("my_appt_verified",true);
+			zoho.salesiq.visitorsession.set(portalId,tmp);
+		}
+		catch (e)
+		{
+		}
+		try 
+		{
+			tmp = Map();
+			tmp.put("consult_otp_session","");
+			zoho.salesiq.visitorsession.set(portalId,tmp);
+		}
+		catch (e)
+		{
+		}
+		try 
+		{
+			tmp = Map();
+			tmp.put("consult_otp_attempts",0);
+			zoho.salesiq.visitorsession.set(portalId,tmp);
+		}
+		catch (e)
+		{
+		}
+		try 
+		{
+			tmp = Map();
+			tmp.put("consult_otp_sent_ts","");
+			zoho.salesiq.visitorsession.set(portalId,tmp);
+		}
+		catch (e)
+		{
+		}
+		// ensure nf_email is present (ProcureX logic)
+		nfEmail = "";
+		try 
+		{
+			tmpResp2 = zoho.salesiq.visitorsession.get(portalId,"nf_email");
+			if(tmpResp2.containsKey("data"))
+			{
+				nfEmail = ifnull(tmpResp2.get("data").get("nf_email"),"");
+			}
+		}
+		catch (e)
+		{
+			nfEmail = "";
+		}
+		if(nfEmail == null || nfEmail.trim() == "")
+		{
+			response.put("action","context");
+			response.put("context_id","procurex");
+			q = Map();
+			q.put("name","procurex");
+			q.put("replies",{"⚠️ We couldn't find your verified email. Please verify email via first."});
+			q.put("suggestions",{"Main Menu"});
+			response.put("questions",{q});
+			return response;
+		}
+		// Both phone verified and nf_email exists -> fetch cal.com bookings (same logic)
+		userEmail = nfEmail;
+		bookingURL = "https://api.cal.com/v2/bookings?email=" + userEmail;
+		bookingResp = Map();
+		try 
+		{
+			bookingResp = invokeurl
+			[
+				url :bookingURL
+				type :GET
+				headers:{"Authorization":CAL_API_KEY}
+			];
+		}
+		catch (e)
+		{
+			bookingResp = Map();
+			bookingResp.put("status","error");
+		}
+		if(bookingResp.get("status") != "success")
+		{
+			response.put("action","context");
+			response.put("context_id","my_appointments_completed");
+			q = Map();
+			q.put("name","my_appointments_result");
+			q.put("replies",{"❌ Could not fetch your appointments. Please try again later."});
+			q.put("suggestions",{"Main Menu","Back"});
+			response.put("questions",{q});
+			return response;
+		}
+		bookings = bookingResp.get("data").get("bookings");
+		myBookings = List();
+		for each  b in bookings
+		{
+			attendees = ifnull(b.get("attendees"),List());
+			for each  a in attendees
+			{
+				if(a.get("email") == userEmail)
+				{
+					myBookings.add(b);
+				}
+			}
+		}
+		if(myBookings.isEmpty())
+		{
+			response.put("action","context");
+			response.put("context_id","my_appointments_completed");
+			q = Map();
+			q.put("name","my_appointments_result");
+			q.put("replies",{"😕 No appointments found for *" + userEmail + "*"});
+			q.put("suggestions",{"Main Menu"});
+			response.put("questions",{q});
+			return response;
+		}
+		// build and return cards exactly as original booking display
+		finalMsg = "📅 *Your Appointments*\n\n";
+		count = 1;
+		cleanEmail = userEmail.replaceAll(" ","%20");
+		cards = List();
+		staticImage = "https://image2url.com/images/1765648240188-21fc1436-74ed-446e-a15b-f4bca8e87299.jpg";
+		monthNames = {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
+		for each  booking in myBookings
+		{
+			title = booking.get("title");
+			startISO = booking.get("startTime");
+			endISO = booking.get("endTime");
+			year = startISO.substring(0,4).toLong();
+			month = startISO.substring(5,7).toLong();
+			day = startISO.substring(8,10).toLong();
+			hour = startISO.substring(11,13).toLong();
+			minute = startISO.substring(14,16).toLong();
+			hour = hour + 5;
+			minute = minute + 30;
+			if(minute >= 60)
+			{
+				minute = minute - 60;
+				hour = hour + 1;
+			}
+			if(hour >= 24)
+			{
+				hour = hour - 24;
+				day = day + 1;
+			}
+			monthName = monthNames.get(month - 1);
+			ampm = "AM";
+			displayHour = hour;
+			if(hour == 0)
+			{
+				displayHour = 12;
+			}
+			else if(hour == 12)
+			{
+				ampm = "PM";
+			}
+			else if(hour > 12)
+			{
+				displayHour = hour - 12;
+				ampm = "PM";
+			}
+			minuteStr = if(minute < 10,"0" + minute.toString(),minute.toString());
+			formattedStart = day.toString() + " " + monthName + " " + year.toString() + ", " + displayHour.toString() + ":" + minuteStr + " " + ampm + " IST";
+			endYear = endISO.substring(0,4).toLong();
+			endMonth = endISO.substring(5,7).toLong();
+			endDay = endISO.substring(8,10).toLong();
+			endHour = endISO.substring(11,13).toLong();
+			endMinute = endISO.substring(14,16).toLong();
+			endHour = endHour + 5;
+			endMinute = endMinute + 30;
+			if(endMinute >= 60)
+			{
+				endMinute = endMinute - 60;
+				endHour = endHour + 1;
+			}
+			if(endHour >= 24)
+			{
+				endHour = endHour - 24;
+				endDay = endDay + 1;
+			}
+			endAMPM = "AM";
+			endDispHour = endHour;
+			if(endHour == 0)
+			{
+				endDispHour = 12;
+			}
+			else if(endHour == 12)
+			{
+				endAMPM = "PM";
+			}
+			else if(endHour > 12)
+			{
+				endDispHour = endHour - 12;
+				endAMPM = "PM";
+			}
+			endMinStr = if(endMinute < 10,"0" + endMinute.toString(),endMinute.toString());
+			formattedEnd = endDay.toString() + " " + monthName + " " + endYear.toString() + ", " + endDispHour.toString() + ":" + endMinStr + " " + endAMPM + " IST";
+			username = "medkit";
+			eventSlug = booking.get("eventType").get("slug");
+			bookingUid = booking.get("uid");
+			organizerEmail = booking.get("userPrimaryEmail");
+			rescheduleUrl = "https://cal.com/" + username + "/" + eventSlug + "?rescheduleUid=" + bookingUid + "&rescheduledBy=" + organizerEmail + "&overlayCalendar=true";
+			cancelUrl = "https://cal.com/booking/" + bookingUid + "?email=" + cleanEmail + "&eventTypeSlug=" + eventSlug + "&uid=" + bookingUid + "&cancel=true";
+			finalMsg = finalMsg + "🗂️ *Appointment #" + count + "*\n" + "• *Title:* " + title + "\n" + "• *Starts:* " + formattedStart + "\n" + "• *Ends:* " + formattedEnd + "\n" + "• 🔁 *Reschedule:* [Click here to reschedule](" + rescheduleUrl + ")\n" + "• ❌ *Cancel:* [Click here to cancel](" + cancelUrl + ")\n\n";
+			cardText = "";
+			cardText = cardText + "*Appointment #" + count + "*\n\n";
+			cardText = cardText + "• *Title:* " + title + "\n";
+			if(formattedStart != null && formattedStart != "")
+			{
+				cardText = cardText + "• *Starts:* **" + formattedStart + "**\n";
+			}
+			if(formattedEnd != null && formattedEnd != "")
+			{
+				cardText = cardText + "• *Ends:* **" + formattedEnd + "**\n";
+			}
+			linksList = List();
+			readMap = Map();
+			readMap.put("url",rescheduleUrl);
+			readMap.put("text","Reschedule");
+			linksList.add(readMap);
+			cancelMap = Map();
+			cancelMap.put("url",cancelUrl);
+			cancelMap.put("text","Cancel");
+			linksList.add(cancelMap);
+			card = Map();
+			card.put("type","links");
+			card.put("text",cardText);
+			card.put("image",staticImage);
+			card.put("image_position","fit");
+			card.put("links",linksList);
+			cards.add(card);
+			count = count + 1;
+		}
+		response.put("action","context");
+		response.put("context_id","consult_verify_otp");
+		q = Map();
+		q.put("name","sched_otp");
+		q.put("replies",cards);
+		sugs = List();
+		sugs.add("Refresh");
+		sugs.add("Main Menu");
+		q.put("suggestions",sugs);
+		response.put("questions",{q});
+		return response;
+	}
+	else
+	{
+		try 
+		{
+			tmpc = Map();
+			tmpc.put("consult_otp_session","");
+			zoho.salesiq.visitorsession.set(portalId,tmpc);
+		}
+		catch (e)
+		{
+		}
+		// build readable failure message (do concatenation outside of inline literal)
+		failReason = "";
+		try 
+		{
+			if(reason != null && reason != "")
+			{
+				failReason = " Reason: " + reason;
+			}
+		}
+		catch (e)
+		{
+			failReason = "";
+		}
+		replyMsg = "❌ OTP verification failed!" + failReason + "\nNo worries — please re-enter your phone number to request a new OTP.";
+		response.put("action","context");
+		response.put("context_id","my_appointments_phone_collect");
+		q = Map();
+		q.put("name","sched_phone");
+		q.put("replies",{replyMsg});
+		q.put("input",{"type":"name","placeholder":"9198xxxxxxxx"});
+		q.put("suggestions",{"Try Again","Main Menu"});
+		response.put("questions",{q});
 		return response;
 	}
 }
@@ -2902,162 +4617,11 @@ if(context_id != null && context_id.equals("consult_schedule_name"))
 	q = Map();
 	q.put("name","consultopt");
 	q.put("replies",{card});
-	q.put("suggestions",{"Main Menu"});
+	q.put("suggestions",{"Main Menu","Back"});
 	response.put("action","context");
 	response.put("context_id","consultopt");
 	response.put("questions",{q});
 	return response;
-}
-//---------------------------------------------------------------------------------------
-if(context_id.equals("dietaryopt"))
-{
-	ans = answers.get("customizeOrNot").get("text");
-	if(ans.containsIgnoreCase("lets proceed"))
-	{
-		response.put("action","context");
-		response.put("context_id","pickage");
-		question = {"name":"disorder","replies":{"Let me know what bothers you ?"},"input":{"type":"multiple-select","options":{"Diabetes","Obesity","Heart Problems"},"max_selection":"1"}};
-		response.put("questions",{question});
-		return response;
-	}
-	else if(ans.containsIgnoreCase("Main Menu"))
-	{
-		response.put("action","context");
-		response.put("context_id","mainmenu");
-		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to MedKit 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"🧠 Mind Check","Health Hub 🩺","Care Assistant 😊","ProcureX 🛒","💬 Motivational Boost","🏋️ FitZone","🤝 Consult an Expert","Dietrix 🥗","🎮 Play Games","📞 Help Desk"}};
-		response.put("questions",{question});
-		return response;
-	}
-	else if(ans.containsIgnoreCase("Meal Plan"))
-	{
-		response.put("action","context");
-		response.put("context_id","mealplan_calories");
-		question = {"name":"calories","replies":{"🔥 Great! How many calories should the meal plan be? (Eg: 1800)"},"input":{"type":"name","placeholder":"Eg. 1800","value":"","error":{"⚠️ Enter a valid calorie value"}}};
-		response.put("questions",{question});
-		return response;
-	}
-	else
-	{
-		response.put("action","context");
-		response.put("context_id","main menu");
-		question = {"name":"done","replies":{"It was nice chatting with you 😊 Have a wonderful day! 👋"},"suggestions":{"Main Menu"}};
-		response.put("questions",{question});
-		return response;
-	}
-}
-if(context_id.equals("pickage"))
-{
-	ans = answers.get("disorder").get("text");
-	if(ans.containsIgnoreCase("Diabetes"))
-	{
-		response.put("action","context");
-		response.put("context_id","diabetesopt");
-		question = {"name":"select1","replies":{{"text":"I'm here to support you with care. How would you like to continue?"}},"suggestions":{"Suggest me some remedies"}};
-		response.put("questions",{question});
-		return response;
-	}
-	else if(ans.containsIgnoreCase("Obesity"))
-	{
-		response.put("action","context");
-		response.put("context_id","obesityopt");
-		question = {"name":"select2","replies":{{"text":"I'm here to support you with care. How would you like to continue?"}},"suggestions":{"Suggest me some remedies"}};
-		response.put("questions",{question});
-		return response;
-	}
-	else if(ans.containsIgnoreCase("Heart Problems"))
-	{
-		response.put("action","context");
-		response.put("context_id","heartproblemopt");
-		question = {"name":"select3","replies":{{"text":"I'm here to support you with care. How would you like to continue?"}},"suggestions":{"Suggest me some remedies"}};
-		response.put("questions",{question});
-		return response;
-	}
-	else
-	{
-		response.put("action","context");
-		response.put("context_id","main menu");
-		question = {"name":"done","replies":{"It was nice chatting with you 😊 Have a wonderful day! 👋"},"suggestions":{"Thank You"}};
-		response.put("questions",{question});
-		return response;
-	}
-}
-if(context_id.equals("diabetesopt"))
-{
-	ans = answers.get("select1").get("text");
-	if(ans.containsIgnoreCase("Suggest me some remedies"))
-	{
-		response.put("action","reply");
-		response.put("replies",{"Here are some Diabetes remedies:","🥗 Eat more fiber","🚶‍♂️ Walk 30 mins daily","💧 Drink enough water","🧘 Manage stress levels"});
-		response.put("suggestions",{"Thank You"});
-		return response;
-	}
-}
-if(context_id.equals("obesityopt"))
-{
-	ans = answers.get("select2").get("text");
-	if(ans.containsIgnoreCase("Suggest me some remedies"))
-	{
-		response.put("action","reply");
-		response.put("replies",{"Here are some Obesity remedies:","🥗 Maintain calorie deficit","🚴 Exercise 45 mins/day","🚰 Drink water before meals","🌙 Sleep 7-8 hours"});
-		response.put("suggestions",{"Thank You"});
-		return response;
-	}
-}
-if(context_id.equals("heartproblemopt"))
-{
-	ans = answers.get("select3").get("text");
-	if(ans.containsIgnoreCase("Suggest me some remedies"))
-	{
-		response.put("action","reply");
-		response.put("replies",{"Heart care remedies:","❤️ Reduce salt intake","🫒 Use healthy fats","🚶 Walk regularly","🌿 Include omega-3 rich foods"});
-		response.put("suggestions",{"Thank You"});
-		return response;
-	}
-}
-if(context_id.equals("mealplan_calories"))
-{
-	calories = ifnull(answers.get("calories").get("text"),"");
-	calories = calories.trim();
-	if(calories == "")
-	{
-		response.put("action","context");
-		response.put("context_id","mealplan_calories");
-		question = {"name":"calories","replies":{"Please enter a valid calorie goal (e.g., 1500)."},"input":{"type":"number","placeholder":"Eg. 1500","value":"","error":{"Enter a valid number"}}};
-		response.put("questions",{question});
-		return response;
-	}
-	url = "https://api.spoonacular.com/mealplanner/generate?timeFrame=day&targetCalories=" + calories;
-	try 
-	{
-		mealResponse = invokeurl
-		[
-			url :url
-			type :GET
-			connection:"spoonacular_meal"
-		];
-		meals = mealResponse.get("meals");
-		if(meals == null || meals.size() < 3)
-		{
-			response.put("action","reply");
-			response.put("replies",{"⚠️ Unable to generate a meal plan right now.","Please try again in a moment."});
-			response.put("suggestions",{"Thank You"});
-			return response;
-		}
-		breakfast = meals.get(0).get("title");
-		lunch = meals.get(1).get("title");
-		dinner = meals.get(2).get("title");
-		response.put("action","reply");
-		response.put("replies",{"✨ Your personalised *" + calories + " Calorie* Meal Plan","🍳 *Breakfast*: " + breakfast,"🥗 *Lunch*: " + lunch,"🍽️ *Dinner*: " + dinner});
-		response.put("suggestions",{"Thank You"});
-		return response;
-	}
-	catch (apiError)
-	{
-		response.put("action","reply");
-		response.put("replies",{"⚠️ Could not generate meal plan due to a connection issue.","Please try again after some time."});
-		response.put("suggestions",{"Try Again","Main Menu"});
-		return response;
-	}
 }
 if(context_id != null && context_id.equals("game_flow"))
 {
@@ -3070,7 +4634,7 @@ if(context_id != null && context_id.equals("game_flow"))
 	{
 		response.put("action","context");
 		response.put("context_id","mainmenu");
-		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to MedKit 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"🧠 Mind Check","Health Hub 🩺","Care Assistant 😊","ProcureX 🛒","💬 Motivational Boost","🏋️ FitZone","🤝 Consult an Expert","Dietrix 🥗","🎮 Play Games","📞 Help Desk"}};
+		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to **MedKit** 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"MedKit Wellness Hub 🌿","🏋️ FitZone","ProcureX 🛒","💬 Motivational Boost","🤝 Consult an Expert","📞 Help Desk"}};
 		response.put("questions",{question});
 		return response;
 	}
@@ -3078,7 +4642,7 @@ if(context_id != null && context_id.equals("game_flow"))
 	{
 		response.put("action","context");
 		response.put("context_id","game_flow");
-		q = {"name":"game_name","replies":{"Please enter a game name 🎮","Eg: subway surf, temple run"},"input":{"type":"name","placeholder":"Eg. Subway Surfers"},"suggestions":{"Subway Surfers","Temple Run","Moto X3M","Main Menu"}};
+		q = {"name":"game_name","replies":{"Please enter a game name 🎮","**Eg: subway surf, temple run**"},"input":{"type":"name","placeholder":"Eg. Subway Surfers"},"suggestions":{"Subway Surfers","Temple Run","Moto X3M","Main Menu"}};
 		response.put("questions",{q});
 		return response;
 	}
@@ -3116,7 +4680,7 @@ if(context_id != null && context_id.equals("game_confirm"))
 	{
 		response.put("action","context");
 		response.put("context_id","mainmenu");
-		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to MedKit 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"🧠 Mind Check","Health Hub 🩺","Care Assistant 😊","ProcureX 🛒","💬 Motivational Boost","🏋️ FitZone","🤝 Consult an Expert","Dietrix 🥗","🎮 Play Games","📞 Help Desk"}};
+		question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to **MedKit** 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"MedKit Wellness Hub 🌿","🏋️ FitZone","ProcureX 🛒","💬 Motivational Boost","🤝 Consult an Expert","📞 Help Desk"}};
 		response.put("questions",{question});
 		return response;
 	}
@@ -3140,15 +4704,28 @@ if(context_id != null && context_id.equals("game_confirm"))
 		slug = gameKey.replaceAll(" ","-");
 	}
 	pokiUrl = "https://poki.com/en/g/" + slug;
+	pokiCollage = "https://wooden-copper-ysi2rzqaqi-fmkt3qeo0j.edgeone.dev/POKI%20GAMES.png";
+	playIcon = "https://cdn-icons-png.flaticon.com/512/64/64595.png";
+	linksList = List();
+	playMap = Map();
+	playMap.put("url",pokiUrl);
+	playMap.put("text","Play the Game");
+	// visible label under the image
+	playMap.put("icon",playIcon);
+	linksList.add(playMap);
+	card = Map();
+	card.put("type","links");
+	card.put("text",gameName + " — Play now on Poki.");
+	card.put("image",pokiCollage);
+	card.put("image_position","fit");
+	card.put("links",linksList);
+	cards = List();
+	cards.add(card);
 	response.put("action","context");
 	response.put("context_id","game_flow");
 	q = Map();
 	q.put("name","game_name");
-	replyList = List();
-	replyList.add("Here you go! 🎮  Play *" + gameName + "* here:");
-	replyList.add(pokiUrl);
-	replyList.add("Type another game name or choose an option below.");
-	q.put("replies",replyList);
+	q.put("replies",cards);
 	q.put("suggestions",{"Play Another","Main Menu"});
 	response.put("questions",{q});
 	return response;
@@ -3176,28 +4753,12 @@ if(context_id != null && context_id.equals("mainmenu"))
 			}
 		}
 	}
-	if(ans_lower.equalsIgnoreCase("🧠 mind check") || ans_lower.equalsIgnoreCase("mind check"))
-	{
-		response.put("action","context");
-		response.put("context_id","mindcheck_menu");
-		question = {"name":"mind_option","replies":{"Let's explore your Mind Wellness 😊","What do you want to do?"},"suggestions":{"Mood Check","Daily Affirmations","Journaling Prompts","Main Menu"}};
-		response.put("questions",{question});
-		return response;
-	}
-	else if(ans_lower.equalsIgnoreCase("health hub 🩺") || ans_lower.equalsIgnoreCase("health hub"))
-	{
-		response.put("action","context");
-		response.put("context_id","health_hub");
-		question = {"name":"health_hub","replies":{"Welcome to **Health Hub** 🩺! Choose an option:"},"suggestions":{"🔍 Search Hospitals","Tablet Info 💊","📞 Emergency Contacts","Main Menu"}};
-		response.put("questions",{question});
-		return response;
-	}
-	else if(ans_lower.equalsIgnoreCase("Care Assistant 😊") || ans_lower.equalsIgnoreCase("Care Assistant"))
+	if(ans_lower.equalsIgnoreCase("MedKit Wellness Hub 🌿") || ans_lower.equalsIgnoreCase("MedKit Wellness Hub"))
 	{
 		response = Map();
 		response.put("action","context");
 		response.put("context_id","care_main");
-		q = {"name":"care_main","replies":{"🩺 Welcome to *MedKit Care Assistant*!"},"suggestions":{"Child Care 👶","Skin & Hair Care 💆‍♀️✨","Weather Care 😷","Health News 📰","Main Menu"}};
+		q = {"name":"care_main","replies":{"🩺 Welcome to *MedKit Wellness Hub*!"},"suggestions":{"Child Care 👶","Glow Care ✨","Health Care 🩺","🧠 Mind Care","Weather Care 😷","Main Menu"}};
 		response.put("questions",{q});
 		return response;
 	}
@@ -3205,7 +4766,7 @@ if(context_id != null && context_id.equals("mainmenu"))
 	{
 		response.put("action","context");
 		response.put("context_id","procurex");
-		question = {"name":"procurex","replies":{"Welcome to **ProcureX 🛒!** Choose an option:"},"suggestions":{"MedKit Products 🛒","About Purchasing","Main Menu"}};
+		question = {"name":"procurex","replies":{"Welcome to ProcureX 🛒 — explore our **MedKit Premium Products 🛍️** below:"},"suggestions":{"🛍️ MedKit Products","ℹ️ About Purchasing","Main Menu"}};
 		response.put("questions",{question});
 		return response;
 	}
@@ -3213,7 +4774,7 @@ if(context_id != null && context_id.equals("mainmenu"))
 	{
 		response.put("action","context");
 		response.put("context_id","depressedopt");
-		question = {"name":"depressedOpt","replies":{"🥺🥺 Don't worry, your assistant is here to change your mood🤗"},"suggestions":{"Grab me some Books","Spotify","Motivate me","Make me laugh","MedTube","Tell me a story","Show me a meme","Main Menu"}};
+		question = {"name":"depressedOpt","replies":{"😊 Don’t worry, your assistant is right here to lift you up 🤗"},"suggestions":{"Grab me some Books 📚","Spotify 🎵","Motivate me 💪","Make me laugh 😂","MedTube 🎥","Show me a meme 🖼️","Tell me a story 📖","Play Games 🎮","Main Menu"}};
 		response.put("questions",{question});
 		return response;
 	}
@@ -3221,15 +4782,7 @@ if(context_id != null && context_id.equals("mainmenu"))
 	{
 		response.put("action","context");
 		response.put("context_id","fitnessopt");
-		question = {"name":"getFitnessOpt","replies":{"Welcome to **FitZone!** Being healthy and fit isn't a fad or a trend—it's a lifestyle 💪🏻"},"suggestions":{"Pregnancy Zone🤰","Yoga 🧘","Exercise 🏋️","Wellness Meetup","Main Menu"}};
-		response.put("questions",{question});
-		return response;
-	}
-	else if(ans_lower.equalsIgnoreCase("Dietrix 🥗"))
-	{
-		response.put("action","context");
-		response.put("context_id","dietaryopt");
-		question = {"name":"customizeOrNot","replies":{"When diet is wrong, Medicine is of no use.","When diet is correct, Medicine is of no need !!✨"},"suggestions":{"Lets Proceed","Meal Plan","Main menu"}};
+		question = {"name":"getFitnessOpt","replies":{"Welcome to **FitZone!** Being healthy and fit isn't a fad or a trend—it's a lifestyle 💪🏻"},"suggestions":{"Pregnancy Zone🤰","Dietrix 🥗","Yoga 🧘","Exercise 🏋️","Wellness Meetup 🌿","Main Menu"}};
 		response.put("questions",{question});
 		return response;
 	}
@@ -3237,23 +4790,15 @@ if(context_id != null && context_id.equals("mainmenu"))
 	{
 		response.put("action","context");
 		response.put("context_id","consultopt");
-		question = {"name":"consultopt","replies":{"😁 You're at **MedKit** Expert Help."},"suggestions":{"Doctors info","Make an Appointment","About Appointments","Main Menu"}};
+		question = {"name":"consultopt","replies":{"😁 Welcome to **MedKit Expert Help!**"},"suggestions":{"ℹ️ About","📅 Make an Appointment","📘 My Appointments","Main Menu"}};
 		response.put("questions",{question});
-		return response;
-	}
-	else if(ans_lower.equalsIgnoreCase("🎮 Play Games") || ans_lower.equalsIgnoreCase("Play Games"))
-	{
-		response.put("action","context");
-		response.put("context_id","game_flow");
-		q = {"name":"game_name","replies":{"🎮 Tell me the game you want to play","Eg: subway surf, temple run, shooting..."},"input":{"type":"name","placeholder":"Eg. Subway Surf"},"suggestions":{"Subway Surf","Temple Run","Shooting","Horror","Main Menu"}};
-		response.put("questions",{q});
 		return response;
 	}
 	else if(ans_lower.equalsIgnoreCase("📞 help desk") || ans_lower.equalsIgnoreCase("help desk"))
 	{
 		response.put("action","context");
 		response.put("context_id","help");
-		helpText = "📞 *HELP DESK – MEDKIT ASSISTANT*\n\n🤖 *About MedKit*\nMedKit is your all-in-one smart healthcare assistant built to support your *health*, *mind*, *fitness*, *productivity*, and *daily wellness* in one place.\n\n✨ *What MedKit Can Do (Use-Cases):*\n• 🧠 *Mind Check* – Helps you understand and manage your current mood.\n• 🩺 *Health Hub* – Provides hospital search and emergency contact options.\n• 🤗 *Care Assistant* – Offers child care, skin care, weather care, and health news.\n• 🛒 *ProcureX* – Lets you explore nutrition foods and fitness gadgets.\n• 💬 *Motivational Boost* – Lifts your mood with quotes, jokes, stories, and more.\n• 🥗 *Dietrix* – Suggests healthy diet tips to improve your daily lifestyle.\n• 🏋️ *FitZone* – Offers workout, yoga, and exercise recommendations.\n• 🤝 *Consult an Expert* – Assists you in consulting or booking with experts.\n• 🎮 *Play Games* – Lets you enjoy mini-games for relaxation and fun.\n\n👥 *Team Behind MedKit*\n\n• 👨‍💻 *Mohamed Silar M*\n  📧 Email: *mohamedsilar26@gmail.com*\n• 👩‍💻 *Shanmuga Priya AR*\n  📧 Email: *shanmugapriyaar0@gmail.com*\n\n💡 *For instant support, simply continue using our bot — I'm always here to assist you!* 😊";
+		helpText = "📞 *HELP DESK – MEDKIT ASSISTANT*\n\n🤖 *About MedKit*\nMedKit is your all-in-one smart healthcare assistant built to support your *health*, *mind*, *fitness*, *productivity*, and *daily wellness* in one place.\n\n✨ *What MedKit Can Do (Use-Cases):*\n• 🧠 *Mind Care* – Helps you understand and manage your current mood.\n• 🩺 *Health Care* – Provides hospital search and emergency contact options and health news.\n• 🤗 *Care Assistant* – Offers child care, skin care, weather care.\n• 🛒 *ProcureX* – Lets you explore nutrition foods and fitness gadgets.\n• 💬 *Motivational Boost* – Lifts your mood with quotes, jokes, stories, and more.\n• 🥗 *Dietrix* – Suggests healthy diet tips to improve your daily lifestyle.\n• 🏋️ *FitZone* – Offers workout, yoga, and exercise recommendations.\n• 🤝 *Consult an Expert* – Assists you in consulting or booking with experts.\n•*Team Behind MedKit*\n\n• 👨‍💻 *Mohamed Silar M*\n  📧 Email: *mohamedsilar26@gmail.com*\n• 👩‍💻 *Shanmuga Priya AR*\n  📧 Email: *shanmugapriyaar0@gmail.com*\n\n💡 *For instant support, simply continue using our bot — I'm always here to assist you!* 😊";
 		question = {"name":"helpSugg","replies":{helpText},"suggestions":{"Main Menu"}};
 		response.put("questions",{question});
 		return response;
@@ -3262,15 +4807,13 @@ if(context_id != null && context_id.equals("mainmenu"))
 	{
 		response.put("action","context");
 		response.put("context_id","main menu");
-		question = {"name":"done","replies":{"Will you rate me out of 5 👉👈"},"input":{"type":"star-rating","level":"5"},"suggestions":{"Main Menu"}};
+		question = {"name":"done","replies":{"**Will you rate me out of 5 ⭐**"},"input":{"type":"star-rating","level":"5"},"suggestions":{"Main Menu"}};
 		response.put("questions",{question});
 		return response;
 	}
 }
 response.put("action","context");
 response.put("context_id","mainmenu");
-question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to **MedKit 🩺!** I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"🧠 Mind Check","Health Hub 🩺","Care Assistant 😊","ProcureX 🛒","💬 Motivational Boost","🏋️ FitZone","🤝 Consult an Expert","Dietrix 🥗","🎮 Play Games","📞 Help Desk"}};
+question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to **MedKit** 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"MedKit Wellness Hub 🌿","🏋️ FitZone","ProcureX 🛒","💬 Motivational Boost","🤝 Consult an Expert","📞 Help Desk"}};
 response.put("questions",{question});
 return response;
-
-
