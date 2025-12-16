@@ -8,11 +8,8 @@
 
 ## Team & Institution
 - **Team Name:** TryCatchUs  
-- **Bot Name:** MedKit  
-- **Institution:** Velammal College of Engineering and Technology, Madurai  
-- **Department:** Information Technology  
-- **Year:** Final Year  
-
+- **Bot Name:** MedKit
+- 
 **Team Members:**  
 - **Mohamed Silar M** – Backend, APIs, Zoho SalesIQ, System Logic  
 - **Shanmuga Priya AR** – UI/UX, Flow Design, User Experience  
