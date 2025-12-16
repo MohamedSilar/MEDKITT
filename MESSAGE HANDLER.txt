@@ -1,6 +1,6 @@
 response = Map();
 msg = message.get("text");
-main_menu_options = {"🧠 Mind Check","Health Hub 🩺","Care Assistant 😊","ProcureX 🛒","💬 Motivational Boost","Dietrix 🥗","🤝 Consult an Expert","🏋️ FitZone","🎮 Play Games","📞 Help Desk"};
+main_menu_options = {"MedKit Wellness Hub 🌿","🏋️ FitZone","ProcureX 🛒","💬 Motivational Boost","🤝 Consult an Expert","📞 Help Desk"};
 if(operation.equals("chat"))
 {
 	if(!main_menu_options.contains(msg))
@@ -12,42 +12,19 @@ if(operation.equals("chat"))
 		return response;
 	}
 }
-if(msg.equalsIgnoreCase("🧠 Mind Check"))
-{
-	response.put("action","context");
-	response.put("context_id","mindcheck_menu");
-	question = {"name":"mind_option","replies":{"Let's explore your Mind Wellness 😊"},"suggestions":{"Mood Check","Daily Affirmations","Journaling Prompts","Main Menu"}};
-	response.put("questions",{question});
-}
-else if(msg.equalsIgnoreCase("Health Hub 🩺"))
-{
-	response.put("action","context");
-	response.put("context_id","health_hub");
-	question = {"name":"health_hub","replies":{"Welcome to **Health Hub** 🩺! Choose an option:"},"suggestions":{"🔍 Search Hospitals","Tablet Info 💊","📞 Emergency Contacts","Main Menu"}};
-	response.put("questions",{question});
-}
-else if(msg.equalsIgnoreCase("Care Assistant 😊"))
+if(msg.equalsIgnoreCase("MedKit Wellness Hub 🌿"))
 {
 	response = Map();
 	response.put("action","context");
 	response.put("context_id","care_main");
-	q = {"name":"care_main","replies":{"🩺 Welcome to *MedKit Care Assistant*!"},"suggestions":{"Child Care 👶","Skin & Hair Care 💆‍♀️✨","Weather Care 😷","Health News 📰","Main Menu"}};
+	q = {"name":"care_main","replies":{"🩺 Welcome to *MedKit Care Assistant*!"},"suggestions":{"Child Care 👶","Glow Care ✨","Health Care 🩺","🧠 Mind Care","Weather Care 😷","Main Menu"}};
 	response.put("questions",{q});
 }
-//---ProcureX---
 else if(msg.equalsIgnoreCase("ProcureX 🛒"))
 {
 	response.put("action","context");
 	response.put("context_id","procurex");
-	question = {"name":"procurex","replies":{"Welcome to **ProcureX** 🛒! Choose an option:"},"suggestions":{"MedKit Products 🛒","About Purchasing","Main Menu"}};
-	response.put("questions",{question});
-}
-// --- Dietrix ---
-else if(msg.equalsIgnoreCase("Dietrix 🥗"))
-{
-	response.put("action","context");
-	response.put("context_id","dietaryopt");
-	question = {"name":"customizeOrNot","replies":{"When diet is wrong, Medicine is of no use.","When diet is correct, Medicine is of no need !!✨"},"suggestions":{"Lets Proceed","Meal Plan","Main menu"}};
+	question = {"name":"procurex","replies":{"Welcome to ProcureX 🛒 — explore our **MedKit Premium Products 🛍️** below:"},"suggestions":{"🛍️ MedKit Products","ℹ️ About Purchasing","Main Menu"}};
 	response.put("questions",{question});
 }
 //--- FitZone ---
@@ -55,7 +32,7 @@ else if(msg.equalsIgnoreCase("🏋️ FitZone"))
 {
 	response.put("action","context");
 	response.put("context_id","fitnessopt");
-	question = {"name":"getFitnessOpt","replies":{"Welcome to **FitZone!** Being healthy and fit isn't a fad or a trend—it's a lifestyle 💪🏻"},"suggestions":{"Pregnancy Zone🤰","Yoga 🧘","Exercise 🏋️","Wellness Meetup","Main Menu"}};
+	question = {"name":"getFitnessOpt","replies":{"Welcome to **FitZone!** Being healthy and fit isn't a fad or a trend—it's a lifestyle 💪🏻"},"suggestions":{"Pregnancy Zone🤰","Dietrix 🥗","Yoga 🧘","Exercise 🏋️","Wellness Meetup 🌿","Main Menu"}};
 	response.put("questions",{question});
 }
 // --- Consult an Expert ---
@@ -63,31 +40,21 @@ else if(msg.equalsIgnoreCase("🤝 Consult an Expert"))
 {
 	response.put("action","context");
 	response.put("context_id","consultopt");
-	question = {"name":"consultopt","replies":{"**😁 You're at MedKit Expert Help.**"},"suggestions":{"Doctors info","Make an Appointment","About Appointments","Main Menu"}};
+	question = {"name":"consultopt","replies":{"😁 Welcome to **MedKit Expert Help!**"},"suggestions":{"ℹ️ About","📅 Make an Appointment","📘 My Appointments","Main Menu"}};
 	response.put("questions",{question});
 }
-// --- Motivational Boost ---
 else if(msg.equalsIgnoreCase("💬 Motivational Boost"))
 {
 	response.put("action","context");
 	response.put("context_id","depressedopt");
-	question = {"name":"depressedOpt","replies":{"**😊 Don’t worry, your assistant is right here to lift you up🤗**"},"suggestions":{"Grab me some Books","Spotify","Motivate me","Make me laugh","MedTube","Tell me a story","Show me a meme","Main Menu"}};
+	question = {"name":"depressedOpt","replies":{"😊 Don’t worry, your assistant is right here to lift you up 🤗"},"suggestions":{"Grab me some Books 📚","Spotify 🎵","Motivate me 💪","Make me laugh 😂","MedTube 🎥","Show me a meme 🖼️","Tell me a story 📖","Play Games 🎮","Main Menu"}};
 	response.put("questions",{question});
 }
-// --- Play Games ---
-else if(msg.equalsIgnoreCase("🎮 Play Games") || msg.equalsIgnoreCase("Play Games"))
-{
-	response.put("action","context");
-	response.put("context_id","game_flow");
-	q = {"name":"game_name","replies":{"🎮 Tell me the game you want to play","Eg: subway surf, temple run, shooting..."},"input":{"type":"name","placeholder":"Eg. Subway Surf"},"suggestions":{"Subway Surf","Temple Run","Shooting","Horror","Main Menu"}};
-	response.put("questions",{q});
-}
-// --- Help Desk ---
 else if(msg.equalsIgnoreCase("📞 Help Desk"))
 {
 	response.put("action","context");
 	response.put("context_id","help");
-	helpText = "📞 *HELP DESK – MEDKIT ASSISTANT*\n\n🤖 *About MedKit*\nMedKit is your all-in-one smart healthcare assistant built to support your *health*, *mind*, *fitness*, *productivity*, and *daily wellness* in one place.\n\n✨ *What MedKit Can Do (Use-Cases):*\n• 🧠 *Mind Check* – Helps you understand and manage your current mood.\n• 🩺 *Health Hub* – Provides hospital search and emergency contact options.\n• 🤗 *Care Assistant* – Offers child care, skin care, weather care, and health news.\n• 🛒 *ProcureX* – Lets you explore nutrition foods and fitness gadgets.\n• 💬 *Motivational Boost* – Lifts your mood with quotes, jokes, stories, and more.\n• 🥗 *Dietrix* – Suggests healthy diet tips to improve your daily lifestyle.\n• 🏋️ *FitZone* – Offers workout, yoga, and exercise recommendations.\n• 🤝 *Consult an Expert* – Assists you in consulting or booking with experts.\n• 🎮 *Play Games* – Lets you enjoy mini-games for relaxation and fun.\n\n👥 *Team Behind MedKit*\n\n• 👨‍💻 *Mohamed Silar M*\n  📧 Email: *mohamedsilar26@gmail.com*\n• 👩‍💻 *Shanmuga Priya AR*\n  📧 Email: *shanmugapriyaar0@gmail.com*\n\n💡 *For instant support, simply continue using our bot — I'm always here to assist you!* 😊";
+	helpText = "📞 *HELP DESK – MEDKIT ASSISTANT*\n\n🤖 *About MedKit*\nMedKit is your all-in-one smart healthcare assistant built to support your *health*, *mind*, *fitness*, *productivity*, and *daily wellness* in one place.\n\n✨ *What MedKit Can Do (Use-Cases):*\n• 🧠 *Mind Check* – Helps you understand and manage your current mood.\n• 🩺 *Health Hub* – Provides hospital search and emergency contact options.\n• 🤗 *Care Assistant* – Offers child care, skin care, weather care, and health news.\n• 🛒 *ProcureX* – Lets you explore nutrition foods and fitness gadgets.\n• 💬 *Motivational Boost* – Lifts your mood with quotes, jokes, stories, and more.\n• 🥗 *Dietrix* – Suggests healthy diet tips to improve your daily lifestyle.\n• 🏋️ *FitZone* – Offers workout, yoga, and exercise recommendations.\n• 🤝 *Consult an Expert* – Assists you in consulting or booking with experts.\n• *Team Behind MedKit*\n\n• 👨‍💻 *Mohamed Silar M*\n  📧 Email: *mohamedsilar26@gmail.com*\n• 👩‍💻 *Shanmuga Priya AR*\n  📧 Email: *shanmugapriyaar0@gmail.com*\n\n💡 *For instant support, simply continue using our bot — I'm always here to assist you!* 😊";
 	question = {"name":"helpSugg","replies":{helpText},"suggestions":{"Main Menu"}};
 	response.put("questions",{question});
 }
@@ -95,10 +62,9 @@ else if(msg.equalsIgnoreCase("📞 Help Desk"))
 else
 {
 	response.put("action","context");
-	response.put("context_id","main menu");
-	question = {"name":"done","replies":{"**Will you rate me out of 5 ⭐**"},"input":{"type":"star-rating","level":"5"},"suggestions":{"Main Menu"}};
+	response.put("context_id","mainmenu");
+	question = {"name":"select","replies":{"Hey buddy 🙋‍♂️ Welcome to **MedKit** 🩺! I'm here to guide you. Tell me what you'd like to do!"},"suggestions":{"MedKit Wellness Hub 🌿","🏋️ FitZone","ProcureX 🛒","💬 Motivational Boost","🤝 Consult an Expert","📞 Help Desk"}};
 	response.put("questions",{question});
 	return response;
 }
 return response;
-
